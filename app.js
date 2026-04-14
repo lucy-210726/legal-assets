@@ -622,7 +622,7 @@ showPage('home');
 }
 
 function filterCompany(company,e){ currentCompany=company; document.querySelectorAll('.company-tab').forEach(function(t){t.classList.remove('active');}); if(e&&e.target) e.target.classList.add('active'); renderContractGrid(); }
-function renderContractGrid(){document.getElementById('contract-grid').innerHTML=CONTRACTS.filter(function(c){return c.company===currentCompany;}).map(function(c){var btns = '';if (c.templateId || c.downloadId) {btns = '<div style="display:flex;gap:8px;margin-top:14px;">';if (c.templateId) btns += '<button class="btn-sm" onclick="event.stopPropagation();previewTemplate(\''+c.templateId+'\',\''+esc(c.name)+'\')">양식 미리보기</button>';
+function renderContractGrid(){document.getElementById('contract-grid').innerHTML=CONTRACTS.filter(function(c){return c.company===currentCompany;}).map(function(c){var btns = '';if (c.templateId || c.downloadId) {btns = '<div class="card-btns" style="gap:8px;margin-top:14px;">';if (c.templateId) btns += '<button class="btn-sm" onclick="event.stopPropagation();previewTemplate(\''+c.templateId+'\',\''+esc(c.name)+'\')">양식 미리보기</button>';
 if (c.downloadId) btns += '<button class="btn-sm" onclick="event.stopPropagation();downloadTemplate(\''+c.downloadId+'\',\''+esc(c.name)+'\')">양식 다운로드</button>';btns += '</div>';}return '<div class="contract-type-card" onclick="selectContractType(\''+c.id+'\')"><span class="tag '+c.company.toLowerCase()+'">'+c.company+'</span><h4>'+c.name+'</h4><p>'+c.desc+'</p>'+btns+'</div>';}).join('');}
 function previewTemplate(templateId, name) {
 document.getElementById('ref-modal-title').textContent = name + ' 미리보기';
