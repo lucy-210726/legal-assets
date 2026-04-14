@@ -868,8 +868,7 @@ var revTypeLabel = r.contractType === 'nonstandard' ? '비표준' : '표준';
 var partyLabel = r.contractParty || '—';
 return '<tr><td style="font-weight:600;text-align:center;">' + esc(r.requesterName) + '</td>' +
 '<td style="font-size:0.78rem;text-align:center;white-space:nowrap;"><span class="party-badge ' + partyClass(partyLabel) + '">' + esc(partyLabel) + '</span></td>' +
-'<td style="font-size:0.78rem;text-align:center;white-space:nowrap;"><span style="padding:2px 8px;border-radius:10px;
-font-weight:700;font-size:0.68rem;' + (r.contractType==='nonstandard' ? 'background:#fef3e8;color:#c0622b;' : 'background:#e8f0fb;color:#2c5fad;') + '">' + revTypeLabel + '</span></td>' +
+'<td style="font-size:0.78rem;text-align:center;white-space:nowrap;"><span style="padding:2px 8px;border-radius:10px;font-weight:700;font-size:0.68rem;' + (r.contractType==='nonstandard' ? 'background:#fef3e8;color:#c0622b;' : 'background:#e8f0fb;color:#2c5fad;') + '">' + revTypeLabel + '</span></td>' +
 '<td class="col-name">' + esc(r.contractName) + '</td>' +
 '<td class="hide-mobile" style="font-size:0.78rem;color:var(--text-muted);white-space:nowrap;text-align:center;">' + fmtDateShort(r.requestDate) + '</td>' +
 '<td style="text-align:center;"><span class="rev-status-badge ' + bc + '">' + esc(r.status||'검토대기') + '</span></td>' +
