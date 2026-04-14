@@ -622,7 +622,23 @@ showPage('home');
 }
 
 function filterCompany(company,e){ currentCompany=company; document.querySelectorAll('.company-tab').forEach(function(t){t.classList.remove('active');}); if(e&&e.target) e.target.classList.add('active'); renderContractGrid(); }
-function renderContractGrid(){ document.getElementById('contract-grid').innerHTML=CONTRACTS.filter(function(c){return c.company===currentCompany;}).map(function(c){return '<div class="contract-type-card" onclick="selectContractType(\''+c.id+'\')"><span class="tag '+c.company.toLowerCase()+'">'+c.company+'</span><h4>'+c.name+'</h4><p>'+c.desc+'</p></div>';}).join(''); }
+function renderContractGrid(){document.getElementById('contract-grid').innerHTML=CONTRACTS.filter(function(c){return c.company===currentCompany;}).map(function(c){var btns = '';if (c.templateId || c.downloadId) {btns = '<div style="display:flex;gap:8px;margin-top:14px;">';if (c.templateId) btns += '<button class="btn-sm" onclick="event.stopPropagation();previewTemplate(\''+c.templateId+'\',\''+esc(c.name)+'\')">양식 미리보기</button>';
+if (c.downloadId) btns += '<button class="btn-sm" onclick="event.stopPropagation();downloadTemplate(\''+c.downloadId+'\',\''+esc(c.name)+'\')">양식 다운로드</button>';btns += '</div>';}return '<div class="contract-type-card" onclick="selectContractType(\''+c.id+'\')"><span class="tag '+c.company.toLowerCase()+'">'+c.company+'</span><h4>'+c.name+'</h4><p>'+c.desc+'</p>'+btns+'</div>';}).join('');}
+function previewTemplate(templateId, name) {
+document.getElementById('ref-modal-title').textContent = name + ' 미리보기';
+document.getElementById('ref-modal-tabs').style.display = 'none';
+document.getElementById('ref-modal-iframe').src = 'https://docs.google.com/document/d/' + templateId + '/preview';
+document.getElementById('ref-modal-overlay').style.display = 'flex';
+}
+
+function downloadTemplate(downloadId, name) {
+var url = 'https://docs.google.com/document/d/' + downloadId + '/export?format=docx';
+var a = document.createElement('a');
+a.href = url;
+a.download = name + '.docx';
+a.target = '_blank';
+a.click();
+}
 function showContractList(){document.getElementById('contract-type-select-view').style.display='none';document.getElementById('contract-list-view').style.display='block';document.getElementById('contract-form-view').style.display='none';document.getElementById('contract-nonstandard-view').style.display='none';currentContract=null;renderContractGrid();}
 function selectContractMode(mode){if(mode==='standard'){showContractList();} else {document.getElementById('contract-type-select-view').style.display='none';document.getElementById('contract-nonstandard-view').style.display='block';document.getElementById('nonstandard-form-wrap').style.display='block';resetNsForm();}}
 var _nsAttachFiles=[];
