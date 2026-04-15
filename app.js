@@ -871,12 +871,8 @@ Array.from(document.body.childNodes).forEach(function(n){
 if(n.nodeType===3 && n.textContent.trim()) n.remove();
 });
 document.getElementById('today-date').textContent = new Date().toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric' });
-google.script.run.withSuccessHandler(function(data) {
-CONTRACTS = data || [];
+CONTRACTS = CONTRACTS_DATA || [];
 renderContractGrid();
-}).withFailureHandler(function() {
-renderContractGrid();
-}).getContracts();
 if (IS_LEGAL_TEAM === 'true') {
 document.getElementById('nav-inqmgmt').style.display = 'block';
 document.getElementById('nav-reviewmgmt').style.display = 'block';
