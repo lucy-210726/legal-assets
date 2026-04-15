@@ -950,6 +950,6 @@ async function previewCurrentContract() {
   } catch(e) {
     showAlert(e.message, { title: '미리보기 오류', icon: '❌' });
   } finally {
-    if (previewBtn) { previewBtn.disabled = false; previewBtn.textContent = '👁 미리보기'; }
+    if (previewBtn) { previewBtn.disabled = false; previewBtn.textContent = '미리보기'; }
   }
 }
