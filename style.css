@@ -138,3 +138,21 @@ footer{background:var(--ink);color:rgba(255,255,255,0.4);text-align:center;paddi
 #snap-s4 .service-inner { padding-top:0; margin-top:-45px; }
 @media(max-width:960px){.dash-tables-grid{grid-template-columns:1fr;}.stat-cards{grid-template-columns:repeat(3,1fr);}.ref-grid{grid-template-columns:1fr 1fr;}}
 @media(max-width:600px){.stat-cards{grid-template-columns:repeat(3,1fr);}.dash-content{padding:12px 14px 6px;}.svc-title{font-size:1.5rem;}.service-inner{padding:30px 20px;}.ref-grid{grid-template-columns:1fr;}}
+/* 계약서 카드 모션 */
+.contract-type-card .card-btns,
+.contract-type-card .card-btns + div {
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: opacity 0.25s, max-height 0.25s;
+  margin-top: 0;
+}
+.contract-type-card:hover .card-btns,
+.contract-type-card:hover .card-btns + div {
+  opacity: 1;
+  max-height: 80px;
+  margin-top: 14px;
+}
+.contract-type-card:hover .card-btns + div {
+  margin-top: 8px;
+}
