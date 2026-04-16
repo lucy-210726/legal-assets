@@ -127,7 +127,7 @@ PAGE_TEMPLATES.reviewmgmt = `
 </div>
 </div>
 
-<textarea id="rev-reply-textarea" placeholder="검토 의견을 입력하세요. 작성 후 'RE: 메일 발송' 버튼을 클릭하면 요청자에게 이메일로 회신됩니다." style="width:100%;min-height:120px;font-family:var(--font);padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:0.88rem;resize:vertical;line-height:1.7;transition:border-color 0.2s;box-sizing:border-box;" onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+<textarea id="rev-reply-textarea" placeholder="검토 의견을 입력하세요. 작성 후 'RE: 메일 발송' 버튼을 클릭하면 요청자에게 이메일로 회신됩니다." style="width:100%;min-height:280px;font-family:var(--font);padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:0.88rem;resize:vertical;line-height:1.7;transition:border-color 0.2s;box-sizing:border-box;" onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'"></textarea>
 
 <!-- 파일 첨부 영역 -->
 <div style="margin-top:12px;">
