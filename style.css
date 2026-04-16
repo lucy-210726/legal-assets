@@ -157,3 +157,37 @@ footer{background:var(--ink);color:rgba(255,255,255,0.4);text-align:center;paddi
   margin-top: 8px;
 }
 .review-section { margin-bottom: 24px; }
+/* 자주하는 답변 라벨 버튼 */
+.rev-quick-label {
+  font-family: var(--font);
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: var(--white);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.rev-quick-label:hover {
+  border-color: var(--gold);
+  background: linear-gradient(135deg, #fffbeb, #fef3c7);
+  color: var(--ink);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(201, 162, 39, 0.15);
+}
+
+.rev-quick-label:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* 검토 의견 회신 이력 내 각 항목 구분 */
+#rev-reply-history-content {
+  max-height: 300px;
+  overflow-y: auto;
+}
