@@ -638,7 +638,7 @@ a.download = name + '.docx';
 a.target = '_blank';
 a.click();
 }
-function showContractList(){document.getElementById('contract-type-select-view').style.display='none';document.getElementById('contract-list-view').style.display='block';document.getElementById('contract-form-view').style.display='none';document.getElementById('contract-nonstandard-view').style.display='none';currentContract=null;renderContractGrid();}
+function showContractList(){document.getElementById('contract-type-select-view').style.display='none';document.getElementById('contract-list-view').style.display='block';document.getElementById('contract-form-view').style.display='none';document.getElementById('contract-nonstandard-view').style.display='none';document.getElementById('contract-modified-review-view').style.display='none';currentContract=null;renderContractGrid();}
 function selectContractMode(mode){if(mode==='standard'){showContractList();} else {document.getElementById('contract-type-select-view').style.display='none';document.getElementById('contract-nonstandard-view').style.display='block';document.getElementById('nonstandard-form-wrap').style.display='block';resetNsForm();}}
 var _nsAttachFiles=[];
 window._nsToList=[]; window._nsCcList=[];
@@ -704,7 +704,7 @@ function selectInqName(name, dept) {document.getElementById('inq-name').value = 
 function selectAutocomplete(inputId,listId,email){document.getElementById(inputId).value=email;document.getElementById(listId).style.display='none';if(inputId==='ns-to-input') addNsRecipient('to');else if(inputId==='ns-cc-input') addNsRecipient('cc');else addRecipient(inputId==='recipient-input'?'to':'cc');}
 function handleAcKeydown(e,inputId,listId,type){ if(e.key==='Enter'){e.preventDefault();var list=document.getElementById(listId);var first=list.querySelector('.autocomplete-item');if(first&&list.style.display!=='none')first.click();else{ if(type==='ns-to') addNsRecipient('to'); else if(type==='ns-cc') addNsRecipient('cc'); else addRecipient(type); }list.style.display='none';}else if(e.key==='Escape') document.getElementById(listId).style.display='none'; }
 document.addEventListener('click',function(e){ ['to-ac','cc-ac','ns-to-ac','ns-cc-ac','inq-name-ac'].forEach(function(id){var el=document.getElementById(id);if(el&&!el.contains(e.target)) el.style.display='none';}); });
-function showContractTypeSelect(){document.getElementById('contract-type-select-view').style.display='block';document.getElementById('contract-list-view').style.display='none';document.getElementById('contract-form-view').style.display='none';document.getElementById('contract-nonstandard-view').style.display='none';}
+function showContractTypeSelect(){document.getElementById('contract-type-select-view').style.display='block';document.getElementById('contract-list-view').style.display='none';document.getElementById('contract-form-view').style.display='none';document.getElementById('contract-nonstandard-view').style.display='none';document.getElementById('contract-modified-review-view').style.display='none';}
 function handleDeepLink() {if (INIT_PAGE === 'submit') {showPage('submit');}}
 function autoSelectSubmitRowFromUrl() {if (!INIT_ROWNUM) return;var num = Number(INIT_ROWNUM);if (!num) return;var exists = allRows.find(function(r) { return r.rowNum === num; });if (exists) {selectRow(num);}INIT_ROWNUM = '';}
 
