@@ -94,7 +94,64 @@ PAGE_TEMPLATES.reviewmgmt = `
 <div class="page-subtitle">법무실로 요청된 계약 검토 사항을 확인하고 처리하세요</div>
 <div class="search-bar"><input type="text" id="rev-search" placeholder="🔍  요청자, 계약서명 검색..." oninput="filterRevTable()"><button class="btn-sm" onclick="loadReviewMgmt()">↻ 새로고침</button></div>
 <div class="list-card"><div class="list-card-header"><h4>📋 검토 요청 목록</h4><span class="lc-count" id="rev-list-count">로드 중...</span></div><div class="ct-table-wrap"><table class="ct-table"><thead><tr><th class="col-radio"></th><th class="col-rev-requester">요청자</th><th style="width:110px;">당사자</th><th style="width:80px;">계약유형</th><th class="col-rev-name">계약서명</th><th class="col-rev-date hide-mobile">요청일</th><th class="col-rev-status">상태</th><th class="col-rev-confirmed hide-mobile">진행자</th></tr></thead><tbody id="rev-tbody"><tr><td colspan="8"><div class="dash-empty">⏳ 로드 중...</div></td></tr></tbody></table></div></div>
-<div class="rev-detail-panel" id="rev-detail-panel" style="display:none;"><div class="rev-detail-head"><h4 id="rev-detail-title">검토 요청 상세</h4><span id="rev-detail-status-badge" class="rev-status-badge rev-status-pending">검토대기</span></div><div class="rev-detail-body"><div class="rev-detail-meta" id="rev-detail-meta"></div><div id="rev-opinion-wrap" style="display:none;"><div class="rev-opinion-box"><div class="rev-opinion-label">💬 검토 요청 의견</div><div class="rev-opinion-text" id="rev-detail-opinion"></div></div></div><div id="rev-file-wrap" style="display:none;"><a class="rev-file-link" id="rev-file-link" href="#" target="_blank">📄 계약서 파일 열기 →</a></div><div id="rev-confirmed-wrap" style="display:none;"><div class="rev-confirmed-box"><div class="rev-confirmed-text" id="rev-confirmed-text"></div></div></div></div><div id="rev-assignee-wrap-dynamic"></div><div class="rev-detail-foot" id="rev-detail-foot"><button class="btn btn-ghost" onclick="clearRevSel()">닫기</button><button class="btn btn-gold" id="rev-confirm-btn" onclick="doConfirmReview()" style="display:none;">✅ 검토 확인 완료</button></div></div>
+<div class="rev-detail-panel" id="rev-detail-panel" style="display:none;"><div class="rev-detail-head"><h4 id="rev-detail-title">검토 요청 상세</h4><span id="rev-detail-status-badge" class="rev-status-badge rev-status-pending">검토대기</span></div><div class="rev-detail-body"><div class="rev-detail-meta" id="rev-detail-meta"></div><div id="rev-opinion-wrap" style="display:none;"><div class="rev-opinion-box"><div class="rev-opinion-label">💬 검토 요청 의견</div><div class="rev-opinion-text" id="rev-detail-opinion"></div></div></div><div id="rev-file-wrap" style="display:none;"><a class="rev-file-link" id="rev-file-link" href="#" target="_blank">📄 계약서 파일 열기 →</a></div>
+
+<!-- ═══ 수신자/참조자 정보 표시 ═══ -->
+<div id="rev-recipient-info" style="display:none;margin-top:12px;padding:10px 14px;background:#f0f4ff;border:1px solid #c5d4f0;border-radius:8px;font-family:var(--font);font-size:0.8rem;color:#3b5998;line-height:1.6;"></div>
+
+<div id="rev-confirmed-wrap" style="display:none;"><div class="rev-confirmed-box"><div class="rev-confirmed-text" id="rev-confirmed-text"></div></div></div></div><div id="rev-assignee-wrap-dynamic"></div>
+
+<!-- ═══ 검토 의견 회신 이력 ═══ -->
+<div id="rev-reply-history-wrap" style="display:none;padding:0 28px 16px;">
+<div style="border:1px solid var(--border);border-radius:12px;background:var(--surface);padding:16px 18px;">
+<div style="font-family:var(--font);font-size:0.82rem;font-weight:700;color:var(--ink-3);margin-bottom:10px;">📨 검토 의견 회신 이력</div>
+<div id="rev-reply-history-content" style="font-family:var(--font);font-size:0.84rem;color:var(--text);line-height:1.7;white-space:pre-wrap;"></div>
+</div>
+</div>
+
+<!-- ═══ 검토 의견 작성 + 자주하는 답변 라벨 + RE: 메일 발송 ═══ -->
+<div id="rev-reply-section" style="display:none;padding:0 28px 20px;">
+<div style="border:1px solid var(--border);border-radius:12px;background:var(--white);padding:20px;">
+<label style="font-family:var(--font);font-size:0.88rem;font-weight:700;color:var(--ink);display:block;margin-bottom:10px;">✏️ 검토 의견 작성</label>
+
+<!-- 자주하는 답변 라벨 -->
+<div style="margin-bottom:12px;">
+<div style="font-family:var(--font);font-size:0.76rem;font-weight:600;color:var(--text-muted);margin-bottom:8px;letter-spacing:0.03em;">🏷️ 자주하는 답변</div>
+<div id="rev-quick-labels" style="display:flex;flex-wrap:wrap;gap:6px;">
+<button class="rev-quick-label" onclick="insertQuickLabel('검토 결과 특이사항 없습니다. 진행하셔도 됩니다.')">✅ 특이사항 없음</button>
+<button class="rev-quick-label" onclick="insertQuickLabel('계약서 내용 검토 완료하였습니다. 날인 진행 부탁드립니다.')">📝 날인 진행 요청</button>
+<button class="rev-quick-label" onclick="insertQuickLabel('아래 수정사항 반영 후 재송부 부탁드립니다.')">🔄 수정 후 재송부</button>
+<button class="rev-quick-label" onclick="insertQuickLabel('계약 조건 관련 추가 협의가 필요합니다. 미팅 일정 조율 부탁드립니다.')">🤝 추가 협의 필요</button>
+<button class="rev-quick-label" onclick="insertQuickLabel('첨부된 수정본 확인 부탁드립니다. 수정 사항은 아래와 같습니다.')">📎 수정본 첨부</button>
+<button class="rev-quick-label" onclick="insertQuickLabel('해당 조항은 당사 표준 약관과 상이하여 수정이 필요합니다.')">⚠️ 표준 약관 상이</button>
+</div>
+</div>
+
+<textarea id="rev-reply-textarea" placeholder="검토 의견을 입력하세요. 작성 후 'RE: 메일 발송' 버튼을 클릭하면 요청자에게 이메일로 회신됩니다." style="width:100%;min-height:120px;font-family:var(--font);padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:0.88rem;resize:vertical;line-height:1.7;transition:border-color 0.2s;box-sizing:border-box;" onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+
+<!-- 파일 첨부 영역 -->
+<div style="margin-top:12px;">
+<div class="attach-zone" onclick="document.getElementById('rev-reply-attach-input').click()" style="padding:14px;min-height:auto;">
+<input type="file" id="rev-reply-attach-input" multiple accept=".pdf,.doc,.docx,.hwp,.xlsx,.xls,.pptx,.ppt" onchange="handleRevReplyAttach(event)" style="display:none;">
+<div style="display:flex;align-items:center;gap:10px;justify-content:center;">
+<span style="font-size:1.1rem;">📎</span>
+<span style="font-family:var(--font);font-size:0.82rem;color:var(--text-muted);"><strong>파일 첨부</strong> · 클릭하여 파일 선택 (PDF, Word, HWP 등 · 파일당 최대 20MB)</span>
+</div>
+</div>
+<div class="attach-file-list" id="rev-reply-attach-list"></div>
+</div>
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;flex-wrap:wrap;gap:8px;">
+<p style="font-family:var(--font);font-size:0.76rem;color:var(--text-muted);margin:0;">검토 의견 및 첨부파일은 <strong>이메일</strong>로 발송됩니다. Slack에는 알림만 전달됩니다.</p>
+<div style="display:flex;gap:8px;">
+<button class="btn btn-ghost" onclick="clearRevReply()" style="font-size:0.84rem;padding:9px 18px;">초기화</button>
+<button class="btn btn-gold" id="rev-reply-send-btn" onclick="sendRevReply()" style="font-size:0.84rem;padding:9px 22px;">📧 RE: 메일 발송 →</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="rev-detail-foot" id="rev-detail-foot"><button class="btn btn-ghost" onclick="clearRevSel()">닫기</button><button class="btn btn-gold" id="rev-confirm-btn" onclick="doConfirmReview()" style="display:none;">✅ 검토 확인 완료</button></div></div>
 </div>
 `;
 
