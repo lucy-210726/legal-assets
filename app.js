@@ -617,7 +617,7 @@ if(p==='inqmgmt')    loadInqMgmt();
 if(p==='reviewmgmt') loadReviewMgmt();
 }
 function goBack(p){
-if(p==='contract'){var formView=document.getElementById('contract-form-view');var listView=document.getElementById('contract-list-view');var nsView=document.getElementById('contract-nonstandard-view');if(formView&&formView.style.display!=='none'){ showContractList(); return; }if(listView&&listView.style.display!=='none'){ showContractTypeSelect(); return; }if(nsView&&nsView.style.display!=='none'){ showContractTypeSelect(); return; }}
+if(p==='contract'){var formView=document.getElementById('contract-form-view');var listView=document.getElementById('contract-list-view');var nsView=document.getElementById('contract-nonstandard-view');var modView=document.getElementById('contract-modified-review-view');if(modView&&modView.style.display!=='none'){showContractList();return;}if(formView&&formView.style.display!=='none'){ showContractList(); return; }if(listView&&listView.style.display!=='none'){ showContractTypeSelect(); return; }if(nsView&&nsView.style.display!=='none'){ showContractTypeSelect(); return; }}
 showPage('home');
 }
 
@@ -895,56 +895,175 @@ loadDashboard();
 _dashInterval = setInterval(loadDashboard, 3 * 60 * 1000);
 handleDeepLink();
 
-// ════════════════════════════════════════════════════════════
-//  미리보기 기능 — app.js에 추가
-//  기존 참고자료 모달(ref-modal)을 재활용하여 새 창처럼 표시
-// ════════════════════════════════════════════════════════════
-
+// ── 미리보기 ──
 async function previewCurrentContract() {
-  if (!currentContract || !validateCurrentForm()) {
-    showAlert('필수 항목을 모두 입력해주세요.', { title: '입력 필요', icon: '⚠️' });
-    return;
-  }
+if (!currentContract || !validateCurrentForm()) {
+showAlert('\uD544\uC218 \uD56D\uBAA9\uC744 \uBAA8\uB450 \uC785\uB825\uD574\uC8FC\uC138\uC694.', { title: '\uC785\uB825 \uD544\uC694', icon: '\u26A0\uFE0F' });
+return;
+}
+var previewBtn = document.getElementById('preview-btn');
+if (previewBtn) { previewBtn.disabled = true; previewBtn.textContent = '\uBBF8\uB9AC\uBCF4\uAE30 \uC0DD\uC131 \uC911...'; }
+var raw = collectFormData();
+var toKo = function(d) { if (!d) return ''; var p = d.split('-'); return p.length === 3 ? p[0] + '\uB144 ' + p[1] + '\uC6D4 ' + p[2] + '\uC77C' : d; };
+var fmtN = function(n) { var s = String(n).replace(/[^0-9]/g, ''); return s ? Number(s).toLocaleString('ko-KR') : ''; };
+var dateF = ['contract_date','service_start','service_end','ad_start','ad_end','media_start','media_end','reward_start','reward_end','original_contract_date','SIGN_DATE'];
+var numF = ['service_cost','total_amount','monthly_fee','contract_amount','ad_budget','cpa_rate'];
+var payload = { contractType: currentContract.id, contractName: currentContract.name };
+Object.keys(raw).forEach(function(k) {
+if (dateF.includes(k)) payload[k] = toKo(raw[k]);
+else if (numF.includes(k)) payload[k] = fmtN(raw[k]);
+else payload[k] = Array.isArray(raw[k]) ? raw[k].join(', ') : raw[k];
+});
+payload.remarks = (payload.remarks && payload.remarks.trim()) || '\uC5C6\uC74C';
+payload.invoice_date = payload.invoice_date || '\uC6A9\uC5ED \uC644\uB8CC \uC6D4\uC758 \uB9D0\uC77C';
+payload.payment_date = payload.payment_date || '\uC138\uAE08\uACC4\uC0B0\uC11C \uBC1C\uD589\uC77C \uAE30\uC900 \uC775\uC6D4 \uB9D0\uC77C \uC774\uB0B4';
+payload.userEmail = USER_EMAIL || '';
+try {
+var result = await new Promise(function(resolve, reject) {
+google.script.run.withSuccessHandler(resolve).withFailureHandler(function(err) { reject(new Error(err.message || '\uBBF8\uB9AC\uBCF4\uAE30 \uC0DD\uC131 \uC2E4\uD328')); }).previewContract(JSON.stringify(payload));
+});
+if (!result || !result.ok) throw new Error((result && result.error) || '\uBBF8\uB9AC\uBCF4\uAE30 \uC0DD\uC131 \uC2E4\uD328');
+document.getElementById('ref-modal-title').textContent = currentContract.name + ' \uBBF8\uB9AC\uBCF4\uAE30';
+document.getElementById('ref-modal-tabs').style.display = 'none';
+document.getElementById('ref-modal-iframe').src = 'https://docs.google.com/document/d/' + result.fileId + '/preview';
+document.getElementById('ref-modal-overlay').style.display = 'flex';
+} catch(e) {
+showAlert(e.message, { title: '\uBBF8\uB9AC\uBCF4\uAE30 \uC624\uB958', icon: '\u274C' });
+} finally {
+if (previewBtn) { previewBtn.disabled = false; previewBtn.textContent = '\uBBF8\uB9AC\uBCF4\uAE30'; }
+}
+}
 
-  var previewBtn = document.getElementById('preview-btn');
-  if (previewBtn) { previewBtn.disabled = true; previewBtn.textContent = '미리보기 생성 중...'; }
+// ── 수정본 검토 요청 ──
+var _modAttachFiles = [];
+window._modToList = [];
+window._modCcList = [];
 
-  var raw = collectFormData();
-  var toKo = function(d) { if (!d) return ''; var p = d.split('-'); return p.length === 3 ? p[0] + '년 ' + p[1] + '월 ' + p[2] + '일' : d; };
-  var fmtN = function(n) { var s = String(n).replace(/[^0-9]/g, ''); return s ? Number(s).toLocaleString('ko-KR') : ''; };
-  var dateF = ['contract_date','service_start','service_end','ad_start','ad_end','media_start','media_end','reward_start','reward_end','original_contract_date','SIGN_DATE'];
-  var numF = ['service_cost','total_amount','monthly_fee','contract_amount','ad_budget','cpa_rate'];
+function requestModifiedReview(contractId, contractName, company) {
+document.getElementById('contract-type-select-view').style.display = 'none';
+document.getElementById('contract-list-view').style.display = 'none';
+document.getElementById('contract-form-view').style.display = 'none';
+document.getElementById('contract-nonstandard-view').style.display = 'none';
+var view = document.getElementById('contract-modified-review-view');
+view.style.display = 'block';
+resetModifiedForm();
+document.getElementById('mod-contract-party').textContent = company;
+document.getElementById('mod-contract-party-val').value = company;
+document.getElementById('mod-contract-name').textContent = contractName + ' (\uC218\uC815\uBCF8)';
+document.getElementById('mod-contract-name-val').value = contractName + ' (\uC218\uC815\uBCF8)';
+document.getElementById('mod-contract-id').value = contractId;
+window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
-  var payload = { contractType: currentContract.id, contractName: currentContract.name };
-  Object.keys(raw).forEach(function(k) {
-    if (dateF.includes(k)) payload[k] = toKo(raw[k]);
-    else if (numF.includes(k)) payload[k] = fmtN(raw[k]);
-    else payload[k] = Array.isArray(raw[k]) ? raw[k].join(', ') : raw[k];
-  });
-  payload.remarks = (payload.remarks && payload.remarks.trim()) || '없음';
-  payload.invoice_date = payload.invoice_date || '용역 완료 월의 말일';
-  payload.payment_date = payload.payment_date || '세금계산서 발행일 기준 익월 말일 이내';
-  payload.userEmail = USER_EMAIL || '';
+function resetModifiedForm() {
+_modAttachFiles = [];
+window._modToList = [];
+window._modCcList = [];
+renderModAttachList();
+['mod-counter-party', 'mod-opinion', 'mod-to-input', 'mod-cc-input'].forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
+['mod-to-tags', 'mod-cc-tags'].forEach(function(id) { var el = document.getElementById(id); if (el) el.innerHTML = ''; });
+['mod-to-ac', 'mod-cc-ac'].forEach(function(id) { var el = document.getElementById(id); if (el) el.style.display = 'none'; });
+var btn = document.getElementById('mod-submit-btn');
+if (btn) { btn.disabled = true; btn.textContent = '\uAC80\uD1A0 \uC694\uCCAD \u2192'; }
+}
 
-  try {
-    var result = await new Promise(function(resolve, reject) {
-      google.script.run
-        .withSuccessHandler(resolve)
-        .withFailureHandler(function(err) { reject(new Error(err.message || '미리보기 생성 실패')); })
-        .previewContract(JSON.stringify(payload));
-    });
+function handleModFileSelect(e) {
+var files = Array.from(e.target.files || []);
+e.target.value = '';
+files.forEach(function(f) {
+if (f.size > 20 * 1024 * 1024) { showAlert(f.name + '\n\uD30C\uC77C \uD06C\uAE30\uAC00 20MB\uB97C \uCD08\uACFC\uD569\uB2C8\uB2E4.', { title: '\uD30C\uC77C \uD06C\uAE30 \uCD08\uACFC', icon: '\u26A0\uFE0F' }); return; }
+_modAttachFiles.push({ file: f, name: f.name, size: f.size, mimeType: f.type || 'application/octet-stream' });
+});
+renderModAttachList();
+checkModReady();
+}
 
-    if (!result || !result.ok) throw new Error((result && result.error) || '미리보기 생성 실패');
+function removeModAttach(idx) { _modAttachFiles.splice(idx, 1); renderModAttachList(); checkModReady(); }
 
-    // 기존 참고자료 모달 재활용
-    document.getElementById('ref-modal-title').textContent = currentContract.name + ' 미리보기';
-    document.getElementById('ref-modal-tabs').style.display = 'none';
-    document.getElementById('ref-modal-iframe').src = 'https://docs.google.com/document/d/' + result.fileId + '/preview';
-    document.getElementById('ref-modal-overlay').style.display = 'flex';
+function renderModAttachList() {
+var el = document.getElementById('mod-attach-list');
+if (!el) return;
+el.innerHTML = _modAttachFiles.map(function(a, i) {
+return '<div class="attach-file-item"><span style="font-size:1rem;">\uD83D\uDCC4</span><span class="afi-name">' + esc(a.name) + '</span><span class="afi-size">' + (a.size / 1024 / 1024).toFixed(2) + ' MB</span><button class="afi-remove" onclick="removeModAttach(' + i + ')">\u2715</button></div>';
+}).join('');
+}
 
-  } catch(e) {
-    showAlert(e.message, { title: '미리보기 오류', icon: '❌' });
-  } finally {
-    if (previewBtn) { previewBtn.disabled = false; previewBtn.textContent = '미리보기'; }
-  }
+function checkModReady() {
+var ok = document.getElementById('mod-counter-party') && document.getElementById('mod-counter-party').value.trim() && _modAttachFiles.length > 0;
+var btn = document.getElementById('mod-submit-btn');
+if (btn) btn.disabled = !ok;
+}
+
+function addModRecipient(type) {
+var inputId = type === 'to' ? 'mod-to-input' : 'mod-cc-input';
+var tagsId = type === 'to' ? 'mod-to-tags' : 'mod-cc-tags';
+var listKey = type === 'to' ? '_modToList' : '_modCcList';
+var input = document.getElementById(inputId);
+if (!input) return;
+var email = input.value.trim().toLowerCase();
+if (!email || !email.includes('@')) { input.style.borderColor = 'var(--red)'; setTimeout(function() { input.style.borderColor = ''; }, 1200); showAlert('\uC62C\uBC14\uB978 \uC774\uBA54\uC77C \uC8FC\uC18C\uB97C \uC785\uB825\uD574\uC8FC\uC138\uC694.', { title: '\uC774\uBA54\uC77C \uD615\uC2DD \uC624\uB958', icon: '\u26A0\uFE0F' }); return; }
+if (window[listKey].includes(email)) { input.value = ''; return; }
+window[listKey].push(email);
+input.value = '';
+renderModRecipientTags(tagsId, listKey);
+var acId = type === 'to' ? 'mod-to-ac' : 'mod-cc-ac';
+document.getElementById(acId).style.display = 'none';
+}
+
+function removeModRecipient(type, email) {
+var listKey = type === 'to' ? '_modToList' : '_modCcList';
+var tagsId = type === 'to' ? 'mod-to-tags' : 'mod-cc-tags';
+window[listKey] = window[listKey].filter(function(e) { return e !== email; });
+renderModRecipientTags(tagsId, listKey);
+}
+
+function renderModRecipientTags(tagsId, listKey) {
+var container = document.getElementById(tagsId);
+if (!container) return;
+container.innerHTML = (window[listKey] || []).map(function(email) {
+return '<span class="recipient-tag">' + esc(email) + '<button onclick="removeModRecipient(\'' + (tagsId.includes('to') ? 'to' : 'cc') + '\',\'' + esc(email) + '\')" title="\uC81C\uAC70">\u2715</button></span>';
+}).join('');
+}
+
+async function submitModifiedReview() {
+var contractName = document.getElementById('mod-contract-name-val').value;
+var contractParty = document.getElementById('mod-contract-party-val').value;
+var counterParty = document.getElementById('mod-counter-party').value.trim();
+var opinion = document.getElementById('mod-opinion') ? document.getElementById('mod-opinion').value.trim() : '';
+if (!counterParty || !_modAttachFiles.length) { showAlert('\uD544\uC218 \uD56D\uBAA9\uC744 \uBAA8\uB450 \uC785\uB825\uD558\uACE0 \uD30C\uC77C\uC744 \uCCA8\uBD80\uD574\uC8FC\uC138\uC694.', { title: '\uC785\uB825 \uD544\uC694', icon: '\u26A0\uFE0F' }); return; }
+var btn = document.getElementById('mod-submit-btn');
+btn.disabled = true;
+btn.textContent = '\uD30C\uC77C \uC5C5\uB85C\uB4DC \uC911...';
+try {
+var freshToken = await new Promise(function(resolve) { google.script.run.withSuccessHandler(resolve).withFailureHandler(function() { resolve(OAUTH_TOKEN); }).getFreshToken(); });
+var activeToken = freshToken || OAUTH_TOKEN;
+var uploadedFiles = [];
+for (var i = 0; i < _modAttachFiles.length; i++) {
+var a = _modAttachFiles[i];
+btn.textContent = '\uD30C\uC77C \uC5C5\uB85C\uB4DC \uC911... (' + (i + 1) + '/' + _modAttachFiles.length + ')';
+var initRes = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable', { method: 'POST', headers: { 'Authorization': 'Bearer ' + activeToken, 'Content-Type': 'application/json', 'X-Upload-Content-Type': a.mimeType, 'X-Upload-Content-Length': a.file.size }, body: JSON.stringify({ name: a.name }) });
+if (!initRes.ok) throw new Error('Drive \uC138\uC158 \uC2DC\uC791 \uC2E4\uD328: ' + initRes.status);
+var uploadUrl = initRes.headers.get('Location');
+var uploadRes = await fetch(uploadUrl, { method: 'PUT', body: a.file });
+if (!uploadRes.ok && uploadRes.status !== 200) throw new Error('\uC5C5\uB85C\uB4DC \uC2E4\uD328: ' + uploadRes.status);
+var fileId = (await uploadRes.json()).id;
+uploadedFiles.push({ name: a.name, fileId: fileId, url: 'https://drive.google.com/file/d/' + fileId + '/view' });
+}
+btn.textContent = '\uAC80\uD1A0 \uC694\uCCAD \uC911...';
+await new Promise(function(resolve, reject) {
+google.script.run.withSuccessHandler(function(result) { if (result && result.ok) resolve(result); else reject(new Error((result && result.error) || '\uAC80\uD1A0 \uC694\uCCAD \uC2E4\uD328')); }).withFailureHandler(function(err) { reject(new Error(err.message || '\uAC80\uD1A0 \uC694\uCCAD \uC2E4\uD328')); }).submitNonStandardReview({ contractName: contractName, counterParty: counterParty, contractParty: contractParty, contractType: 'standard_modified', opinion: opinion, files: JSON.stringify(uploadedFiles), toList: JSON.stringify(window._modToList || []), ccList: JSON.stringify(window._modCcList || []), userEmail: USER_EMAIL || '', userName: USER_NAME || '' });
+});
+showAlert('\uBC95\uBB34\uC2E4\uC5D0 \uAC80\uD1A0 \uC694\uCCAD\uC774 \uC804\uB2EC\uB418\uC5C8\uC2B5\uB2C8\uB2E4.', { title: '\uAC80\uD1A0 \uC694\uCCAD\uC774 \uC644\uB8CC\uB418\uC5C8\uC2B5\uB2C8\uB2E4!', icon: '\u2705', onClose: function() { showContractList(); } });
+btn.disabled = false;
+btn.textContent = '\uAC80\uD1A0 \uC694\uCCAD \u2192';
+} catch (e) {
+showAlert(e.message, { title: '\uC624\uB958\uAC00 \uBC1C\uC0DD\uD588\uC2B5\uB2C8\uB2E4', icon: '\u274C' });
+btn.disabled = false;
+btn.textContent = '\uAC80\uD1A0 \uC694\uCCAD \u2192';
+}
+}
+
+function showModifiedReviewBack() {
+document.getElementById('contract-modified-review-view').style.display = 'none';
+showContractList();
 }
