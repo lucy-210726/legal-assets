@@ -156,3 +156,4 @@ footer{background:var(--ink);color:rgba(255,255,255,0.4);text-align:center;paddi
 .contract-type-card:hover .card-btns + div {
   margin-top: 8px;
 }
+.review-section { margin-bottom: 24px; }
