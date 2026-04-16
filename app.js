@@ -527,6 +527,31 @@ var _revReplyAttachFiles = [];
 
 
 // ── 1. renderRevDetailPanel() 교체 ──
+// ── 검토 의견 첨부파일 상태 ──
+var _revReplyAttachFiles = [];
+
+// ── 이름에서 한글만 추출 (영어이름 제거) ──
+// 형식 예: "Lucy.김루시" → "김루시", "Kim.김법무" → "김법무"
+// 온점(.) 뒤가 한글이름
+function koreanNameOnly(name) {
+  if (!name) return '';
+  // "영어.한글" 형식 → 온점 뒤 한글 부분 추출
+  if (name.indexOf('.') >= 0) {
+    var parts = name.split('.');
+    for (var i = parts.length - 1; i >= 0; i--) {
+      var part = parts[i].trim();
+      if (/[가-힣]/.test(part)) return part;
+    }
+  }
+  // 괄호 안 영어 제거
+  var cleaned = name.replace(/\s*[\(\(].*?[\)\)]\s*/g, '').trim();
+  // 영어 단어 제거
+  cleaned = cleaned.replace(/[A-Za-z\-\.]+/g, '').trim();
+  return cleaned || name.trim();
+}
+
+
+// ── 1. renderRevDetailPanel() 교체 ──
 
 function renderRevDetailPanel(){
 var r=_selectedRev;
@@ -599,9 +624,9 @@ var replySection = document.getElementById('rev-reply-section');
 if (replySection) {
   if (isLegal && (isProgress || isAgreed)) {
     replySection.style.display = 'block';
-    // 기본 양식 세팅 — @요청자, @진행자 자동 치환
-    var assigneeName = r.confirmedBy || USER_NAME || '';
-    var requesterShort = r.requesterName || '담당자';
+    // 기본 양식 세팅 — @요청자, @진행자 자동 치환 (한글이름만)
+    var assigneeName = koreanNameOnly(r.confirmedBy || USER_NAME || '');
+    var requesterShort = koreanNameOnly(r.requesterName || '담당자');
     var defaultTemplate =
       requesterShort + '님, 안녕하세요.\n' +
       '법무실 ' + assigneeName + '입니다.\n\n' +
@@ -838,6 +863,7 @@ function loadRevReplyHistory(reviewId) {
     })
     .getReviewReplyHistory(reviewId);
 }
+
 function populateRevAssigneeSelect(){loadLegalMembers(function(members){var sel=document.getElementById('rev-assignee-select');if(!sel) return;var current=_selectedRev?(_selectedRev.confirmedBy||''):'';sel.innerHTML='<option value="">진행자 선택...</option>'+members.map(function(m){return '<option value="'+esc(m.email)+'" '+(m.email===current?'selected':'')+'>'+esc(m.name)+'</option>';}).join('');});}
 function doChangeRevAssignee(){if(!_selectedRev) return;var sel=document.getElementById('rev-assignee-select');var email=sel?sel.value:'';if(!email){showAlert('진행자를 선택해주세요.',{title:'선택 필요',icon:'⚠️'});return;}google.script.run.withSuccessHandler(function(result){if(result&&result.ok){var selectedOption=sel?sel.options[sel.selectedIndex]:null;var assigneeName=selectedOption?selectedOption.text:email.split('@')[0];var row=_revAll.find(function(r){return r.id===_selectedRev.id;});if(row){row.confirmedBy=assigneeName;_selectedRev=row;}renderRevTable(_revFiltered.length?_revFiltered:_revAll);renderRevDetailPanel();}else{showAlert((result&&result.error)||'알 수 없는 오류가 발생했습니다.',{title:'변경 실패',icon:'❌'});}}).withFailureHandler(function(err){showAlert(err.message||String(err),{title:'오류',icon:'❌'});}).changeReviewAssignee(_selectedRev.id,email);}
 function doStartReview(){if(!_selectedRev) return;var btn=document.getElementById('rev-start-btn');if(btn){btn.disabled=true;btn.textContent='처리 중...';}google.script.run.withSuccessHandler(function(result){if(result&&result.ok){var row=_revAll.find(function(r){return r.id===_selectedRev.id;});if(row){row.status='검토중';_selectedRev=row;}renderRevTable(_revFiltered.length?_revFiltered:_revAll);renderRevDetailPanel();}else{showAlert((result&&result.error)||'알 수 없는 오류가 발생했습니다.',{title:'처리 실패',icon:'❌'});if(btn){btn.disabled=false;btn.textContent='\u25b6 검토 시작';}}}).withFailureHandler(function(err){showAlert(err.message||String(err),{title:'오류',icon:'❌'});if(btn){btn.disabled=false;btn.textContent='\u25b6 검토 시작';}}).startReview(_selectedRev.id);}
