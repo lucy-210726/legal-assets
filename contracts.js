@@ -88,6 +88,8 @@ var CONTRACTS_DATA = [
     company: 'IGAW',
     name: '모바일인덱스 구독계약서',
     desc: '모바일인덱스 서비스 구독 계약서',
+    templateId: '12Qk_mclOvrhs4x-6v5mjnKzonrFVIGBZ',
+    downloadId: '12Qk_mclOvrhs4x-6v5mjnKzonrFVIGBZ',
     fields: [
       { section: '구매자 정보' },
       { name: 'buyer_name',      label: '구매자명',       type: 'text', required: true },
@@ -111,6 +113,8 @@ var CONTRACTS_DATA = [
     company: 'IGAW',
     name: '서비스 이용 계약서',
     desc: 'IGAW 서비스 이용에 관한 표준 계약서',
+    templateId: '12Qk_mclOvrhs4x-6v5mjnKzonrFVIGBZ',
+    downloadId: '12Qk_mclOvrhs4x-6v5mjnKzonrFVIGBZ',
     fields: [
       { section: '이용자 정보' },
       { name: 'client_name',     label: '이용자(갑)명',    type: 'text', required: true },
@@ -139,6 +143,8 @@ var CONTRACTS_DATA = [
     company: 'ADP',
     name: '광고 계약서',
     desc: 'ADP 광고 집행 관련 표준 계약서',
+    templateId: '12Qk_mclOvrhs4x-6v5mjnKzonrFVIGBZ',
+    downloadId: '12Qk_mclOvrhs4x-6v5mjnKzonrFVIGBZ',
     fields: [
       { section: '광고주 정보' },
       { name: 'advertiser_name',    label: '광고주명',       type: 'text', required: true },
@@ -164,6 +170,8 @@ var CONTRACTS_DATA = [
     company: 'ADP',
     name: '통합매체계약서',
     desc: 'ADP 통합 매체 운영 계약서',
+    templateId: '12Qk_mclOvrhs4x-6v5mjnKzonrFVIGBZ',
+    downloadId: '12Qk_mclOvrhs4x-6v5mjnKzonrFVIGBZ',
     fields: [
       { section: '매체사 정보' },
       { name: 'media_name',      label: '매체사명',       type: 'text', required: true },
@@ -188,6 +196,8 @@ var CONTRACTS_DATA = [
     company: 'ADP',
     name: '리워드매체계약서',
     desc: 'ADP 리워드 광고 매체 계약서',
+    templateId: '12Qk_mclOvrhs4x-6v5mjnKzonrFVIGBZ',
+    downloadId: '12Qk_mclOvrhs4x-6v5mjnKzonrFVIGBZ',
     fields: [
       { section: '매체사 정보' },
       { name: 'media_name',      label: '매체사명',       type: 'text', required: true },
@@ -210,8 +220,30 @@ var CONTRACTS_DATA = [
   // ──────────────────────────────────────
   //  FIXTYPE
   // ──────────────────────────────────────
-  { id: 'fixtype_service',     company: 'FIXTYPE', name: '용역계약서',                desc: 'FIXTYPE 용역 표준 계약서',                       fields: [] },
-  { id: 'fixtype_service_req', company: 'FIXTYPE', name: '용역계약서_용역의뢰서',     desc: 'FIXTYPE 기 체결 용역 계약에 대한 부속 합의서',    fields: [] },
-  { id: 'fixtype_folio',       company: 'FIXTYPE', name: 'FIXFOLIO 서비스 이용 신청서', desc: 'FIXFOLIO 서비스 이용 신청서',                   fields: [] }
-
+  { id: 'fixtype_service',  
+    company: 'FIXTYPE',
+    name: '용역계약서',
+    desc: 'FIXTYPE 용역 표준 계약서',
+    templateId: '12Qk_mclOvrhs4x-6v5mjnKzonrFVIGBZ',
+    downloadId: '12Qk_mclOvrhs4x-6v5mjnKzonrFVIGBZ',
+    fields: [] 
+  },
+  
+  { id: 'fixtype_service_req', 
+    company: 'FIXTYPE',
+    name: '용역계약서_용역의뢰서',
+    desc: 'FIXTYPE 기 체결 용역 계약에 대한 부속 합의서',
+    templateId: '12Qk_mclOvrhs4x-6v5mjnKzonrFVIGBZ',
+    downloadId: '12Qk_mclOvrhs4x-6v5mjnKzonrFVIGBZ',
+    fields: [] 
+  },
+  
+  { id: 'fixtype_folio',
+    company: 'FIXTYPE',
+    name: 'FIXFOLIO 서비스 이용 신청서',
+    desc: 'FIXFOLIO 서비스 이용 신청서',
+    templateId: '12Qk_mclOvrhs4x-6v5mjnKzonrFVIGBZ',
+    downloadId: '12Qk_mclOvrhs4x-6v5mjnKzonrFVIGBZ',
+   fields: [] 
+  }
 ];
