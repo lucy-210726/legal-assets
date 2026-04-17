@@ -1128,11 +1128,13 @@ document.getElementById('inq-dash-count').textContent = '오류';
 document.getElementById('rev-dash-count').textContent = '오류';
 }).getDashboardData();
 }
+// 회신완료를 검토·진행중 카운트에 합산
 function renderDashboard(inquiries, reviews) {
 document.getElementById('sc-inq-pending').textContent  = inquiries.filter(function(r){return r.status==='\ubbf8\ub2f5\ubcc0' && !r.assignee;}).length;
-document.getElementById('sc-inq-progress').textContent = inquiries.filter(function(r){return r.status==='\ubbf8\ub2f5\ubcc0' && r.assignee;}).length;
+document.getElementById('sc-inq-progress').textContent = inquiries.filter(function(r){return r.status!=='\ubbf8\ub2f5\ubcc0' || r.assignee;}).length;
 document.getElementById('sc-rev-pending').textContent  = reviews.filter(function(r){return !r.status||r.status==='\uac80\ud1a0\ub300\uae30';}).length;
-document.getElementById('sc-rev-progress').textContent = reviews.filter(function(r){return r.status==='\uac80\ud1a0\uc911';}).length;
+// 검토·진행중 = 검토중 + 회신완료
+document.getElementById('sc-rev-progress').textContent = reviews.filter(function(r){return r.status==='\uac80\ud1a0\uc911'||r.status==='\ud68c\uc2e0\uc644\ub8cc';}).length;
 document.getElementById('sc-rev-agreed').textContent   = reviews.filter(function(r){return r.status==='\ud569\uc758\uc644\ub8cc';}).length;
 document.getElementById('inq-dash-count').textContent  = '\ucd1d ' + inquiries.length + '\uac74';
 document.getElementById('rev-dash-count').textContent  = '\ucd1d ' + reviews.length + '\uac74';
@@ -1187,7 +1189,7 @@ document.getElementById('rev-pagination').style.display = 'flex';
 return;
 }
 tbody.innerHTML = items.map(function(r) {
-var bc = r.status==='\uac80\ud1a0\uc911' ? 'rev-status-inprogress' : r.status==='\ud569\uc758\uc644\ub8cc' ? 'rev-status-agreed' : 'rev-status-pending';
+var bc = r.status==='\uac80\ud1a0\uc911' ? 'rev-status-inprogress' : r.status==='\ud68c\uc2e0\uc644\ub8cc' ? 'rev-status-replied' : r.status==='\ud569\uc758\uc644\ub8cc' ? 'rev-status-agreed' : 'rev-status-pending';
 var revTypeLabel = r.contractType === 'nonstandard' ? '\ube44\ud45c\uc900' : '\ud45c\uc900';
 var partyLabel = r.contractParty || '\u2014';
 return '<tr><td style="font-weight:600;text-align:center;">' + esc(r.requesterName) + '</td>' +
