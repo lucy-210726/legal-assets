@@ -381,11 +381,39 @@ _attachFiles['inq']=[]; renderAttachList('inq');
 _attachFiles['inq-prog']=[]; renderAttachList('inq-prog');
 if(isDone){ doneSection.style.display='block'; }
 else if(isProgress){
-var assigneeName=r.assignee||'(알 수 없음)';
-document.getElementById('inq-progress-info').innerHTML='🔵 <strong>'+esc(assigneeName)+'</strong>님이 진행 중입니다. 답변을 이어서 작성하거나 전송할 수 있습니다.';
+// 파란 박스 제거 — 바로 답변 작성 영역 표시
+var progressInfoEl = document.getElementById('inq-progress-info');
+if (progressInfoEl) progressInfoEl.style.display = 'none';
 document.getElementById('inq-progress-textarea').value='';
 progressSection.style.display='block';
 populateAssigneeSelect();
+} else {
+replySection.style.display='block';
+document.getElementById('inq-reply-textarea').value='';
+if(!document.getElementById('inq-start-btn')){
+var footer=replySection.querySelector('.inq-reply-footer .btn-row');
+var startBtn=document.createElement('button');
+startBtn.id='inq-start-btn'; startBtn.className='btn btn-dark'; startBtn.textContent='진행';
+startBtn.onclick=startInquiry;
+footer.insertBefore(startBtn, footer.querySelector('#inq-reply-btn'));
+}
+}
+var panel=document.getElementById('inq-detail-panel');
+panel.style.display='block';
+setTimeout(function(){panel.scrollIntoView({behavior:'smooth',block:'nearest'});},50);
+}
+function populateAssigneeSelect(){
+  loadLegalMembers(function(members){
+    var sel = document.getElementById('inq-assignee-select');
+    if (!sel) return;
+    var currentName = _selectedInq ? (_selectedInq.assignee || '') : '';
+    sel.innerHTML = '<option value="">담당자 선택...</option>' +
+      members.map(function(m) {
+        var isSelected = (currentName && (m.name === currentName || m.email === currentName));
+        return '<option value="' + esc(m.email) + '"' + (isSelected ? ' selected' : '') + '>' + esc(m.name) + '</option>';
+      }).join('');
+  });
+}
 } else {
 replySection.style.display='block';
 document.getElementById('inq-reply-textarea').value='';
