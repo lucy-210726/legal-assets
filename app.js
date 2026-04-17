@@ -509,6 +509,30 @@ var sk=function(){return '<tr><td></td><td class="hide-mobile"><span class="skel
 document.getElementById('rev-tbody').innerHTML=sk()+sk()+sk();
 }
 function filterRevTable(){var q=document.getElementById('rev-search').value.trim().toLowerCase();_revFiltered=q?_revAll.filter(function(r){return r.requesterName.toLowerCase().includes(q)||r.contractName.toLowerCase().includes(q);}):_revAll;renderRevTable(_revFiltered);}
+function renderRevTable(rows){
+var tbody=document.getElementById('rev-tbody');
+var pendingCount=rows.filter(function(r){return !r.status||r.status==='검토대기';}).length;
+var progressCount=rows.filter(function(r){return r.status==='검토중';}).length;
+var repliedCount=rows.filter(function(r){return r.status==='회신완료';}).length;
+var agreedCount=rows.filter(function(r){return r.status==='합의완료';}).length;
+var doneCount=rows.filter(function(r){return r.status==='검토완료';}).length;
+var revCountText='전체 '+rows.length+'건 · 검토대기 '+pendingCount+'건';
+if(progressCount>0) revCountText+=' · 검토중 '+progressCount+'건';
+if(repliedCount>0) revCountText+=' · 회신완료 '+repliedCount+'건';
+if(agreedCount>0) revCountText+=' · 합의완료 '+agreedCount+'건';
+revCountText+=' · 검토완료 '+doneCount+'건';
+document.getElementById('rev-list-count').textContent=revCountText;
+if(!rows.length){tbody.innerHTML='<tr><td colspan="8"><div class="list-empty"><div class="empty-icon">📭</div><p>검토 요청 내역이 없습니다.</p></div></td></tr>';return;}
+tbody.innerHTML=rows.map(function(r){
+var isDone=r.status==='검토완료', isProgress=r.status==='검토중', isAgreed=r.status==='합의완료', isReplied=r.status==='회신완료';
+var isSelected=_selectedRev&&_selectedRev.id===r.id;
+var revBadgeClass=isDone?'rev-status-done':isReplied?'rev-status-replied':isProgress?'rev-status-inprogress':isAgreed?'rev-status-agreed':'rev-status-pending';
+var progressName=r.confirmedBy||'';
+var partyLabel = r.contractParty || '\u2014';
+var revTypeLabel = r.contractType === 'nonstandard' ? '비표준' : '표준';
+return '<tr data-id="'+esc(r.id)+'" onclick="selectRev(\''+esc(r.id)+'\')" class="'+(isSelected?'selected':'')+'"><td class="col-radio"><input type="radio" class="row-radio" name="rev-row" '+(isSelected?'checked':'')+' onclick="event.stopPropagation();selectRev(\''+esc(r.id)+'\')"></td><td class="col-rev-requester" style="font-weight:600;text-align:center;">'+esc(r.requesterName)+'</td><td style="text-align:center;">'+esc(partyLabel)+'</td><td style="text-align:center;">'+revTypeLabel+'</td><td class="col-rev-name" style="font-weight:500;">'+esc(r.contractName)+'</td><td class="col-rev-date hide-mobile" style="font-size:0.8rem;color:var(--text-muted);text-align:center;">'+esc(fmtDateTimeKo(r.requestDate))+'</td><td class="col-rev-status" style="text-align:center;"><span class="rev-status-badge '+revBadgeClass+'">'+esc(r.status||'검토대기')+'</span></td><td class="col-rev-confirmed hide-mobile" style="font-size:0.82rem;color:var(--text-muted);text-align:center;">'+esc(progressName)+'</td></tr>';
+}).join('');
+}
 function selectRev(id){var pool=_revFiltered.length?_revFiltered:_revAll;_selectedRev=pool.find(function(r){return r.id===id;})||null;renderRevTable(pool); if(_selectedRev) renderRevDetailPanel();}
 function clearRevSel(){_selectedRev=null;renderRevTable(_revFiltered.length?_revFiltered:_revAll);document.getElementById('rev-detail-panel').style.display='none';document.getElementById('rev-assignee-wrap-dynamic').innerHTML='';}
 
