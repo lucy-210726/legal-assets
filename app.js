@@ -402,6 +402,7 @@ var panel=document.getElementById('inq-detail-panel');
 panel.style.display='block';
 setTimeout(function(){panel.scrollIntoView({behavior:'smooth',block:'nearest'});},50);
 }
+
 function populateAssigneeSelect(){
   loadLegalMembers(function(members){
     var sel = document.getElementById('inq-assignee-select');
@@ -413,21 +414,6 @@ function populateAssigneeSelect(){
         return '<option value="' + esc(m.email) + '"' + (isSelected ? ' selected' : '') + '>' + esc(m.name) + '</option>';
       }).join('');
   });
-}
-} else {
-replySection.style.display='block';
-document.getElementById('inq-reply-textarea').value='';
-if(!document.getElementById('inq-start-btn')){
-var footer=replySection.querySelector('.inq-reply-footer .btn-row');
-var startBtn=document.createElement('button');
-startBtn.id='inq-start-btn'; startBtn.className='btn btn-dark'; startBtn.textContent='진행';
-startBtn.onclick=startInquiry;
-footer.insertBefore(startBtn, footer.querySelector('#inq-reply-btn'));
-}
-}
-var panel=document.getElementById('inq-detail-panel');
-panel.style.display='block';
-setTimeout(function(){panel.scrollIntoView({behavior:'smooth',block:'nearest'});},50);
 }
 
 // ════════════════════════════════════════════════════════════
