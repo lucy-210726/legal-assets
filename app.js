@@ -1193,12 +1193,12 @@ var bc = r.status==='\uac80\ud1a0\uc911' ? 'rev-status-inprogress' : r.status===
 var revTypeLabel = r.contractType === 'nonstandard' ? '\ube44\ud45c\uc900' : '\ud45c\uc900';
 var partyLabel = r.contractParty || '\u2014';
 return '<tr><td style="font-weight:600;text-align:center;">' + esc(r.requesterName) + '</td>' +
-'<td style="font-size:0.78rem;text-align:center;white-space:nowrap;"><span class="party-badge ' + partyClass(partyLabel) + '">' + esc(partyLabel) + '</span></td>' +
-'<td style="font-size:0.78rem;text-align:center;white-space:nowrap;"><span style="padding:2px 8px;border-radius:10px;font-weight:700;font-size:0.68rem;' + (r.contractType==='nonstandard' ? 'background:#fef3e8;color:#c0622b;' : 'background:#e8f0fb;color:#2c5fad;') + '">' + revTypeLabel + '</span></td>' +
+'<td style="text-align:center;">' + esc(partyLabel) + '</td>' +
+'<td style="text-align:center;">' + revTypeLabel + '</td>' +
 '<td class="col-name">' + esc(r.contractName) + '</td>' +
-'<td class="hide-mobile" style="font-size:0.78rem;color:var(--text-muted);white-space:nowrap;text-align:center;">' + fmtDateShort(r.requestDate) + '</td>' +
+'<td class="hide-mobile" style="text-align:center;">' + fmtDateShort(r.requestDate) + '</td>' +
 '<td style="text-align:center;"><span class="rev-status-badge ' + bc + '">' + esc(r.status||'\uac80\ud1a0\ub300\uae30') + '</span></td>' +
-'<td class="hide-mobile" style="font-size:0.8rem;color:var(--text-muted);text-align:center;">' + esc(r.confirmedBy||'\u2014') + '</td></tr>';
+'<td class="hide-mobile" style="text-align:center;">' + esc(r.confirmedBy||'\u2014') + '</td></tr>';
 }).join('');
 var pg = document.getElementById('rev-pagination');
 pg.style.display = 'flex';
