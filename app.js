@@ -381,7 +381,6 @@ _attachFiles['inq']=[]; renderAttachList('inq');
 _attachFiles['inq-prog']=[]; renderAttachList('inq-prog');
 if(isDone){ doneSection.style.display='block'; }
 else if(isProgress){
-// 파란 박스 제거 — 바로 답변 작성 영역 표시
 var progressInfoEl = document.getElementById('inq-progress-info');
 if (progressInfoEl) progressInfoEl.style.display = 'none';
 document.getElementById('inq-progress-textarea').value='';
@@ -404,15 +403,17 @@ setTimeout(function(){panel.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
 function populateAssigneeSelect(){
-  loadLegalMembers(function(members){
-    var sel = document.getElementById('inq-assignee-select');
-    if (!sel) return;
-    var currentName = _selectedInq ? (_selectedInq.assignee || '') : '';
-    sel.innerHTML = '<option value="">담당자 선택...</option>' +
-      members.map(function(m) {
-        var isSelected = (currentName && (m.name === currentName || m.email === currentName));
-        return '<option value="' + esc(m.email) + '"' + (isSelected ? ' selected' : '') + '>' + esc(m.name) + '</option>';
-      }).join(''); });}
+loadLegalMembers(function(members){
+var sel = document.getElementById('inq-assignee-select');
+if (!sel) return;
+var currentName = _selectedInq ? (_selectedInq.assignee || '') : '';
+sel.innerHTML = '<option value="">담당자 선택...</option>' +
+members.map(function(m) {
+var isSelected = (currentName && (m.name === currentName || m.email === currentName));
+return '<option value="' + esc(m.email) + '"' + (isSelected ? ' selected' : '') + '>' + esc(m.name) + '</option>';
+}).join('');
+});
+}
 
 // ════════════════════════════════════════════════════════════
 //  답변 첨부 파일
