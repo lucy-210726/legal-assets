@@ -208,7 +208,12 @@ footer{background:var(--ink);color:rgba(255,255,255,0.4);text-align:center;paddi
 .dash-table td {
   font-family: var(--font) !important;
   font-size: 0.8rem !important;
-  font-weight: 600 !important;
+  font-weight: 450 !important;
   color: var(--text) !important;
   text-align: center !important;
+}
+
+/* 대시보드 — 문의제목/계약서명 왼쪽 정렬 */
+.dash-table td.col-name {
+  text-align: left !important;
 }
