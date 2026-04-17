@@ -196,11 +196,19 @@ footer{background:var(--ink);color:rgba(255,255,255,0.4);text-align:center;paddi
 .rev-status-replied {
   background: #fef3e8 !important;
   color: #c0622b !important;
-  border: 1px solid #f0d4b8;
 }
 
 /* 검토 요청 목록 — 상태 열 너비 확장 (줄임표 방지) */
 .ct-table .col-rev-status {
   width: 110px !important;
   min-width: 110px;
+}
+
+/* 대시보드 테이블 — 모든 셀 글씨체/크기 통일 (문의자 스타일) */
+.dash-table td {
+  font-family: var(--font) !important;
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+  color: var(--text) !important;
+  text-align: center !important;
 }
