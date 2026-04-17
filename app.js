@@ -412,9 +412,7 @@ function populateAssigneeSelect(){
       members.map(function(m) {
         var isSelected = (currentName && (m.name === currentName || m.email === currentName));
         return '<option value="' + esc(m.email) + '"' + (isSelected ? ' selected' : '') + '>' + esc(m.name) + '</option>';
-      }).join('');
-  });
-}
+      }).join(''); });}
 
 // ════════════════════════════════════════════════════════════
 //  답변 첨부 파일
