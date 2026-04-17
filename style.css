@@ -198,3 +198,9 @@ footer{background:var(--ink);color:rgba(255,255,255,0.4);text-align:center;paddi
   color: #c0622b !important;
   border: 1px solid #f0d4b8;
 }
+
+/* 검토 요청 목록 — 상태 열 너비 확장 (줄임표 방지) */
+.ct-table .col-rev-status {
+  width: 110px !important;
+  min-width: 110px;
+}
