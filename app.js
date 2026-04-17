@@ -500,18 +500,20 @@ function renderRevTable(rows){
 var tbody=document.getElementById('rev-tbody');
 var pendingCount=rows.filter(function(r){return !r.status||r.status==='검토대기';}).length;
 var progressCount=rows.filter(function(r){return r.status==='검토중';}).length;
+var repliedCount=rows.filter(function(r){return r.status==='회신완료';}).length;
 var agreedCount=rows.filter(function(r){return r.status==='합의완료';}).length;
 var doneCount=rows.filter(function(r){return r.status==='검토완료';}).length;
 var revCountText='전체 '+rows.length+'건 · 검토대기 '+pendingCount+'건';
 if(progressCount>0) revCountText+=' · 검토중 '+progressCount+'건';
+if(repliedCount>0) revCountText+=' · 회신완료 '+repliedCount+'건';
 if(agreedCount>0) revCountText+=' · 합의완료 '+agreedCount+'건';
 revCountText+=' · 검토완료 '+doneCount+'건';
 document.getElementById('rev-list-count').textContent=revCountText;
 if(!rows.length){tbody.innerHTML='<tr><td colspan="8"><div class="list-empty"><div class="empty-icon">📭</div><p>검토 요청 내역이 없습니다.</p></div></td></tr>';return;}
 tbody.innerHTML=rows.map(function(r){
-var isDone=r.status==='검토완료', isProgress=r.status==='검토중', isAgreed=r.status==='합의완료';
+var isDone=r.status==='검토완료', isProgress=r.status==='검토중', isAgreed=r.status==='합의완료', isReplied=r.status==='회신완료';
 var isSelected=_selectedRev&&_selectedRev.id===r.id;
-var revBadgeClass=isDone?'rev-status-done':isProgress?'rev-status-inprogress':isAgreed?'rev-status-agreed':'rev-status-pending';
+var revBadgeClass=isDone?'rev-status-done':isReplied?'rev-status-replied':isProgress?'rev-status-inprogress':isAgreed?'rev-status-agreed':'rev-status-pending';
 var progressName=r.confirmedBy||'';
 var partyLabel = r.contractParty || '\u2014';
 var partyBadge = '<td style="text-align:center;"><span class="party-badge ' + partyClass(partyLabel) + '">' + esc(partyLabel) + '</span></td>';
@@ -522,11 +524,7 @@ return '<tr data-id="'+esc(r.id)+'" onclick="selectRev(\''+esc(r.id)+'\')" class
 }
 function selectRev(id){var pool=_revFiltered.length?_revFiltered:_revAll;_selectedRev=pool.find(function(r){return r.id===id;})||null;renderRevTable(pool); if(_selectedRev) renderRevDetailPanel();}
 function clearRevSel(){_selectedRev=null;renderRevTable(_revFiltered.length?_revFiltered:_revAll);document.getElementById('rev-detail-panel').style.display='none';document.getElementById('rev-assignee-wrap-dynamic').innerHTML='';}
-// ── 검토 의견 첨부파일 상태 ──
-var _revReplyAttachFiles = [];
 
-
-// ── 1. renderRevDetailPanel() 교체 ──
 // ── 검토 의견 첨부파일 상태 ──
 var _revReplyAttachFiles = [];
 
@@ -556,13 +554,14 @@ function koreanNameOnly(name) {
 function renderRevDetailPanel(){
 var r=_selectedRev;
 var isDone=r.status==='검토완료', isProgress=r.status==='검토중', isAgreed=r.status==='합의완료';
+var isReplied=r.status==='회신완료';
 var isPending=!r.status||r.status==='검토대기';
 var isLegal=IS_LEGAL_TEAM==='true';
 
 document.getElementById('rev-detail-title').textContent=r.contractName;
 var badge=document.getElementById('rev-detail-status-badge');
 badge.textContent=r.status||'검토대기';
-badge.className='rev-status-badge '+(isDone?'rev-status-done':isProgress?'rev-status-inprogress':isAgreed?'rev-status-agreed':'rev-status-pending');
+badge.className='rev-status-badge '+(isDone?'rev-status-done':isProgress?'rev-status-inprogress':isReplied?'rev-status-replied':isAgreed?'rev-status-agreed':'rev-status-pending');
 
 document.getElementById('rev-detail-meta').innerHTML=[
   {lbl:'요청자',val:r.requesterName},
@@ -603,7 +602,7 @@ if (recipientInfoEl) {
 
 // ── 진행자 변경 영역 ──
 var dynWrap=document.getElementById('rev-assignee-wrap-dynamic');
-if(isProgress && isLegal){
+if((isProgress || isReplied) && isLegal){
 dynWrap.innerHTML='<div style="padding:0 28px 16px;"><div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;"><span style="font-family:var(--font);font-size:0.82rem;font-weight:600;color:var(--ink-3);white-space:nowrap;">👤 진행자 변경</span><select id="rev-assignee-select" style="flex:1;font-family:var(--font);font-size:0.85rem;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;background:var(--white);color:var(--text);"><option value="">진행자 선택...</option></select><button onclick="doChangeRevAssignee()" style="font-family:var(--font);font-size:0.8rem;font-weight:600;padding:8px 16px;border-radius:8px;border:1.5px solid var(--gold);background:transparent;color:var(--gold);cursor:pointer;white-space:nowrap;">변경</button></div></div>';
 populateRevAssigneeSelect();
 } else {dynWrap.innerHTML='';}
@@ -622,7 +621,7 @@ if (historyWrap) {
 // ── 검토 의견 작성 섹션 (법무팀 + 검토중/합의완료) ──
 var replySection = document.getElementById('rev-reply-section');
 if (replySection) {
-  if (isLegal && (isProgress || isAgreed)) {
+  if (isLegal && (isProgress || isReplied || isAgreed)) {
     replySection.style.display = 'block';
     // 기본 양식 세팅 — @요청자, @진행자 자동 치환 (한글이름만)
     var assigneeName = koreanNameOnly(r.confirmedBy || USER_NAME || '');
@@ -661,7 +660,7 @@ if(isPending && isLegal){
   foot.insertBefore(startBtn, confirmBtn);
   confirmBtn.style.display='none';
 }
-else if(isProgress && !isLegal && r.requesterEmail===USER_EMAIL){
+else if((isProgress || isReplied) && !isLegal && r.requesterEmail===USER_EMAIL){
   var agreeBtn=document.createElement('button');
   agreeBtn.id='rev-agree-btn'; agreeBtn.className='btn btn-gold'; agreeBtn.textContent='✅ 합의 완료';
   agreeBtn.onclick=doAgreeReview;
@@ -824,7 +823,12 @@ function sendRevReply() {
           textarea.value = '';
           _revReplyAttachFiles = [];
           renderRevReplyAttachList();
+          // 상태를 '회신완료'로 로컬 반영
+          var row = _revAll.find(function(r){ return r.id === _selectedRev.id; });
+          if (row) { row.status = '회신완료'; _selectedRev = row; }
+          renderRevTable(_revFiltered.length ? _revFiltered : _revAll);
           loadRevReplyHistory(_selectedRev.id);
+          renderRevDetailPanel();
 
         } catch (e) {
           showAlert(e.message, { title: '발송 실패', icon: '❌' });
@@ -864,7 +868,7 @@ function loadRevReplyHistory(reviewId) {
     .getReviewReplyHistory(reviewId);
 }
 
-function populateRevAssigneeSelect(){loadLegalMembers(function(members){var sel = document.getElementById('rev-assignee-select');if (!sel) return;var currentName = _selectedRev ? (_selectedRev.confirmedBy || '') : '';sel.innerHTML = '<option value="">진행자 선택...</option>' + members.map(function(m) {var isSelected = (currentName && (m.name === currentName || m.email === currentName)); return '<option value="' + esc(m.email) + '"' + (isSelected ? ' selected' : '') + '>' + esc(m.name) + '</option>';}).join('');});}
+function populateRevAssigneeSelect(){loadLegalMembers(function(members){var sel = document.getElementById('rev-assignee-select');if (!sel) return;var currentName = _selectedRev ? (_selectedRev.confirmedBy || '') : '';sel.innerHTML = '<option value="">진행자 선택...</option>' + members.map(function(m) {var isSelected = (currentName && (m.name === currentName || m.email === currentName)); return '<option value="' + esc(m.email) + '"' + (isSelected ? ' selected' : '') + '>' + esc(m.name) + '</option>'; }).join(''); }); }
 function doChangeRevAssignee(){if(!_selectedRev) return;var sel=document.getElementById('rev-assignee-select');var email=sel?sel.value:'';if(!email){showAlert('진행자를 선택해주세요.',{title:'선택 필요',icon:'⚠️'});return;}google.script.run.withSuccessHandler(function(result){if(result&&result.ok){var selectedOption=sel?sel.options[sel.selectedIndex]:null;var assigneeName=selectedOption?selectedOption.text:email.split('@')[0];var row=_revAll.find(function(r){return r.id===_selectedRev.id;});if(row){row.confirmedBy=assigneeName;_selectedRev=row;}renderRevTable(_revFiltered.length?_revFiltered:_revAll);renderRevDetailPanel();}else{showAlert((result&&result.error)||'알 수 없는 오류가 발생했습니다.',{title:'변경 실패',icon:'❌'});}}).withFailureHandler(function(err){showAlert(err.message||String(err),{title:'오류',icon:'❌'});}).changeReviewAssignee(_selectedRev.id,email);}
 function doStartReview(){if(!_selectedRev) return;var btn=document.getElementById('rev-start-btn');if(btn){btn.disabled=true;btn.textContent='처리 중...';}google.script.run.withSuccessHandler(function(result){if(result&&result.ok){var row=_revAll.find(function(r){return r.id===_selectedRev.id;});if(row){row.status='검토중';_selectedRev=row;}renderRevTable(_revFiltered.length?_revFiltered:_revAll);renderRevDetailPanel();}else{showAlert((result&&result.error)||'알 수 없는 오류가 발생했습니다.',{title:'처리 실패',icon:'❌'});if(btn){btn.disabled=false;btn.textContent='\u25b6 검토 시작';}}}).withFailureHandler(function(err){showAlert(err.message||String(err),{title:'오류',icon:'❌'});if(btn){btn.disabled=false;btn.textContent='\u25b6 검토 시작';}}).startReview(_selectedRev.id);}
 function doAgreeReview(){if(!_selectedRev) return;showConfirm('합의 완료 처리하시겠습니까?\n법무실에 합의 완료 사실이 전달됩니다.',{title:_selectedRev.contractName, icon:'\u2705', okLabel:'합의 완료',onOk:function(){var btn=document.getElementById('rev-agree-btn');if(btn){btn.disabled=true;btn.textContent='처리 중...';}google.script.run.withSuccessHandler(function(result){if(result&&result.ok){var row=_revAll.find(function(r){return r.id===_selectedRev.id;});if(row){row.status='합의완료';_selectedRev=row;}renderRevTable(_revFiltered.length?_revFiltered:_revAll);renderRevDetailPanel();}else{showAlert((result&&result.error)||'알 수 없는 오류가 발생했습니다.',{title:'처리 실패',icon:'❌'});if(btn){btn.disabled=false;btn.textContent='\u2705 합의 완료';}}}).withFailureHandler(function(err){showAlert(err.message||String(err),{title:'오류',icon:'❌'});if(btn){btn.disabled=false;btn.textContent='\u2705 합의 완료';}}).agreeReview(_selectedRev.id);}});}
