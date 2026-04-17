@@ -848,12 +848,12 @@ function loadRevReplyHistory(reviewId) {
   var wrapEl = document.getElementById('rev-reply-history-wrap');
   if (!contentEl || !wrapEl) return;
 
-  contentEl.textContent = '로드 중...';
+  contentEl.innerHTML = '<span style="color:var(--text-muted);">로드 중...</span>';
 
   google.script.run
     .withSuccessHandler(function(result) {
       if (result && result.ok && result.history) {
-        contentEl.textContent = result.history;
+        contentEl.innerHTML = renderReplyHistoryCards(result.history);
         wrapEl.style.display = 'block';
       } else if (result && result.ok && !result.history) {
         contentEl.innerHTML = '<span style="color:var(--text-muted);font-style:italic;">아직 회신 이력이 없습니다.</span>';
@@ -866,6 +866,64 @@ function loadRevReplyHistory(reviewId) {
       wrapEl.style.display = 'none';
     })
     .getReviewReplyHistory(reviewId);
+}
+
+// ── 회신 이력을 카드 형태로 렌더링 ──
+function renderReplyHistoryCards(historyText) {
+  if (!historyText) return '';
+  // 엔트리 구분: [날짜 · 이름] 패턴으로 분리
+  var entries = historyText.split(/\n\n(?=\[)/);
+  if (!entries.length) return '<span style="color:var(--text-muted);font-style:italic;">아직 회신 이력이 없습니다.</span>';
+
+  return entries.map(function(entry, idx) {
+    entry = entry.trim();
+    if (!entry) return '';
+    // 헤더 추출: [2025-04-17 14:30 · 김루시]
+    var headerMatch = entry.match(/^\[([^\]]+)\]/);
+    var header = headerMatch ? headerMatch[1] : '';
+    var body = headerMatch ? entry.substring(headerMatch[0].length).trim() : entry;
+    // 인사말/서명 제거
+    body = stripGreetingSignature(body);
+    if (!body) body = '(내용 없음)';
+    var headerParts = header.split('·').map(function(s){ return s.trim(); });
+    var dateStr = headerParts[0] || '';
+    var nameStr = headerParts[1] || '';
+    var displayName = koreanNameOnly(nameStr) || nameStr;
+    var num = entries.length - idx;
+
+    return '<div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:8px;">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">' +
+        '<div style="display:flex;align-items:center;gap:8px;">' +
+          '<span style="font-size:0.68rem;font-weight:700;color:var(--white);background:var(--ink);padding:2px 8px;border-radius:10px;">#' + num + '</span>' +
+          '<span style="font-size:0.82rem;font-weight:700;color:var(--ink);">' + esc(displayName) + '</span>' +
+        '</div>' +
+        '<span style="font-size:0.72rem;color:var(--text-muted);">' + esc(dateStr) + '</span>' +
+      '</div>' +
+      '<div style="font-size:0.84rem;color:var(--text);line-height:1.7;white-space:pre-wrap;">' + esc(body) + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+// ── 인사말/서명 제거 ──
+function stripGreetingSignature(text) {
+  if (!text) return '';
+  var lines = text.split('\n');
+  var filtered = [];
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i].trim();
+    // "OOO님, 안녕하세요." 패턴
+    if (/^.{1,20}님,?\s*안녕하세요\.?$/.test(line)) continue;
+    // "법무실 OOO입니다." 패턴
+    if (/^법무실\s+.{1,20}입니다\.?$/.test(line)) continue;
+    // "감사합니다." 패턴
+    if (/^감사합니다\.?$/.test(line)) continue;
+    // "OOO 드림." 패턴
+    if (/^.{1,20}\s*드림\.?$/.test(line)) continue;
+    filtered.push(lines[i]);
+  }
+  // 앞뒤 빈줄 제거
+  var result = filtered.join('\n');
+  return result.replace(/^\n+/, '').replace(/\n+$/, '').trim();
 }
 
 function populateRevAssigneeSelect(){loadLegalMembers(function(members){var sel = document.getElementById('rev-assignee-select');if (!sel) return;var currentName = _selectedRev ? (_selectedRev.confirmedBy || '') : '';sel.innerHTML = '<option value="">진행자 선택...</option>' + members.map(function(m) {var isSelected = (currentName && (m.name === currentName || m.email === currentName)); return '<option value="' + esc(m.email) + '"' + (isSelected ? ' selected' : '') + '>' + esc(m.name) + '</option>'; }).join(''); }); }
