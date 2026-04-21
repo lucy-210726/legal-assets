@@ -2149,3 +2149,71 @@ async function doMyRequestReReview() {
 
   btn.disabled = false; btn.textContent = '🔄 재검토 요청 전송';
 }
+// ── 검토 의견 회신 이력 로드 ──
+function loadRevReplyHistory(reviewId) {
+  var contentEl = document.getElementById('rev-reply-history-content');
+  var wrapEl = document.getElementById('rev-reply-history-wrap');
+  if (!contentEl || !wrapEl) return;
+  contentEl.innerHTML = '<span style="color:var(--text-muted);">로드 중...</span>';
+  google.script.run
+    .withSuccessHandler(function(result) {
+      if (result && result.ok && result.history) {
+        contentEl.innerHTML = renderReplyHistoryCards(result.history);
+        wrapEl.style.display = 'block';
+      } else if (result && result.ok && !result.history) {
+        contentEl.innerHTML = '<span style="color:var(--text-muted);font-style:italic;">아직 회신 이력이 없습니다.</span>';
+        wrapEl.style.display = 'block';
+      } else {
+        wrapEl.style.display = 'none';
+      }
+    })
+    .withFailureHandler(function() {
+      wrapEl.style.display = 'none';
+    })
+    .getReviewReplyHistory(reviewId);
+}
+
+function renderReplyHistoryCards(historyText) {
+  if (!historyText) return '';
+  var entries = historyText.split(/\n\n(?=\[)/);
+  if (!entries.length) return '<span style="color:var(--text-muted);font-style:italic;">아직 회신 이력이 없습니다.</span>';
+  return entries.map(function(entry, idx) {
+    entry = entry.trim();
+    if (!entry) return '';
+    var headerMatch = entry.match(/^\[([^\]]+)\]/);
+    var header = headerMatch ? headerMatch[1] : '';
+    var body = headerMatch ? entry.substring(headerMatch[0].length).trim() : entry;
+    body = stripGreetingSignature(body);
+    if (!body) body = '(내용 없음)';
+    var headerParts = header.split('·').map(function(s){ return s.trim(); });
+    var dateStr = headerParts[0] || '';
+    var nameStr = headerParts[1] || '';
+    var displayName = koreanNameOnly(nameStr) || nameStr;
+    var num = entries.length - idx;
+    return '<div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:8px;">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">' +
+        '<div style="display:flex;align-items:center;gap:8px;">' +
+          '<span style="font-size:0.68rem;font-weight:700;color:var(--white);background:var(--ink);padding:2px 8px;border-radius:10px;">#' + num + '</span>' +
+          '<span style="font-size:0.82rem;font-weight:700;color:var(--ink);">' + esc(displayName) + '</span>' +
+        '</div>' +
+        '<span style="font-size:0.72rem;color:var(--text-muted);">' + esc(dateStr) + '</span>' +
+      '</div>' +
+      '<div style="font-size:0.84rem;color:var(--text);line-height:1.7;white-space:pre-wrap;">' + esc(body) + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function stripGreetingSignature(text) {
+  if (!text) return '';
+  var lines = text.split('\n');
+  var filtered = [];
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i].trim();
+    if (/^.{1,20}님,?\s*안녕하세요\.?$/.test(line)) continue;
+    if (/^법무실\s+.{1,20}입니다\.?$/.test(line)) continue;
+    if (/^감사합니다\.?$/.test(line)) continue;
+    if (/^.{1,20}\s*드림\.?$/.test(line)) continue;
+    filtered.push(lines[i]);
+  }
+  return filtered.join('\n').replace(/^\n+/, '').replace(/\n+$/, '').trim();
+}
