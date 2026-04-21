@@ -169,6 +169,102 @@ PAGE_TEMPLATES.reviewmgmt = `
 </div>
 `;
 
+PAGE_TEMPLATES.myreview = `
+<div class="contract-page wide">
+<button class="page-back" onclick="goBack('myreview')">← 뒤로가기</button>
+<div class="section-label">My Reviews</div>
+<div class="page-title">내 검토 현황</div>
+<div class="page-subtitle">내가 요청한 계약서 검토 진행 상황을 확인하세요</div>
+
+<div class="search-bar">
+<input type="text" id="myrev-search" placeholder="🔍  계약서명 검색..." oninput="filterMyRevTable()">
+<button class="btn-sm" onclick="loadMyReviews()">↻ 새로고침</button>
+</div>
+
+<div class="list-card">
+<div class="list-card-header">
+<h4>📋 내 검토 요청 목록</h4>
+<span class="lc-count" id="myrev-list-count">로드 중...</span>
+</div>
+<div class="ct-table-wrap">
+<table class="ct-table">
+<thead>
+<tr>
+<th class="col-radio"></th>
+<th style="width:110px;">당사자</th>
+<th style="width:80px;">계약유형</th>
+<th class="col-rev-name">계약서명</th>
+<th class="col-rev-date hide-mobile">요청일</th>
+<th class="col-rev-status">상태</th>
+<th class="col-rev-confirmed hide-mobile">담당자</th>
+</tr>
+</thead>
+<tbody id="myrev-tbody">
+<tr><td colspan="7"><div class="dash-empty">⏳ 로드 중...</div></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- 상세 패널 -->
+<div class="rev-detail-panel" id="myrev-detail-panel" style="display:none;">
+<div class="rev-detail-head">
+<h4 id="myrev-detail-title">검토 요청 상세</h4>
+<span id="myrev-detail-status-badge" class="rev-status-badge rev-status-pending">검토대기</span>
+</div>
+<div class="rev-detail-body">
+<div class="rev-detail-meta" id="myrev-detail-meta"></div>
+
+<div id="myrev-opinion-wrap" style="display:none;">
+<div class="rev-opinion-box">
+<div class="rev-opinion-label">💬 검토 요청 의견</div>
+<div class="rev-opinion-text" id="myrev-detail-opinion"></div>
+</div>
+</div>
+
+<div id="myrev-file-wrap" style="display:none;">
+<a class="rev-file-link" id="myrev-file-link" href="#" target="_blank">📄 계약서 파일 열기 →</a>
+</div>
+
+<!-- 파일 목록 -->
+<div id="myrev-files-wrap" style="display:none;margin-top:16px;">
+<div style="border:1px solid var(--border);border-radius:12px;background:var(--surface);padding:14px 16px;">
+<div style="font-family:var(--font);font-size:0.82rem;font-weight:700;color:var(--ink-3);margin-bottom:10px;">📁 검토 파일 목록</div>
+<div id="myrev-files-list" style="font-family:var(--font);font-size:0.84rem;color:var(--text);"></div>
+</div>
+</div>
+
+<!-- 액션 버튼 (회신완료 상태에서만 표시) -->
+<div id="myrev-action-wrap" style="display:none;margin-top:16px;padding:0;">
+<div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;" id="myrev-action-buttons"></div>
+</div>
+
+<!-- 재검토 요청 파일 첨부 영역 -->
+<div id="myrev-rereview-wrap" style="display:none;margin-top:16px;">
+<div style="border:1px solid var(--border);border-radius:12px;background:var(--white);padding:16px;">
+<label style="font-family:var(--font);font-size:0.85rem;font-weight:700;color:var(--ink);display:block;margin-bottom:10px;">🔄 재검토 요청</label>
+<p style="font-family:var(--font);font-size:0.78rem;color:var(--text-muted);margin:0 0 12px;">수정된 파일이 있으면 첨부해주세요. 파일 없이도 재검토 요청이 가능합니다.</p>
+<div class="attach-zone" onclick="document.getElementById('myrev-rereview-attach-input').click()" style="padding:14px;min-height:auto;">
+<input type="file" id="myrev-rereview-attach-input" multiple accept=".pdf,.doc,.docx,.hwp,.xlsx,.xls,.pptx,.ppt" onchange="handleMyRevReReviewAttach(event)" style="display:none;">
+<div style="display:flex;align-items:center;gap:10px;justify-content:center;">
+<span style="font-size:1.1rem;">📎</span>
+<span style="font-family:var(--font);font-size:0.82rem;color:var(--text-muted);"><strong>파일 첨부</strong> (선택) · 클릭하여 파일 선택</span>
+</div>
+</div>
+<div class="attach-file-list" id="myrev-rereview-attach-list"></div>
+<div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px;">
+<button class="btn btn-ghost" onclick="cancelMyReReview()" style="font-size:0.84rem;padding:9px 18px;">취소</button>
+<button class="btn btn-gold" id="myrev-rereview-submit-btn" onclick="doMyRequestReReview()" style="font-size:0.84rem;padding:9px 20px;">🔄 재검토 요청 전송</button>
+</div>
+</div>
+</div>
+
+</div>
+<div class="rev-detail-foot"><button class="btn btn-ghost" onclick="clearMyRevSel()">닫기</button></div>
+</div>
+</div>
+`;
+
 PAGE_TEMPLATES.modals = `
 <div id="alert-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:600;align-items:center;justify-content:center;"><div style="background:var(--white);border-radius:20px;padding:36px 32px;max-width:400px;width:92%;box-shadow:var(--shadow-lg);font-family:var(--font);text-align:center;"><div id="alert-modal-icon" style="font-size:2rem;margin-bottom:14px;">ℹ️</div><div id="alert-modal-title" style="font-size:1rem;font-weight:700;color:var(--ink);margin-bottom:10px;"></div><div id="alert-modal-msg" style="font-size:0.88rem;color:var(--text-muted);line-height:1.7;margin-bottom:28px;white-space:pre-wrap;"></div><button onclick="closeAlertModal()" style="padding:11px 36px;border-radius:10px;border:none;background:var(--ink);color:white;font-family:var(--font);font-size:0.9rem;font-weight:700;cursor:pointer;">확인</button></div></div>
 <div id="confirm-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:600;align-items:center;justify-content:center;"><div style="background:var(--white);border-radius:20px;padding:36px 32px;max-width:400px;width:92%;box-shadow:var(--shadow-lg);font-family:var(--font);text-align:center;"><div id="confirm-modal-icon" style="font-size:2rem;margin-bottom:14px;">❓</div><div id="confirm-modal-title" style="font-size:1rem;font-weight:700;color:var(--ink);margin-bottom:10px;"></div><div id="confirm-modal-msg" style="font-size:0.88rem;color:var(--text-muted);line-height:1.7;margin-bottom:28px;white-space:pre-wrap;"></div><div style="display:flex;gap:10px;justify-content:center;"><button id="confirm-modal-cancel-btn" onclick="closeConfirmModal(false)" style="padding:11px 28px;border-radius:10px;border:1.5px solid var(--border);background:var(--white);font-family:var(--font);font-size:0.88rem;font-weight:600;cursor:pointer;color:var(--text-muted);">취소</button><button id="confirm-modal-ok-btn" onclick="closeConfirmModal(true)" style="padding:11px 28px;border-radius:10px;border:none;background:var(--ink);color:white;font-family:var(--font);font-size:0.88rem;font-weight:700;cursor:pointer;">확인</button></div></div></div>
