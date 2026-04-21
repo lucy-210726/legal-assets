@@ -1002,6 +1002,19 @@ function doFinalizeReview() {
   );
 }
 
+function populateRevAssigneeSelect(){
+  loadLegalMembers(function(members){
+    var sel = document.getElementById('rev-assignee-select');
+    if (!sel) return;
+    var currentName = _selectedRev ? (_selectedRev.confirmedBy || '') : '';
+    sel.innerHTML = '<option value="">진행자 선택...</option>' +
+      members.map(function(m) {
+        var isSelected = (currentName && (m.name === currentName || m.email === currentName));
+        return '<option value="' + esc(m.email) + '"' + (isSelected ? ' selected' : '') + '>' + esc(m.name) + '</option>';
+      }).join('');
+  });
+}
+
 // ════════════════════════════════════════════════════════════
 //  내 문의 현황
 // ════════════════════════════════════════════════════════════
