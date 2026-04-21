@@ -1550,31 +1550,6 @@ document.getElementById('contract-modified-review-view').style.display = 'none';
 showContractList();
 }
 
-var _myRevAll = [], _myRevFiltered = [], _mySelectedRev = null;
-var _myRevReReviewFiles = [];
-
-// ── 내 검토 현황 로드 ──
-function loadMyReviews() {
-  _mySelectedRev = null;
-  document.getElementById('myrev-detail-panel').style.display = 'none';
-  document.getElementById('myrev-list-count').textContent = '로드 중...';
-  document.getElementById('myrev-tbody').innerHTML = '<tr><td colspan="7"><div class="dash-empty">⏳ 로드 중...</div></td></tr>';
-
-  google.script.run
-    .withSuccessHandler(function(rows) {
-      // 현재 사용자 이메일로 필터링
-      _myRevAll = (rows || []).filter(function(r) {
-        return r.requesterEmail && r.requesterEmail.toLowerCase() === (USER_EMAIL || '').toLowerCase();
-      });
-      _myRevFiltered = _myRevAll;
-      renderMyRevTable(_myRevAll);
-    })
-    .withFailureHandler(function(err) {
-      document.getElementById('myrev-tbody').innerHTML = '<tr><td colspan="7"><div class="list-empty"><div class="empty-icon">⚠️</div><p>로드 실패: ' + esc(err.message || String(err)) + '</p></div></td></tr>';
-      document.getElementById('myrev-list-count').textContent = '—';
-    })
-    .getReviewRequests('all');
-}
 
 // ── 검색 필터 ──
 function filterMyRevTable() {
