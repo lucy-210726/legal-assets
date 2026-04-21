@@ -1060,6 +1060,29 @@ if(p==='myinquiry')  loadMyInquiries();
 if(p==='inqmgmt')    loadInqMgmt();
 if(p==='reviewmgmt') loadReviewMgmt();
 }
+
+// ── showPage 확장 — 'myreview' 라우팅 ──
+// 기존 showPage() 함수 내에 아래 조건을 추가:
+//   if(p==='myreview') loadMyReviews();
+//
+// 이미 기존 app.js의 showPage에 이 줄이 없다면 추가 필요.
+// 아래는 showPage를 래핑하는 방식으로 안전하게 확장하는 코드:
+
+(function() {
+  var _originalShowPage = window.showPage;
+  if (!_originalShowPage) return; // showPage가 아직 정의 안 됐으면 스킵
+
+  window.showPage = function(p) {
+    // 원래 showPage 호출
+    _originalShowPage(p);
+
+    // myreview 페이지 추가 처리
+    if (p === 'myreview') {
+      loadMyReviews();
+    }
+  };
+})();
+
 function goBack(p){
 if(p==='contract'){var formView=document.getElementById('contract-form-view');var listView=document.getElementById('contract-list-view');var nsView=document.getElementById('contract-nonstandard-view');var modView=document.getElementById('contract-modified-review-view');if(modView&&modView.style.display!=='none'){showContractList();return;}if(formView&&formView.style.display!=='none'){ showContractList(); return; }if(listView&&listView.style.display!=='none'){ showContractTypeSelect(); return; }if(nsView&&nsView.style.display!=='none'){ showContractTypeSelect(); return; }}
 showPage('home');
@@ -1320,6 +1343,7 @@ renderContractGrid();
 if (IS_LEGAL_TEAM === 'true') {
 document.getElementById('nav-inqmgmt').style.display = 'block';
 document.getElementById('nav-reviewmgmt').style.display = 'block';
+document.getElementById('nav-myreview').style.display = 'block';
 } else {
 document.getElementById('nav-myinquiry').style.display = 'block';
 }
@@ -1800,3 +1824,19 @@ async function doMyRequestReReview() {
 
   btn.disabled = false; btn.textContent = '🔄 재검토 요청 전송';
 }
+
+(function() {
+  // page-myreview div가 있고 PAGE_TEMPLATES.myreview가 정의되어 있으면 주입
+  var myrevPage = document.getElementById('page-myreview');
+  if (myrevPage && typeof PAGE_TEMPLATES !== 'undefined' && PAGE_TEMPLATES.myreview) {
+    myrevPage.innerHTML = PAGE_TEMPLATES.myreview;
+  }
+
+  // 비 Legal_Team 사용자에게 "내 검토 현황" 네비게이션 표시
+  var navMyReview = document.getElementById('nav-myreview');
+  if (navMyReview) {
+    if (typeof IS_LEGAL_TEAM !== 'undefined' && IS_LEGAL_TEAM !== 'true') {
+      navMyReview.style.display = 'block';
+    }
+  }
+})();
