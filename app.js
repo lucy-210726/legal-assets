@@ -1147,13 +1147,120 @@ function populateRevAssigneeSelect(){
 // ════════════════════════════════════════════════════════════
 //  내 문의 현황
 // ════════════════════════════════════════════════════════════
-function loadMyInquiries(){
-var container=document.getElementById('myinquiry-list');
-container.innerHTML='<div class="inq-empty"><div class="empty-icon">⏳</div><p>로드 중...</p></div>';
-google.script.run.withSuccessHandler(function(rows){
-if(!rows||!rows.length){container.innerHTML='<div class="inq-empty"><div class="empty-icon">📭</div><p>접수된 문의가 없습니다.</p></div>';return;}
-container.innerHTML=rows.map(function(r){return '<div class="inq-card"><div class="inq-card-head"><div><div class="inq-card-title">['+esc(r.category)+'] '+esc(r.title)+'</div><div class="inq-card-meta">'+esc(fmtDateTimeKo(r.date))+'</div></div><span class="inq-status-badge '+(r.status==='답변완료'?'inq-status-done':'inq-status-pending')+'">'+esc(r.status||'미답변')+'</span></div><div class="inq-card-content">'+esc(r.content)+'</div>'+(r.answer?'<div class="inq-answer-box-my"><div class="inq-answer-label">📨 법무실 답변 · '+esc(fmtDateTimeKo(r.answerDate||''))+'</div><div class="inq-answer-text">'+esc(stripAttachLines(r.answer))+'</div>'+renderAttachLinks(r.answer)+'</div>':'<div style="font-family:var(--font);font-size:0.82rem;color:var(--text-muted);margin-top:8px;">⏳ 답변 대기 중 · 확인 후 순차적으로 Slack 또는 메일로 답변드리겠습니다.</div>')+'</div>';}).join('');
-}).withFailureHandler(function(err){ container.innerHTML='<div class="inq-empty"><div class="empty-icon">⚠️</div><p>로드 실패: '+esc(err.message||String(err))+'</p></div>'; }).getMyInquiries(USER_EMAIL, USER_NAME);
+var _myInqAll = [], _myInqFiltered = [], _selectedMyInq = null;
+
+function loadMyInquiries() {
+  _selectedMyInq = null;
+  document.getElementById('myinq-detail-panel').style.display = 'none';
+  document.getElementById('myinq-list-count').textContent = '로드 중...';
+  document.getElementById('myinq-tbody').innerHTML = '<tr><td colspan="5"><div class="dash-empty">⏳ 로드 중...</div></td></tr>';
+
+  google.script.run
+    .withSuccessHandler(function(rows) {
+      _myInqAll = rows || [];
+      _myInqFiltered = _myInqAll;
+      renderMyInqTable(_myInqAll);
+    })
+    .withFailureHandler(function(err) {
+      document.getElementById('myinq-tbody').innerHTML = '<tr><td colspan="5"><div class="list-empty"><div class="empty-icon">⚠️</div><p>로드 실패: ' + esc(err.message || String(err)) + '</p></div></td></tr>';
+      document.getElementById('myinq-list-count').textContent = '—';
+    })
+    .getMyInquiries(USER_EMAIL, USER_NAME);
+}
+
+function filterMyInqTable() {
+  var q = document.getElementById('myinq-search').value.trim().toLowerCase();
+  _myInqFiltered = q ? _myInqAll.filter(function(r) {
+    return r.category.toLowerCase().includes(q) || r.title.toLowerCase().includes(q);
+  }) : _myInqAll;
+  renderMyInqTable(_myInqFiltered);
+}
+
+function renderMyInqTable(rows) {
+  var tbody = document.getElementById('myinq-tbody');
+  var pendingCount = rows.filter(function(r) { return r.status !== '답변완료' && r.status !== '진행중'; }).length;
+  var progressCount = rows.filter(function(r) { return r.status === '진행중'; }).length;
+  var doneCount = rows.filter(function(r) { return r.status === '답변완료'; }).length;
+
+  var countText = '전체 ' + rows.length + '건';
+  if (pendingCount > 0) countText += ' · 미답변 ' + pendingCount + '건';
+  if (progressCount > 0) countText += ' · 진행중 ' + progressCount + '건';
+  if (doneCount > 0) countText += ' · 답변완료 ' + doneCount + '건';
+  document.getElementById('myinq-list-count').textContent = countText;
+
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="5"><div class="list-empty"><div class="empty-icon">📭</div><p>접수된 문의가 없습니다.</p></div></td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = rows.map(function(r) {
+    var isDone = r.status === '답변완료';
+    var isProgress = r.status === '진행중';
+    var isSelected = _selectedMyInq && _selectedMyInq.id === r.id;
+    var badgeClass = isDone ? 'inq-status-done' : isProgress ? 'inq-status-progress' : 'inq-status-pending';
+    var badgeText = isDone ? '답변완료' : isProgress ? '진행중' : '미답변';
+
+    return '<tr data-id="' + esc(r.id) + '" onclick="selectMyInq(\'' + esc(r.id) + '\')" class="' + (isSelected ? 'selected' : '') + '">' +
+      '<td class="col-radio"><input type="radio" class="row-radio" name="myinq-row" ' + (isSelected ? 'checked' : '') + ' onclick="event.stopPropagation();selectMyInq(\'' + esc(r.id) + '\')"></td>' +
+      '<td style="text-align:center;">' + esc(r.category) + '</td>' +
+      '<td style="font-weight:500;">' + esc(r.title) + '</td>' +
+      '<td class="hide-mobile" style="font-size:0.8rem;color:var(--text-muted);text-align:center;">' + esc(fmtDateTimeKo(r.date)) + '</td>' +
+      '<td style="text-align:center;"><span class="inq-status-badge ' + badgeClass + '">' + badgeText + '</span></td>' +
+      '</tr>';
+  }).join('');
+}
+
+function selectMyInq(id) {
+  var pool = _myInqFiltered.length ? _myInqFiltered : _myInqAll;
+  _selectedMyInq = pool.find(function(r) { return r.id === id; }) || null;
+  renderMyInqTable(pool);
+  if (_selectedMyInq) renderMyInqDetailPanel();
+}
+
+function clearMyInqSel() {
+  _selectedMyInq = null;
+  renderMyInqTable(_myInqFiltered.length ? _myInqFiltered : _myInqAll);
+  document.getElementById('myinq-detail-panel').style.display = 'none';
+}
+
+function renderMyInqDetailPanel() {
+  var r = _selectedMyInq;
+  var isDone = r.status === '답변완료';
+  var isProgress = r.status === '진행중';
+
+  document.getElementById('myinq-detail-title').textContent = '[' + r.category + '] ' + r.title;
+
+  var badge = document.getElementById('myinq-detail-status-badge');
+  badge.textContent = isDone ? '답변완료' : isProgress ? '진행중' : '미답변';
+  badge.className = 'inq-status-badge ' + (isDone ? 'inq-status-done' : isProgress ? 'inq-status-progress' : 'inq-status-pending');
+
+  document.getElementById('myinq-detail-meta').innerHTML = [
+    { lbl: '접수일', val: fmtDateTimeKo(r.date) },
+    { lbl: '유형', val: r.category },
+    { lbl: '상태', val: isDone ? '답변완료' : isProgress ? '진행중' : '미답변' }
+  ].map(function(f) {
+    return '<div class="rev-meta-item"><div class="rev-meta-lbl">' + f.lbl + '</div><div class="rev-meta-val">' + esc(f.val) + '</div></div>';
+  }).join('');
+
+  document.getElementById('myinq-detail-content').textContent = r.content;
+
+  var answerWrap = document.getElementById('myinq-answer-wrap');
+  var waitingWrap = document.getElementById('myinq-waiting-wrap');
+
+  if (isDone && r.answer) {
+    answerWrap.style.display = 'block';
+    waitingWrap.style.display = 'none';
+    document.getElementById('myinq-answer-meta').textContent = '답변일: ' + fmtDateTimeKo(r.answerDate || '');
+    document.getElementById('myinq-answer-text').textContent = stripAttachLines(r.answer);
+    document.getElementById('myinq-answer-attach').innerHTML = renderAttachLinks(r.answer);
+  } else {
+    answerWrap.style.display = 'none';
+    waitingWrap.style.display = 'block';
+  }
+
+  var panel = document.getElementById('myinq-detail-panel');
+  panel.style.display = 'block';
+  setTimeout(function() { panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 50);
 }
 var currentCompany='IGAW', currentContract=null, selectedInqCategory='';
 var _dashInterval = null;
