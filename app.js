@@ -1653,6 +1653,42 @@ btn.textContent = '\uAC80\uD1A0 \uC694\uCCAD \u2192';
 var _myRevAll = [], _myRevFiltered = [], _mySelectedRev = null;
 var _myRevReReviewFiles = [];
 
+// ── 내 검토 현황 로드 ──
+function loadMyReviews() {
+  _mySelectedRev = null;
+  document.getElementById('myrev-detail-panel').style.display = 'none';
+  document.getElementById('myrev-list-count').textContent = '로드 중...';
+  document.getElementById('myrev-tbody').innerHTML = '<tr><td colspan="7"><div class="dash-empty">⏳ 로드 중...</div></td></tr>';
+
+  google.script.run
+    .withSuccessHandler(function(rows) {
+      var myEmail = (USER_EMAIL || '').toLowerCase();
+      // 요청자 본인 + TO/CC 수신자로 지정된 건도 포함
+      _myRevAll = (rows || []).filter(function(r) {
+        // 1. 내가 요청자인 경우
+        if (r.requesterEmail && r.requesterEmail.toLowerCase() === myEmail) return true;
+        // 2. 내가 TO 수신자인 경우
+        try {
+          var toArr = JSON.parse(r.toList || '[]');
+          if (toArr.some(function(e) { return e.toLowerCase() === myEmail; })) return true;
+        } catch(e) {}
+        // 3. 내가 CC 참조자인 경우
+        try {
+          var ccArr = JSON.parse(r.ccList || '[]');
+          if (ccArr.some(function(e) { return e.toLowerCase() === myEmail; })) return true;
+        } catch(e) {}
+        return false;
+      });
+      _myRevFiltered = _myRevAll;
+      renderMyRevTable(_myRevAll);
+    })
+    .withFailureHandler(function(err) {
+      document.getElementById('myrev-tbody').innerHTML = '<tr><td colspan="7"><div class="list-empty"><div class="empty-icon">⚠️</div><p>로드 실패: ' + esc(err.message || String(err)) + '</p></div></td></tr>';
+      document.getElementById('myrev-list-count').textContent = '—';
+    })
+    .getReviewRequests('all');
+}
+
 // ── 검색 필터 ──
 function filterMyRevTable() {
   var q = document.getElementById('myrev-search').value.trim().toLowerCase();
@@ -1902,8 +1938,8 @@ async function doMyRequestReReview() {
         .withFailureHandler(function(err) { reject(new Error(err.message || '재검토 요청 실패')); })
         .requestReReview(_mySelectedRev.id, { files: JSON.stringify(uploadedFiles) });
     });
-    
- // 성공
+
+    // 성공
     var row = _myRevAll.find(function(r) { return r.id === _mySelectedRev.id; });
     if (row) { row.status = '검토중'; _mySelectedRev = row; }
     renderMyRevTable(_myRevFiltered.length ? _myRevFiltered : _myRevAll);
@@ -1916,6 +1952,7 @@ async function doMyRequestReReview() {
 
   btn.disabled = false; btn.textContent = '🔄 재검토 요청 전송';
 }
+
 // ── 검토 의견 회신 이력 로드 ──
 function loadRevReplyHistory(reviewId) {
   var contentEl = document.getElementById('rev-reply-history-content');
