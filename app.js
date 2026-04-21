@@ -363,43 +363,129 @@ return '<tr data-id="'+esc(r.id)+'" onclick="selectInq(\''+esc(r.id)+'\')" class
 function selectInq(id) {var pool=_inqFiltered.length?_inqFiltered:_inqAll;_selectedInq=pool.find(function(r){return r.id===id;})||null;renderInqTable(pool);if(_selectedInq) renderInqDetailPanel();}
 function clearInqSel() {_selectedInq=null;renderInqTable(_inqFiltered.length?_inqFiltered:_inqAll);document.getElementById('inq-detail-panel').style.display='none';}
 function renderInqDetailPanel() {
-var r=_selectedInq;
-var isDone=r.status==='답변완료',isProgress=r.status==='진행중';
-document.getElementById('inq-detail-title').textContent='['+r.category+'] '+r.title;
-var badge=document.getElementById('inq-detail-status-badge');
-badge.textContent=isDone?'답변완료':isProgress?'진행중':'미답변';
-badge.className='inq-status-badge '+(isDone?'inq-status-done':isProgress?'inq-status-progress':'inq-status-pending');
-document.getElementById('inq-detail-meta').innerHTML=[{lbl:'문의자',val:r.name},{lbl:'부서',val:r.dept},{lbl:'접수일',val:fmtDateTimeKo(r.date)}].map(function(f){return '<div class="inq-meta-item"><div class="inq-meta-lbl">'+f.lbl+'</div><div class="inq-meta-val">'+esc(f.val)+'</div></div>';}).join('');
-document.getElementById('inq-detail-content').textContent=r.content;
-var answerEl=document.getElementById('inq-detail-answer');
-if(isDone&&r.answer){var pureText=stripAttachLines(r.answer),attachHtml=renderAttachLinks(r.answer);answerEl.style.display='block';answerEl.innerHTML='<div class="inq-answer-view"><div class="inq-content-label">📨 답변 내용</div><div class="inq-answer-meta">답변일: '+esc(fmtDateTimeKo(r.answerDate||''))+'</div><div class="inq-content-text">'+esc(pureText)+'</div>'+attachHtml+'</div>';} else { answerEl.style.display='none'; answerEl.innerHTML=''; }
-var replySection=document.getElementById('inq-reply-section');
-var progressSection=document.getElementById('inq-progress-section');
-var doneSection=document.getElementById('inq-done-section');
-replySection.style.display=progressSection.style.display=doneSection.style.display='none';
-_attachFiles['inq']=[]; renderAttachList('inq');
-_attachFiles['inq-prog']=[]; renderAttachList('inq-prog');
-if(isDone){ doneSection.style.display='block'; }
-else if(isProgress){
-var progressInfoEl = document.getElementById('inq-progress-info');
-if (progressInfoEl) progressInfoEl.style.display = 'none';
-document.getElementById('inq-progress-textarea').value='';
-progressSection.style.display='block';
-populateAssigneeSelect();
-} else {
-replySection.style.display='block';
-document.getElementById('inq-reply-textarea').value='';
-if(!document.getElementById('inq-start-btn')){
-var footer=replySection.querySelector('.inq-reply-footer .btn-row');
-var startBtn=document.createElement('button');
-startBtn.id='inq-start-btn'; startBtn.className='btn btn-dark'; startBtn.textContent='진행';
-startBtn.onclick=startInquiry;
-footer.insertBefore(startBtn, footer.querySelector('#inq-reply-btn'));
+  var r = _selectedInq;
+  var isDone = r.status === '답변완료', isProgress = r.status === '진행중';
+  document.getElementById('inq-detail-title').textContent = '[' + r.category + '] ' + r.title;
+  var badge = document.getElementById('inq-detail-status-badge');
+  badge.textContent = isDone ? '답변완료' : isProgress ? '진행중' : '미답변';
+  badge.className = 'inq-status-badge ' + (isDone ? 'inq-status-done' : isProgress ? 'inq-status-progress' : 'inq-status-pending');
+  document.getElementById('inq-detail-meta').innerHTML = [
+    { lbl: '문의자', val: r.name },
+    { lbl: '부서', val: r.dept },
+    { lbl: '접수일', val: fmtDateTimeKo(r.date) }
+  ].map(function(f) {
+    return '<div class="inq-meta-item"><div class="inq-meta-lbl">' + f.lbl + '</div><div class="inq-meta-val">' + esc(f.val) + '</div></div>';
+  }).join('');
+  document.getElementById('inq-detail-content').textContent = r.content;
+
+  var answerEl = document.getElementById('inq-detail-answer');
+  if (isDone && r.answer) {
+    var pureText = stripAttachLines(r.answer), attachHtml = renderAttachLinks(r.answer);
+    answerEl.style.display = 'block';
+    answerEl.innerHTML = '<div class="inq-answer-view"><div class="inq-content-label">📨 답변 내용</div><div class="inq-answer-meta">답변일: ' + esc(fmtDateTimeKo(r.answerDate || '')) + '</div><div class="inq-content-text">' + esc(pureText) + '</div>' + attachHtml + '</div>';
+  } else {
+    answerEl.style.display = 'none';
+    answerEl.innerHTML = '';
+  }
+
+  var replySection = document.getElementById('inq-reply-section');
+  var progressSection = document.getElementById('inq-progress-section');
+  var doneSection = document.getElementById('inq-done-section');
+  replySection.style.display = progressSection.style.display = doneSection.style.display = 'none';
+  _attachFiles['inq'] = []; renderAttachList('inq');
+  _attachFiles['inq-prog'] = []; renderAttachList('inq-prog');
+
+  if (isDone) {
+    doneSection.style.display = 'block';
+  } else if (isProgress) {
+    // 파란 박스 제거 — 바로 답변 작성 영역 표시
+    var progressInfoEl = document.getElementById('inq-progress-info');
+    if (progressInfoEl) progressInfoEl.style.display = 'none';
+    document.getElementById('inq-progress-textarea').value = '';
+    progressSection.style.display = 'block';
+    populateAssigneeSelect();
+
+    // ── 진행 취소 버튼 추가 (Legal_Team + 진행중 상태) ──
+    var isLegal = IS_LEGAL_TEAM === 'true';
+    if (isLegal) {
+      var cancelBtnWrap = document.getElementById('inq-cancel-progress-wrap');
+      if (!cancelBtnWrap) {
+        // 답변 작성 영역 상단에 진행 취소 버튼 삽입
+        cancelBtnWrap = document.createElement('div');
+        cancelBtnWrap.id = 'inq-cancel-progress-wrap';
+        cancelBtnWrap.style.cssText = 'padding:0 28px 12px;';
+        cancelBtnWrap.innerHTML =
+          '<button id="inq-cancel-progress-btn" class="btn btn-outline-danger" ' +
+          'onclick="doCancelInquiryProgress()" ' +
+          'style="font-family:var(--font);font-size:0.8rem;font-weight:600;padding:8px 16px;' +
+          'border-radius:8px;border:1.5px solid #e74c3c;background:transparent;color:#e74c3c;' +
+          'cursor:pointer;white-space:nowrap;">' +
+          '↩ 진행 취소</button>';
+        progressSection.insertBefore(cancelBtnWrap, progressSection.firstChild);
+      } else {
+        cancelBtnWrap.style.display = 'block';
+      }
+    }
+  } else {
+    replySection.style.display = 'block';
+    document.getElementById('inq-reply-textarea').value = '';
+    if (!document.getElementById('inq-start-btn')) {
+      var footer = replySection.querySelector('.inq-reply-footer .btn-row');
+      var startBtn = document.createElement('button');
+      startBtn.id = 'inq-start-btn';
+      startBtn.className = 'btn btn-dark';
+      startBtn.textContent = '진행';
+      startBtn.onclick = startInquiry;
+      footer.insertBefore(startBtn, footer.querySelector('#inq-reply-btn'));
+    }
+  }
+
+  var panel = document.getElementById('inq-detail-panel');
+  panel.style.display = 'block';
+  setTimeout(function() { panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 50);
 }
-}
-var panel=document.getElementById('inq-detail-panel');
-panel.style.display='block';
-setTimeout(function(){panel.scrollIntoView({behavior:'smooth',block:'nearest'});},50);
+
+
+// ── doCancelInquiryProgress — 진행 취소 실행 ──
+function doCancelInquiryProgress() {
+  if (!_selectedInq) return;
+
+  showConfirm(
+    '이 문의의 진행을 취소하시겠습니까?\n상태가 "미답변"으로 되돌아갑니다.',
+    {
+      title: '진행 취소',
+      icon: '↩',
+      okLabel: '취소하기',
+      onOk: function() {
+        var btn = document.getElementById('inq-cancel-progress-btn');
+        if (btn) { btn.disabled = true; btn.textContent = '처리 중...'; }
+
+        google.script.run
+          .withSuccessHandler(function(result) {
+            if (result && result.ok) {
+              // 로컬 데이터 갱신
+              var row = _inqAll.find(function(r) { return r.id === _selectedInq.id; });
+              if (row) {
+                row.status = '미답변';
+                row.assignee = '';
+                _selectedInq = row;
+              }
+              renderInqTable(_inqFiltered.length ? _inqFiltered : _inqAll);
+              renderInqDetailPanel();
+              showAlert('진행이 취소되었습니다.', { title: '진행 취소 완료', icon: '✅' });
+            } else {
+              showAlert((result && result.error) || '알 수 없는 오류가 발생했습니다.', { title: '진행 취소 실패', icon: '❌' });
+              if (btn) { btn.disabled = false; btn.textContent = '↩ 진행 취소'; }
+            }
+          })
+          .withFailureHandler(function(err) {
+            showAlert(err.message || String(err), { title: '오류', icon: '❌' });
+            if (btn) { btn.disabled = false; btn.textContent = '↩ 진행 취소'; }
+          })
+          .cancelInquiryProgress(_selectedInq.id);
+      }
+    }
+  );
 }
 
 function populateAssigneeSelect(){
