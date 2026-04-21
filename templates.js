@@ -94,12 +94,26 @@ PAGE_TEMPLATES.reviewmgmt = `
 <div class="page-subtitle">법무실로 요청된 계약 검토 사항을 확인하고 처리하세요</div>
 <div class="search-bar"><input type="text" id="rev-search" placeholder="🔍  요청자, 계약서명 검색..." oninput="filterRevTable()"><button class="btn-sm" onclick="loadReviewMgmt()">↻ 새로고침</button></div>
 <div class="list-card"><div class="list-card-header"><h4>📋 검토 요청 목록</h4><span class="lc-count" id="rev-list-count">로드 중...</span></div><div class="ct-table-wrap"><table class="ct-table"><thead><tr><th class="col-radio"></th><th class="col-rev-requester">요청자</th><th style="width:110px;">당사자</th><th style="width:80px;">계약유형</th><th class="col-rev-name">계약서명</th><th class="col-rev-date hide-mobile">요청일</th><th class="col-rev-status">상태</th><th class="col-rev-confirmed hide-mobile">진행자</th></tr></thead><tbody id="rev-tbody"><tr><td colspan="8"><div class="dash-empty">⏳ 로드 중...</div></td></tr></tbody></table></div></div>
+
 <div class="rev-detail-panel" id="rev-detail-panel" style="display:none;"><div class="rev-detail-head"><h4 id="rev-detail-title">검토 요청 상세</h4><span id="rev-detail-status-badge" class="rev-status-badge rev-status-pending">검토대기</span></div><div class="rev-detail-body"><div class="rev-detail-meta" id="rev-detail-meta"></div><div id="rev-opinion-wrap" style="display:none;"><div class="rev-opinion-box"><div class="rev-opinion-label">💬 검토 요청 의견</div><div class="rev-opinion-text" id="rev-detail-opinion"></div></div></div><div id="rev-file-wrap" style="display:none;"><a class="rev-file-link" id="rev-file-link" href="#" target="_blank">📄 계약서 파일 열기 →</a></div>
 
 <!-- ═══ 수신자/참조자 정보 표시 ═══ -->
 <div id="rev-recipient-info" style="display:none;margin-top:12px;padding:10px 14px;background:#f0f4ff;border:1px solid #c5d4f0;border-radius:8px;font-family:var(--font);font-size:0.8rem;color:#3b5998;line-height:1.6;"></div>
 
+<!-- ═══ 파일 목록 (Review_Case_Folder) ═══ -->
+<div id="rev-files-wrap" style="display:none;margin-top:16px;padding:0 0 8px;">
+<div style="border:1px solid var(--border);border-radius:12px;background:var(--surface);padding:14px 16px;">
+<div style="font-family:var(--font);font-size:0.82rem;font-weight:700;color:var(--ink-3);margin-bottom:10px;">📁 검토 파일 목록</div>
+<div id="rev-files-list" style="font-family:var(--font);font-size:0.84rem;color:var(--text);"></div>
+</div>
+</div>
+
 <div id="rev-confirmed-wrap" style="display:none;"><div class="rev-confirmed-box"><div class="rev-confirmed-text" id="rev-confirmed-text"></div></div></div></div><div id="rev-assignee-wrap-dynamic"></div>
+
+<!-- ═══ 상태별 액션 버튼 영역 ═══ -->
+<div id="rev-action-buttons-wrap" style="padding:0 28px 16px;display:none;">
+<div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;"></div>
+</div>
 
 <!-- ═══ 검토 의견 회신 이력 ═══ -->
 <div id="rev-reply-history-wrap" style="display:none;padding:0 28px 16px;">
