@@ -2111,6 +2111,9 @@ async function doMyRequestReReview() {
           else reject(new Error((result && result.error) || '재검토 요청 실패'));
         })
         .withFailureHandler(function(err) { reject(new Error(err.message || '재검토 요청 실패')); })
+        .requestReReview(_mySelectedRev.id, { files: JSON.stringify(uploadedFiles) });
+    });
+    
  // 성공
     var row = _myRevAll.find(function(r) { return r.id === _mySelectedRev.id; });
     if (row) { row.status = '검토중'; _mySelectedRev = row; }
