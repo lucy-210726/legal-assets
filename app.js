@@ -64,6 +64,7 @@ document.getElementById('popup-contract-sub').innerHTML = '관리번호: ' + row
 document.getElementById('popup-reject-area').style.display  = 'none';
 document.getElementById('popup-reject-reason').value        = '';
 document.getElementById('popup-confirm-btn').disabled       = true;
+document.getElementById('popup-confirm-btn').textContent    = '확인';
 document.getElementById('popup-confirm-btn').style.opacity  = '0.4';
 document.getElementById('popup-confirm-btn').style.cursor   = 'not-allowed';
 resetPopupBtnStyle('popup-approve-btn');
@@ -429,6 +430,8 @@ function renderInqDetailPanel() {
   } else {
     replySection.style.display = 'block';
     document.getElementById('inq-reply-textarea').value = '';
+    var oldCancelWrap = document.getElementById('inq-cancel-progress-wrap'); if (oldCancelWrap) oldCancelWrap.style.display = 'none';
+    var oldStartBtn = document.getElementById('inq-start-btn'); if (oldStartBtn) oldStartBtn.remove();
     if (!document.getElementById('inq-start-btn')) {
       var footer = replySection.querySelector('.inq-reply-footer .btn-row');
       var startBtn = document.createElement('button');
