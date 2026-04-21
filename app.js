@@ -1002,6 +1002,118 @@ function doFinalizeReview() {
   );
 }
 
+function handleRevReplyAttach(e) {
+  var files = Array.from(e.target.files || []);
+  e.target.value = '';
+  files.forEach(function(f) {
+    if (f.size > 20 * 1024 * 1024) {
+      showAlert(f.name + '\n파일 크기가 20MB를 초과합니다.', { title: '파일 크기 초과', icon: '⚠️' });
+      return;
+    }
+    _revReplyAttachFiles.push({ file: f, name: f.name, size: f.size, mimeType: f.type || 'application/octet-stream' });
+  });
+  renderRevReplyAttachList();
+}
+
+function removeRevReplyAttach(idx) {
+  _revReplyAttachFiles.splice(idx, 1);
+  renderRevReplyAttachList();
+}
+
+function renderRevReplyAttachList() {
+  var el = document.getElementById('rev-reply-attach-list');
+  if (!el) return;
+  el.innerHTML = _revReplyAttachFiles.map(function(a, i) {
+    return '<div class="attach-file-item"><span style="font-size:1rem;">📄</span><span class="afi-name">' + esc(a.name) + '</span><span class="afi-size">' + (a.size / 1024 / 1024).toFixed(2) + ' MB</span><button class="afi-remove" onclick="removeRevReplyAttach(' + i + ')">✕</button></div>';
+  }).join('');
+}
+
+async function uploadRevReplyAttachments() {
+  if (!_revReplyAttachFiles.length) return [];
+  var freshToken = await new Promise(function(resolve) {
+    google.script.run.withSuccessHandler(resolve).withFailureHandler(function() { resolve(OAUTH_TOKEN); }).getFreshToken();
+  });
+  var activeToken = freshToken || OAUTH_TOKEN;
+  var results = [];
+  for (var i = 0; i < _revReplyAttachFiles.length; i++) {
+    var a = _revReplyAttachFiles[i];
+    try {
+      var initRes = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + activeToken, 'Content-Type': 'application/json', 'X-Upload-Content-Type': a.mimeType, 'X-Upload-Content-Length': a.file.size },
+        body: JSON.stringify({ name: a.name })
+      });
+      if (!initRes.ok) throw new Error('Drive 세션 시작 실패: ' + initRes.status);
+      var uploadUrl = initRes.headers.get('Location');
+      var uploadRes = await fetch(uploadUrl, { method: 'PUT', body: a.file });
+      if (!uploadRes.ok && uploadRes.status !== 200) throw new Error('업로드 실패: ' + uploadRes.status);
+      var fileId = (await uploadRes.json()).id;
+      results.push({ fileId: fileId, name: a.name });
+    } catch (e) {
+      showAlert(a.name + ' 업로드 실패: ' + e.message, { title: '파일 업로드 실패', icon: '❌' });
+    }
+  }
+  return results;
+}
+
+function insertQuickLabel(text) {
+  var textarea = document.getElementById('rev-reply-textarea');
+  if (!textarea) return;
+  var start = textarea.selectionStart;
+  var end = textarea.selectionEnd;
+  var before = textarea.value.substring(0, start);
+  var after = textarea.value.substring(end);
+  textarea.value = before + (before && !before.endsWith('\n') ? '\n' : '') + text + after;
+  var newPos = start + text.length + (before && !before.endsWith('\n') ? 1 : 0);
+  textarea.setSelectionRange(newPos, newPos);
+  textarea.focus();
+}
+
+function clearRevReply() {
+  var textarea = document.getElementById('rev-reply-textarea');
+  if (textarea) textarea.value = '';
+  _revReplyAttachFiles = [];
+  renderRevReplyAttachList();
+}
+
+function sendRevReply() {
+  if (!_selectedRev) return;
+  var textarea = document.getElementById('rev-reply-textarea');
+  var opinion = textarea ? textarea.value.trim() : '';
+  if (!opinion) { showAlert('검토 의견을 입력해주세요.', { title: '입력 필요', icon: '⚠️' }); return; }
+  var toArr = [], ccArr = [];
+  try { toArr = JSON.parse(_selectedRev.toList || '[]'); } catch(e) {}
+  try { ccArr = JSON.parse(_selectedRev.ccList || '[]'); } catch(e) {}
+  var recipientInfo = '수신: ' + _selectedRev.requesterEmail;
+  if (toArr.length > 0) recipientInfo += ', ' + toArr.join(', ');
+  if (ccArr.length > 0) recipientInfo += '\n참조(CC): ' + ccArr.join(', ');
+  var attachInfo = _revReplyAttachFiles.length > 0 ? '\n첨부파일: ' + _revReplyAttachFiles.length + '건' : '';
+  showConfirm(recipientInfo + attachInfo + '\n\n위 수신자에게 검토 의견을 이메일로 발송하시겠습니까?', {
+    title: 'RE: 검토 의견 발송', icon: '📧', okLabel: '발송',
+    onOk: async function() {
+      var btn = document.getElementById('rev-reply-send-btn');
+      btn.disabled = true; btn.textContent = '발송 중...';
+      try {
+        var fileIdsJson = '[]';
+        if (_revReplyAttachFiles.length > 0) {
+          btn.textContent = '파일 업로드 중...';
+          var uploaded = await uploadRevReplyAttachments();
+          if (uploaded.length > 0) fileIdsJson = JSON.stringify(uploaded);
+        }
+        btn.textContent = '메일 발송 중...';
+        await new Promise(function(resolve, reject) {
+          google.script.run.withSuccessHandler(function(result) {
+            if (result && result.ok) resolve(result); else reject(new Error((result && result.error) || '발송 실패'));
+          }).withFailureHandler(function(err) { reject(new Error(err.message || String(err))); }).replyReview(_selectedRev.id, opinion, fileIdsJson);
+        });
+        showAlert('검토 의견이 요청자에게 이메일로 발송되었습니다.', { title: '발송 완료', icon: '✅' });
+        textarea.value = ''; _revReplyAttachFiles = []; renderRevReplyAttachList();
+        var row = _revAll.find(function(r){ return r.id === _selectedRev.id; });
+        if (row) { row.status = '회신완료'; _selectedRev = row; }
+        renderRevTable(_revFiltered.length ? _revFiltered : _revAll);
+        loadRevReplyHistory(_selectedRev.id);
+        render
+
 function populateRevAssigneeSelect(){
   loadLegalMembers(function(members){
     var sel = document.getElementById('rev-assignee-select');
