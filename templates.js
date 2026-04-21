@@ -61,15 +61,64 @@ PAGE_TEMPLATES.inquiry = `
 </div></div>
 `;
 
-PAGE_TEMPLATES.myinquiry = `
-<div class="contract-page wide">
-<button class="page-back" onclick="goBack('myinquiry')">← 뒤로가기</button>
-<div class="section-label">My Inquiries</div>
-<div class="page-title">내 문의 현황</div>
-<div class="page-subtitle">내가 접수한 문의 내역과 답변을 확인하세요</div>
-<div id="myinquiry-list"><div class="inq-empty"><div class="empty-icon">⏳</div><p>로드 중...</p></div></div>
-</div>
-`;
+PAGE_TEMPLATES.myinquiry = '' +
+'<div class="contract-page wide">' +
+'<button class="page-back" onclick="goBack(\'myinquiry\')">← 뒤로가기</button>' +
+'<div class="section-label">MY INQUIRIES</div>' +
+'<div class="page-title">내 문의 현황</div>' +
+'<div class="page-subtitle">내가 접수한 문의 내역과 답변을 확인하세요</div>' +
+
+'<div class="search-bar">' +
+'<input type="text" id="myinq-search" placeholder="🔍  유형, 제목 검색..." oninput="filterMyInqTable()">' +
+'</div>' +
+
+'<div class="list-card">' +
+'<div class="list-card-header"><h4>📋 내 문의 목록</h4><span class="lc-count" id="myinq-list-count">로드 중...</span></div>' +
+'<div class="ct-table-wrap"><table class="ct-table">' +
+'<colgroup><col style="width:28px"><col style="width:120px"><col><col class="hide-mobile" style="width:140px"><col style="width:80px"></colgroup>' +
+'<thead><tr>' +
+'<th class="col-radio"></th>' +
+'<th style="text-align:center;">유형</th>' +
+'<th>제목</th>' +
+'<th class="hide-mobile" style="text-align:center;">접수일</th>' +
+'<th style="text-align:center;">상태</th>' +
+'</tr></thead>' +
+'<tbody id="myinq-tbody"></tbody>' +
+'</table></div></div>' +
+
+'<div id="myinq-detail-panel" style="display:none;" class="sel-panel">' +
+'<div class="sel-panel-head" style="display:flex;justify-content:space-between;align-items:center;">' +
+'<div style="display:flex;align-items:center;gap:10px;">' +
+'<h4 id="myinq-detail-title" style="margin:0;"></h4>' +
+'<span id="myinq-detail-status-badge" class="inq-status-badge"></span>' +
+'</div>' +
+'<button class="btn-sm" onclick="clearMyInqSel()" style="font-size:0.78rem;">✕ 닫기</button>' +
+'</div>' +
+
+'<div id="myinq-detail-meta" style="display:flex;gap:16px;padding:12px 28px;flex-wrap:wrap;"></div>' +
+
+'<div style="padding:0 28px 16px;">' +
+'<div class="inq-content-label" style="font-weight:600;font-size:0.82rem;color:var(--ink-3);margin-bottom:6px;">💬 문의 내용</div>' +
+'<div id="myinq-detail-content" style="font-size:0.84rem;color:var(--text);line-height:1.7;white-space:pre-wrap;background:var(--surface);padding:14px 16px;border-radius:10px;border:1px solid var(--border);"></div>' +
+'</div>' +
+
+'<div id="myinq-answer-wrap" style="display:none;padding:0 28px 16px;">' +
+'<div style="font-weight:600;font-size:0.82rem;color:var(--ink-3);margin-bottom:6px;">📨 법무실 답변</div>' +
+'<div id="myinq-answer-meta" style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px;"></div>' +
+'<div id="myinq-answer-text" style="font-size:0.84rem;color:var(--text);line-height:1.7;white-space:pre-wrap;background:#faf8f0;padding:14px 16px;border-radius:10px;border:1px solid var(--border);"></div>' +
+'<div id="myinq-answer-attach" style="margin-top:8px;"></div>' +
+'</div>' +
+
+'<div id="myinq-waiting-wrap" style="display:none;padding:0 28px 16px;">' +
+'<div style="font-size:0.82rem;color:var(--text-muted);padding:14px 16px;background:var(--surface);border-radius:10px;border:1px solid var(--border);">⏳ 답변 대기 중 · 확인 후 순차적으로 Slack 또는 메일로 답변드리겠습니다.</div>' +
+'</div>' +
+
+'<div class="sel-panel-foot"><div class="btn-row">' +
+'<button class="btn btn-ghost" onclick="clearMyInqSel()">닫기</button>' +
+'</div></div>' +
+
+'</div>' +
+'</div>';
 
 PAGE_TEMPLATES.inqmgmt = `
 <div class="contract-page wide">
