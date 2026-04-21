@@ -1309,6 +1309,7 @@ document.getElementById('page-inquiry').innerHTML = PAGE_TEMPLATES.inquiry;
 document.getElementById('page-myinquiry').innerHTML = PAGE_TEMPLATES.myinquiry;
 document.getElementById('page-inqmgmt').innerHTML = PAGE_TEMPLATES.inqmgmt;
 document.getElementById('page-reviewmgmt').innerHTML = PAGE_TEMPLATES.reviewmgmt;
+document.getElementById('page-myreview').innerHTML = PAGE_TEMPLATES.myreview;
 document.getElementById('modals-container').innerHTML = PAGE_TEMPLATES.modals;
 Array.from(document.body.childNodes).forEach(function(n){
 if(n.nodeType===3 && n.textContent.trim()) n.remove();
@@ -1510,4 +1511,292 @@ btn.textContent = '\uAC80\uD1A0 \uC694\uCCAD \u2192';
 function showModifiedReviewBack() {
 document.getElementById('contract-modified-review-view').style.display = 'none';
 showContractList();
+}
+
+var _myRevAll = [], _myRevFiltered = [], _mySelectedRev = null;
+var _myRevReReviewFiles = [];
+
+// ── 내 검토 현황 로드 ──
+function loadMyReviews() {
+  _mySelectedRev = null;
+  document.getElementById('myrev-detail-panel').style.display = 'none';
+  document.getElementById('myrev-list-count').textContent = '로드 중...';
+  document.getElementById('myrev-tbody').innerHTML = '<tr><td colspan="7"><div class="dash-empty">⏳ 로드 중...</div></td></tr>';
+
+  google.script.run
+    .withSuccessHandler(function(rows) {
+      // 현재 사용자 이메일로 필터링
+      _myRevAll = (rows || []).filter(function(r) {
+        return r.requesterEmail && r.requesterEmail.toLowerCase() === (USER_EMAIL || '').toLowerCase();
+      });
+      _myRevFiltered = _myRevAll;
+      renderMyRevTable(_myRevAll);
+    })
+    .withFailureHandler(function(err) {
+      document.getElementById('myrev-tbody').innerHTML = '<tr><td colspan="7"><div class="list-empty"><div class="empty-icon">⚠️</div><p>로드 실패: ' + esc(err.message || String(err)) + '</p></div></td></tr>';
+      document.getElementById('myrev-list-count').textContent = '—';
+    })
+    .getReviewRequests('all');
+}
+
+// ── 검색 필터 ──
+function filterMyRevTable() {
+  var q = document.getElementById('myrev-search').value.trim().toLowerCase();
+  _myRevFiltered = q ? _myRevAll.filter(function(r) {
+    return r.contractName.toLowerCase().includes(q);
+  }) : _myRevAll;
+  renderMyRevTable(_myRevFiltered);
+}
+
+// ── 테이블 렌더링 ──
+function renderMyRevTable(rows) {
+  var tbody = document.getElementById('myrev-tbody');
+  var pendingCount = rows.filter(function(r) { return !r.status || r.status === '검토대기'; }).length;
+  var progressCount = rows.filter(function(r) { return r.status === '검토중'; }).length;
+  var repliedCount = rows.filter(function(r) { return r.status === '회신완료'; }).length;
+  var agreedCount = rows.filter(function(r) { return r.status === '합의완료'; }).length;
+  var doneCount = rows.filter(function(r) { return r.status === '검토완료'; }).length;
+
+  var countText = '전체 ' + rows.length + '건';
+  if (pendingCount > 0) countText += ' · 검토대기 ' + pendingCount + '건';
+  if (progressCount > 0) countText += ' · 검토중 ' + progressCount + '건';
+  if (repliedCount > 0) countText += ' · 회신완료 ' + repliedCount + '건';
+  if (agreedCount > 0) countText += ' · 합의완료 ' + agreedCount + '건';
+  if (doneCount > 0) countText += ' · 검토완료 ' + doneCount + '건';
+  document.getElementById('myrev-list-count').textContent = countText;
+
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="7"><div class="list-empty"><div class="empty-icon">📭</div><p>검토 요청 내역이 없습니다.</p></div></td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = rows.map(function(r) {
+    var isDone = r.status === '검토완료', isProgress = r.status === '검토중', isAgreed = r.status === '합의완료', isReplied = r.status === '회신완료';
+    var isSelected = _mySelectedRev && _mySelectedRev.id === r.id;
+    var revBadgeClass = isDone ? 'rev-status-done' : isReplied ? 'rev-status-replied' : isProgress ? 'rev-status-inprogress' : isAgreed ? 'rev-status-agreed' : 'rev-status-pending';
+    var partyLabel = r.contractParty || '—';
+    var revTypeLabel = r.contractType === 'nonstandard' ? '비표준' : '표준';
+
+    return '<tr data-id="' + esc(r.id) + '" onclick="selectMyRev(\'' + esc(r.id) + '\')" class="' + (isSelected ? 'selected' : '') + '">' +
+      '<td class="col-radio"><input type="radio" class="row-radio" name="myrev-row" ' + (isSelected ? 'checked' : '') + ' onclick="event.stopPropagation();selectMyRev(\'' + esc(r.id) + '\')"></td>' +
+      '<td style="text-align:center;">' + esc(partyLabel) + '</td>' +
+      '<td style="text-align:center;">' + revTypeLabel + '</td>' +
+      '<td class="col-rev-name" style="font-weight:500;">' + esc(r.contractName) + '</td>' +
+      '<td class="col-rev-date hide-mobile" style="font-size:0.8rem;color:var(--text-muted);text-align:center;">' + esc(fmtDateTimeKo(r.requestDate)) + '</td>' +
+      '<td class="col-rev-status" style="text-align:center;"><span class="rev-status-badge ' + revBadgeClass + '">' + esc(r.status || '검토대기') + '</span></td>' +
+      '<td class="col-rev-confirmed hide-mobile" style="font-size:0.82rem;color:var(--text-muted);text-align:center;">' + esc(r.confirmedBy || '—') + '</td>' +
+      '</tr>';
+  }).join('');
+}
+
+// ── 행 선택 ──
+function selectMyRev(id) {
+  var pool = _myRevFiltered.length ? _myRevFiltered : _myRevAll;
+  _mySelectedRev = pool.find(function(r) { return r.id === id; }) || null;
+  renderMyRevTable(pool);
+  if (_mySelectedRev) renderMyRevDetailPanel();
+}
+
+function clearMyRevSel() {
+  _mySelectedRev = null;
+  renderMyRevTable(_myRevFiltered.length ? _myRevFiltered : _myRevAll);
+  document.getElementById('myrev-detail-panel').style.display = 'none';
+}
+
+// ── 상세 패널 렌더링 ──
+function renderMyRevDetailPanel() {
+  var r = _mySelectedRev;
+  var isReplied = r.status === '회신완료';
+  var isDone = r.status === '검토완료';
+  var isAgreed = r.status === '합의완료';
+  var isProgress = r.status === '검토중';
+
+  document.getElementById('myrev-detail-title').textContent = r.contractName;
+  var badge = document.getElementById('myrev-detail-status-badge');
+  badge.textContent = r.status || '검토대기';
+  badge.className = 'rev-status-badge ' + (isDone ? 'rev-status-done' : isProgress ? 'rev-status-inprogress' : isReplied ? 'rev-status-replied' : isAgreed ? 'rev-status-agreed' : 'rev-status-pending');
+
+  document.getElementById('myrev-detail-meta').innerHTML = [
+    { lbl: '요청일', val: fmtDateTimeKo(r.requestDate) },
+    { lbl: '담당자', val: r.confirmedBy || '미배정' },
+    { lbl: '상태', val: r.status || '검토대기' }
+  ].map(function(f) { return '<div class="rev-meta-item"><div class="rev-meta-lbl">' + f.lbl + '</div><div class="rev-meta-val">' + esc(f.val) + '</div></div>'; }).join('');
+
+  // 검토 의견
+  var opinionWrap = document.getElementById('myrev-opinion-wrap');
+  if (r.opinion) { opinionWrap.style.display = 'block'; document.getElementById('myrev-detail-opinion').textContent = r.opinion; }
+  else { opinionWrap.style.display = 'none'; }
+
+  // 파일 링크
+  var fileWrap = document.getElementById('myrev-file-wrap');
+  if (r.fileUrl || r.reviewCaseFolderId) {
+    fileWrap.style.display = 'block';
+    var fileLink = document.getElementById('myrev-file-link');
+    if (typeof WEB_APP_URL !== 'undefined' && WEB_APP_URL && r.id) {
+      fileLink.href = WEB_APP_URL + '?action=open_review&id=' + r.id;
+      fileLink.textContent = '📄 계약서 파일 열기 →';
+    } else if (r.fileUrl) {
+      fileLink.href = r.fileUrl;
+    }
+  } else { fileWrap.style.display = 'none'; }
+
+  // 파일 목록
+  var filesWrap = document.getElementById('myrev-files-wrap');
+  if (filesWrap && r.reviewCaseFolderId) {
+    filesWrap.style.display = 'block';
+    var listEl = document.getElementById('myrev-files-list');
+    listEl.innerHTML = '<span style="color:var(--text-muted);">로드 중...</span>';
+    google.script.run
+      .withSuccessHandler(function(result) {
+        if (result && result.ok && result.files && result.files.length > 0) {
+          listEl.innerHTML = renderFileList(result.files);
+        } else {
+          listEl.innerHTML = '<span style="color:var(--text-muted);font-style:italic;">파일이 없습니다.</span>';
+        }
+      })
+      .withFailureHandler(function() { listEl.innerHTML = ''; })
+      .getReviewFiles(r.id);
+  } else if (filesWrap) { filesWrap.style.display = 'none'; }
+
+  // 액션 버튼 (회신완료 상태에서만)
+  var actionWrap = document.getElementById('myrev-action-wrap');
+  var actionBtns = document.getElementById('myrev-action-buttons');
+  var reReviewWrap = document.getElementById('myrev-rereview-wrap');
+  reReviewWrap.style.display = 'none';
+  _myRevReReviewFiles = [];
+
+  if (isReplied) {
+    actionWrap.style.display = 'block';
+    actionBtns.innerHTML =
+      '<button class="btn btn-gold" onclick="doMyAgreeReview()" style="font-size:0.84rem;padding:9px 20px;">✅ 합의완료</button>' +
+      '<button class="btn btn-ghost" onclick="showMyReReviewForm()" style="font-size:0.84rem;padding:9px 20px;">🔄 재검토 요청</button>';
+  } else {
+    actionWrap.style.display = 'none';
+  }
+
+  var panel = document.getElementById('myrev-detail-panel');
+  panel.style.display = 'block';
+  setTimeout(function() { panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 50);
+}
+
+// ── 합의완료 ──
+function doMyAgreeReview() {
+  if (!_mySelectedRev) return;
+  showConfirm(
+    '합의 완료 처리하시겠습니까?\n법무실에 합의 완료 사실이 전달됩니다.',
+    {
+      title: _mySelectedRev.contractName,
+      icon: '✅',
+      okLabel: '합의 완료',
+      onOk: function() {
+        google.script.run
+          .withSuccessHandler(function(result) {
+            if (result && result.ok) {
+              var row = _myRevAll.find(function(r) { return r.id === _mySelectedRev.id; });
+              if (row) { row.status = '합의완료'; _mySelectedRev = row; }
+              renderMyRevTable(_myRevFiltered.length ? _myRevFiltered : _myRevAll);
+              renderMyRevDetailPanel();
+            } else {
+              showAlert((result && result.error) || '알 수 없는 오류', { title: '처리 실패', icon: '❌' });
+            }
+          })
+          .withFailureHandler(function(err) {
+            showAlert(err.message || String(err), { title: '오류', icon: '❌' });
+          })
+          .agreeReview(_mySelectedRev.id);
+      }
+    }
+  );
+}
+
+// ── 재검토 요청 폼 표시 ──
+function showMyReReviewForm() {
+  document.getElementById('myrev-rereview-wrap').style.display = 'block';
+  _myRevReReviewFiles = [];
+  renderMyRevReReviewAttachList();
+}
+
+function cancelMyReReview() {
+  document.getElementById('myrev-rereview-wrap').style.display = 'none';
+  _myRevReReviewFiles = [];
+  renderMyRevReReviewAttachList();
+}
+
+// ── 재검토 첨부파일 핸들러 ──
+function handleMyRevReReviewAttach(e) {
+  var files = Array.from(e.target.files || []);
+  e.target.value = '';
+  files.forEach(function(f) {
+    if (f.size > 20 * 1024 * 1024) {
+      showAlert(f.name + '\n파일 크기가 20MB를 초과합니다.', { title: '파일 크기 초과', icon: '⚠️' });
+      return;
+    }
+    _myRevReReviewFiles.push({ file: f, name: f.name, size: f.size, mimeType: f.type || 'application/octet-stream' });
+  });
+  renderMyRevReReviewAttachList();
+}
+
+function renderMyRevReReviewAttachList() {
+  var el = document.getElementById('myrev-rereview-attach-list');
+  if (!el) return;
+  el.innerHTML = _myRevReReviewFiles.map(function(a, i) {
+    return '<div class="attach-file-item"><span style="font-size:1rem;">📄</span><span class="afi-name">' + esc(a.name) + '</span><span class="afi-size">' + (a.size / 1024 / 1024).toFixed(2) + ' MB</span><button class="afi-remove" onclick="_myRevReReviewFiles.splice(' + i + ',1);renderMyRevReReviewAttachList();">✕</button></div>';
+  }).join('');
+}
+
+// ── 재검토 요청 전송 ──
+async function doMyRequestReReview() {
+  if (!_mySelectedRev) return;
+  var btn = document.getElementById('myrev-rereview-submit-btn');
+  btn.disabled = true; btn.textContent = '처리 중...';
+
+  try {
+    // 파일 업로드 (있으면)
+    var uploadedFiles = [];
+    if (_myRevReReviewFiles.length > 0) {
+      btn.textContent = '파일 업로드 중...';
+      var freshToken = await new Promise(function(resolve) {
+        google.script.run.withSuccessHandler(resolve).withFailureHandler(function() { resolve(OAUTH_TOKEN); }).getFreshToken();
+      });
+      var activeToken = freshToken || OAUTH_TOKEN;
+
+      for (var i = 0; i < _myRevReReviewFiles.length; i++) {
+        var a = _myRevReReviewFiles[i];
+        var initRes = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + activeToken, 'Content-Type': 'application/json', 'X-Upload-Content-Type': a.mimeType, 'X-Upload-Content-Length': a.file.size },
+          body: JSON.stringify({ name: a.name })
+        });
+        if (!initRes.ok) throw new Error('Drive 세션 시작 실패: ' + initRes.status);
+        var uploadUrl = initRes.headers.get('Location');
+        var uploadRes = await fetch(uploadUrl, { method: 'PUT', body: a.file });
+        if (!uploadRes.ok && uploadRes.status !== 200) throw new Error('업로드 실패: ' + uploadRes.status);
+        var fileId = (await uploadRes.json()).id;
+        uploadedFiles.push({ name: a.name, fileId: fileId });
+      }
+    }
+
+    btn.textContent = '재검토 요청 중...';
+    await new Promise(function(resolve, reject) {
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result && result.ok) resolve(result);
+          else reject(new Error((result && result.error) || '재검토 요청 실패'));
+        })
+        .withFailureHandler(function(err) { reject(new Error(err.message || '재검토 요청 실패')); })
+        .requestReReview(_mySelectedRev.id, { files: JSON.stringify(uploadedFiles) });
+    });
+
+    // 성공
+    var row = _myRevAll.find(function(r) { return r.id === _mySelectedRev.id; });
+    if (row) { row.status = '검토중'; _mySelectedRev = row; }
+    renderMyRevTable(_myRevFiltered.length ? _myRevFiltered : _myRevAll);
+    cancelMyReReview();
+    renderMyRevDetailPanel();
+    showAlert('재검토 요청이 전달되었습니다.', { title: '재검토 요청 완료', icon: '✅' });
+  } catch(e) {
+    showAlert(e.message, { title: '오류', icon: '❌' });
+  }
+
+  btn.disabled = false; btn.textContent = '🔄 재검토 요청 전송';
 }
