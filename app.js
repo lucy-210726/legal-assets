@@ -1467,6 +1467,7 @@ document.getElementById('nav-reviewmgmt').style.display = 'block';
 document.getElementById('nav-myreview').style.display = 'block';
 } else {
 document.getElementById('nav-myinquiry').style.display = 'block';
+document.getElementById('nav-myreview').style.display = 'block';
 }
 history.pushState(null, '', location.href);
 window.addEventListener('popstate', function() { history.pushState(null, '', location.href); });
