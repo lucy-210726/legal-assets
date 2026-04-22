@@ -56,7 +56,7 @@ PAGE_TEMPLATES.inquiry = `
 <div class="page-title">문의하기</div>
 <div class="page-subtitle">ERP 등록, 티그리스 품의, 체결된 계약서 확인 등 법무 관련 문의를 남겨주세요</div>
 <div id="inquiry-main">
-<div class="inquiry-intro"><div class="icon">⚖️</div><div><h4>법무실 안내</h4><p><br>업무에 필요한 기본 사항은 <strong style="color:var(--gold);">전결규정</strong>,<strong style="color:var(--gold);">법무 매뉴얼</strong> 확인 부탁드립니다.</p></div></div>
+<div class="inquiry-intro"><div class="icon">⚖️</div><div><h4>법무실 안내</h4><p><br>업무에 필요한 기본 사항은 <strong style="color:var(--gold);">전결규정</strong>, <strong style="color:var(--gold);">법무 매뉴얼</strong> 등 참고 자료 확인 부탁드립니다.<br><strong style="color:var(--gold);">법률 자문</strong>은 문의자 E-MAIL을 통해서 답변을 전달드립니다.</p></div></div>
 <div class="form-container"><div class="form-header"><div class="form-header-left"><div class="form-tag">INQUIRY</div><h3>문의 내용 작성</h3></div></div><div class="form-body"><div class="field-section-title">문의자 정보</div><div class="form-grid" style="margin-bottom:20px;"><div class="form-group"><label>이름 <span class="req">*</span></label><div class="autocomplete-wrap"><input type="text" id="inq-name" placeholder="예: 홍길동" autocomplete="new-password" oninput="showInqNameAc();checkInquiryReady()"><div class="autocomplete-list" id="inq-name-ac" style="display:none;"></div></div></div><div class="form-group"><label>부서 <span class="req">*</span></label><input type="text" id="inq-dept" placeholder="예: 파트너십팀" oninput="checkInquiryReady()"></div></div><div class="field-section-title">문의 유형 선택</div><div class="category-grid"><div class="category-card" onclick="selectCategory(this,'체결된 계약서 확인 요청')"><div class="cat-icon">🔍</div><div class="cat-text">체결된 계약서 확인 요청</div></div><div class="category-card" onclick="selectCategory(this,'ERP 및 티그리스 품의 문의')"><div class="cat-icon">✏️</div><div class="cat-text">ERP 및 티그리스 품의 문의</div></div><div class="category-card" onclick="selectCategory(this,'법률 자문')"><div class="cat-icon">⚖️</div><div class="cat-text">법률 자문</div></div><div class="category-card" onclick="selectCategory(this,'기타 문의')"><div class="cat-icon">💬</div><div class="cat-text">기타 문의</div></div></div><div class="field-section-title">문의 내용</div><div class="form-grid cols-1" style="margin-bottom:20px;"><div class="form-group"><label>제목 <span class="req">*</span></label><input type="text" id="inq-title" placeholder="예: (주)ABC와 체결된 계약서 확인 요청" oninput="checkInquiryReady()"></div><div class="form-group"><label>상세 내용 <span class="req">*</span></label><textarea id="inq-content" rows="6" placeholder="문의 내용을 상세히 작성해 주세요." oninput="checkInquiryReady()"></textarea></div><div class="form-group"><div class="hint" style="margin-top:0;">체결된 계약서 확인 요청 시에는 ERP 계약관리번호, 계약 상대방, 계약명을 특정하여 주시기 바랍니다.</div></div></div><div class="field-section-title">파일 첨부 <span style="font-weight:400;color:var(--text-muted);font-size:0.78rem;letter-spacing:0;">(선택)</span></div><div style="padding:0 0 24px;"><div class="attach-zone" onclick="document.getElementById('inq-form-attach-input').click()"><input type="file" id="inq-form-attach-input" multiple onchange="handleAttachSelect('inq-form')"><div class="attach-zone-icon">📎</div><div class="attach-zone-text"><strong>파일 첨부</strong> · 클릭하여 파일 선택 (모든 형식 · 파일당 최대 20MB · 링크로 전송 · 3영업일 후 자동 삭제)</div></div><div class="attach-file-list" id="inq-form-attach-list"></div></div></div><div class="form-footer"><div class="form-footer-note"><strong>*</strong> 필수 항목</div><div class="btn-row"><button class="btn btn-ghost" onclick="showPage('home')">취소</button><button class="btn btn-gold" id="inquiry-btn" onclick="submitInquiry()" disabled>문의 전송</button></div></div></div>
 </div></div>
 `;
@@ -67,6 +67,7 @@ PAGE_TEMPLATES.myinquiry = '' +
 '<div class="section-label">MY INQUIRIES</div>' +
 '<div class="page-title">내 문의 현황</div>' +
 '<div class="page-subtitle">내가 접수한 문의 내역과 답변을 확인하세요</div>' +
+'<div class="page-subtitle">💡매월 1일, <b>답변완료</b>된 문의 내역은 삭제됩니다.</div>' +  
 
 '<div class="search-bar">' +
 '<input type="text" id="myinq-search" placeholder="🔍  유형, 제목 검색..." oninput="filterMyInqTable()">' +
@@ -75,30 +76,28 @@ PAGE_TEMPLATES.myinquiry = '' +
 '<div class="list-card">' +
 '<div class="list-card-header"><h4>📋 내 문의 목록</h4><span class="lc-count" id="myinq-list-count">로드 중...</span></div>' +
 '<div class="ct-table-wrap"><table class="ct-table">' +
-'<colgroup><col style="width:28px"><col style="width:120px"><col><col class="hide-mobile" style="width:140px"><col style="width:80px"></colgroup>' +
+'<colgroup><col style="width:28px"><col style="width:160px"><col><col class="hide-mobile" style="width:170px"><col style="width:90px"></colgroup>' +
 '<thead><tr>' +
 '<th class="col-radio"></th>' +
-'<th style="text-align:center;">유형</th>' +
+'<th style="text-align:center;white-space:nowrap;">유형</th>' +
 '<th>제목</th>' +
-'<th class="hide-mobile" style="text-align:center;">접수일</th>' +
-'<th style="text-align:center;">상태</th>' +
+'<th class="hide-mobile" style="text-align:center;white-space:nowrap;">접수일</th>' +
+'<th style="text-align:center;white-space:nowrap;">상태</th>' +
 '</tr></thead>' +
 '<tbody id="myinq-tbody"></tbody>' +
 '</table></div></div>' +
 
-'<div id="myinq-detail-panel" style="display:none;" class="sel-panel">' +
-'<div class="sel-panel-head" style="display:flex;justify-content:space-between;align-items:center;">' +
-'<div style="display:flex;align-items:center;gap:10px;">' +
-'<h4 id="myinq-detail-title" style="margin:0;"></h4>' +
+'<div class="rev-detail-panel" id="myinq-detail-panel" style="display:none;">' +
+'<div class="rev-detail-head">' +
+'<h4 id="myinq-detail-title"></h4>' +
 '<span id="myinq-detail-status-badge" class="inq-status-badge"></span>' +
 '</div>' +
-'<button class="btn-sm" onclick="clearMyInqSel()" style="font-size:0.78rem;">✕ 닫기</button>' +
-'</div>' +
+'<div class="rev-detail-body">' +
 
-'<div id="myinq-detail-meta" style="display:flex;gap:16px;padding:12px 28px;flex-wrap:wrap;"></div>' +
+'<div class="rev-detail-meta" id="myinq-detail-meta"></div>' +
 
 '<div style="padding:0 28px 16px;">' +
-'<div class="inq-content-label" style="font-weight:600;font-size:0.82rem;color:var(--ink-3);margin-bottom:6px;">💬 문의 내용</div>' +
+'<div style="font-weight:600;font-size:0.82rem;color:var(--ink-3);margin-bottom:6px;">💬 문의 내용</div>' +
 '<div id="myinq-detail-content" style="font-size:0.84rem;color:var(--text);line-height:1.7;white-space:pre-wrap;background:var(--surface);padding:14px 16px;border-radius:10px;border:1px solid var(--border);"></div>' +
 '</div>' +
 
@@ -113,10 +112,8 @@ PAGE_TEMPLATES.myinquiry = '' +
 '<div style="font-size:0.82rem;color:var(--text-muted);padding:14px 16px;background:var(--surface);border-radius:10px;border:1px solid var(--border);">⏳ 답변 대기 중 · 확인 후 순차적으로 Slack 또는 메일로 답변드리겠습니다.</div>' +
 '</div>' +
 
-'<div class="sel-panel-foot"><div class="btn-row">' +
-'<button class="btn btn-ghost" onclick="clearMyInqSel()">닫기</button>' +
-'</div></div>' +
-
+'</div>' +
+'<div class="rev-detail-foot"><button class="btn btn-ghost" onclick="clearMyInqSel()">닫기</button></div>' +
 '</div>' +
 '</div>';
 
