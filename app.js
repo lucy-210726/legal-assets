@@ -1202,10 +1202,10 @@ function renderMyInqTable(rows) {
 
     return '<tr data-id="' + esc(r.id) + '" onclick="selectMyInq(\'' + esc(r.id) + '\')" class="' + (isSelected ? 'selected' : '') + '">' +
       '<td class="col-radio"><input type="radio" class="row-radio" name="myinq-row" ' + (isSelected ? 'checked' : '') + ' onclick="event.stopPropagation();selectMyInq(\'' + esc(r.id) + '\')"></td>' +
-      '<td style="text-align:center;">' + esc(r.category) + '</td>' +
+      '<td style="text-align:center;white-space:nowrap;">' + esc(r.category) + '</td>' +
       '<td style="font-weight:500;">' + esc(r.title) + '</td>' +
-      '<td class="hide-mobile" style="font-size:0.8rem;color:var(--text-muted);text-align:center;">' + esc(fmtDateTimeKo(r.date)) + '</td>' +
-      '<td style="text-align:center;"><span class="inq-status-badge ' + badgeClass + '">' + badgeText + '</span></td>' +
+      '<td class="hide-mobile" style="font-size:0.8rem;color:var(--text-muted);text-align:center;white-space:nowrap;">' + esc(fmtDateTimeKo(r.date)) + '</td>' +
+      '<td style="text-align:center;white-space:nowrap;"><span class="inq-status-badge ' + badgeClass + '">' + badgeText + '</span></td>' +
       '</tr>';
   }).join('');
 }
@@ -1243,6 +1243,25 @@ function renderMyInqDetailPanel() {
   }).join('');
 
   document.getElementById('myinq-detail-content').textContent = r.content;
+
+  var answerWrap = document.getElementById('myinq-answer-wrap');
+  var waitingWrap = document.getElementById('myinq-waiting-wrap');
+
+  if (isDone && r.answer) {
+    answerWrap.style.display = 'block';
+    waitingWrap.style.display = 'none';
+    document.getElementById('myinq-answer-meta').textContent = '답변일: ' + fmtDateTimeKo(r.answerDate || '');
+    document.getElementById('myinq-answer-text').textContent = stripAttachLines(r.answer);
+    document.getElementById('myinq-answer-attach').innerHTML = renderAttachLinks(r.answer);
+  } else {
+    answerWrap.style.display = 'none';
+    waitingWrap.style.display = 'block';
+  }
+
+  var panel = document.getElementById('myinq-detail-panel');
+  panel.style.display = 'block';
+  setTimeout(function() { panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 50);
+}
 
   var answerWrap = document.getElementById('myinq-answer-wrap');
   var waitingWrap = document.getElementById('myinq-waiting-wrap');
