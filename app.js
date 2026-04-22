@@ -1875,12 +1875,12 @@ function loadMyReviews() {
         // 2. 내가 TO 수신자인 경우
         try {
           var toArr = JSON.parse(r.toList || '[]');
-          if (toArr.some(function(e) { return e.toLowerCase() === myEmail; })) return true;
+          if (r.toList && r.toList.toLowerCase().includes(myEmail)) return true;
         } catch(e) {}
         // 3. 내가 CC 참조자인 경우
         try {
           var ccArr = JSON.parse(r.ccList || '[]');
-          if (ccArr.some(function(e) { return e.toLowerCase() === myEmail; })) return true;
+          if (r.ccList && r.ccList.toLowerCase().includes(myEmail)) return true;
         } catch(e) {}
         return false;
       });
