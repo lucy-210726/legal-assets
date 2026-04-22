@@ -61,7 +61,7 @@ PAGE_TEMPLATES.inquiry = `
   <div class="form-group">
     <label>추가 수신자 이메일 <span style="font-weight:400;color:var(--text-muted);">(선택)</span></label>
     <div class="review-recipients">
-      <div class="autocomplete-wrap">
+      <div class="autocomplete-wrap" style="flex:1;">
         <input type="text" id="inq-legal-to-input" placeholder="이름 또는 이메일 입력..." autocomplete="new-password" oninput="showAutocomplete('inq-legal-to-input','inq-legal-to-ac')" onkeydown="handleAcKeydown(event,'inq-legal-to-input','inq-legal-to-ac','inq-legal-to')">
         <div class="autocomplete-list" id="inq-legal-to-ac" style="display:none;"></div>
       </div>
@@ -72,7 +72,7 @@ PAGE_TEMPLATES.inquiry = `
   <div class="form-group">
     <label>참조(CC) 이메일 <span style="font-weight:400;color:var(--text-muted);">(선택)</span></label>
     <div class="review-recipients">
-      <div class="autocomplete-wrap">
+      <div class="autocomplete-wrap" style="flex:1;">
         <input type="text" id="inq-legal-cc-input" placeholder="이름 또는 이메일 입력..." autocomplete="new-password" oninput="showAutocomplete('inq-legal-cc-input','inq-legal-cc-ac')" onkeydown="handleAcKeydown(event,'inq-legal-cc-input','inq-legal-cc-ac','inq-legal-cc')">
         <div class="autocomplete-list" id="inq-legal-cc-ac" style="display:none;"></div>
       </div>
