@@ -98,7 +98,7 @@ PAGE_TEMPLATES.myinquiry = '' +
 '<div class="list-card">' +
 '<div class="list-card-header"><h4>📋 내 문의 목록</h4><span class="lc-count" id="myinq-list-count">로드 중...</span></div>' +
 '<div class="ct-table-wrap"><table class="ct-table">' +
-'<colgroup><col style="width:28px"><col style="width:180px"><col><col class="hide-mobile" style="width:175px"><col style="width:72px"></colgroup>' +
+'<colgroup><col style="width:28px"><col style="width:180px"><col><col class="hide-mobile" style="width:190px"><col style="width:90px"></colgroup>' +
 '<thead><tr>' +
 '<th class="col-radio"></th>' +
 '<th style="text-align:center;white-space:nowrap;">유형</th>' +
