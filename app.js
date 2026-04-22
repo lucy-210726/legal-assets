@@ -2005,7 +2005,7 @@ function renderMyRevTable(rows) {
       '<td class="col-radio"><input type="radio" class="row-radio" name="myrev-row" ' + (isSelected ? 'checked' : '') + ' onclick="event.stopPropagation();selectMyRev(\'' + esc(r.id) + '\')"></td>' +
       '<td style="text-align:center;">' + esc(partyLabel) + '</td>' +
       '<td style="text-align:center;">' + revTypeLabel + '</td>' +
-      '<td class="col-rev-name" style="font-weight:500;">' + esc(r.contractName) + '</td>' +
+      '<td class="col-rev-name" style="font-weight:500;">' + (r.requesterEmail && r.requesterEmail.toLowerCase() !== (USER_EMAIL||'').toLowerCase() ? '<span style="font-size:0.68rem;font-weight:700;color:#1c2333;background:transparent;border:1.5px solid #1c2333;padding:1px 6px;border-radius:6px;margin-right:6px;">CC</span>' : '') + esc(r.contractName) + '</td>' +
       '<td class="col-rev-date hide-mobile" style="font-size:0.8rem;color:var(--text-muted);text-align:center;">' + esc(fmtDateTimeKo(r.requestDate)) + '</td>' +
       '<td class="col-rev-status" style="text-align:center;"><span class="rev-status-badge ' + revBadgeClass + '">' + esc(r.status || '검토대기') + '</span></td>' +
       '<td class="col-rev-confirmed hide-mobile" style="font-size:0.82rem;color:var(--text-muted);text-align:center;">' + esc(r.confirmedBy || '—') + '</td>' +
@@ -2042,6 +2042,7 @@ function renderMyRevDetailPanel() {
   badge.className='rev-status-badge '+(isDone?'rev-status-done':isReReviewing?'rev-status-rereviewing':isProgress?'rev-status-inprogress':isReplied?'rev-status-replied':isAgreed?'rev-status-agreed':'rev-status-pending');
 
   document.getElementById('myrev-detail-meta').innerHTML = [
+    { lbl: '요청자', val: r.requesterName || r.requesterEmail || '—' },
     { lbl: '요청일', val: fmtDateTimeKo(r.requestDate) },
     { lbl: '담당자', val: r.confirmedBy || '미배정' },
     { lbl: '상태', val: r.status || '검토대기' }
