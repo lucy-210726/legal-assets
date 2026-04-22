@@ -1263,25 +1263,6 @@ function renderMyInqDetailPanel() {
   setTimeout(function() { panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 50);
 }
 
-  var answerWrap = document.getElementById('myinq-answer-wrap');
-  var waitingWrap = document.getElementById('myinq-waiting-wrap');
-
-  if (isDone && r.answer) {
-    answerWrap.style.display = 'block';
-    waitingWrap.style.display = 'none';
-    document.getElementById('myinq-answer-meta').textContent = '답변일: ' + fmtDateTimeKo(r.answerDate || '');
-    document.getElementById('myinq-answer-text').textContent = stripAttachLines(r.answer);
-    document.getElementById('myinq-answer-attach').innerHTML = renderAttachLinks(r.answer);
-  } else {
-    answerWrap.style.display = 'none';
-    waitingWrap.style.display = 'block';
-  }
-
-  var panel = document.getElementById('myinq-detail-panel');
-  panel.style.display = 'block';
-  setTimeout(function() { panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 50);
-}
-
 window._inqLegalToList = [];
 window._inqLegalCcList = [];
 
