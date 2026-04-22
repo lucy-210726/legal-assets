@@ -281,7 +281,7 @@ PAGE_TEMPLATES.myreview = `
 <span id="myrev-detail-status-badge" class="rev-status-badge rev-status-pending">검토대기</span>
 </div>
 <div class="rev-detail-body">
-<div class="rev-detail-meta" id="myrev-detail-meta"></div>
+<div class="rev-detail-meta" id="myrev-detail-meta" style="grid-template-columns:repeat(4,1fr);"></div>
 
 <div id="myrev-opinion-wrap" style="display:none;">
 <div class="rev-opinion-box">
