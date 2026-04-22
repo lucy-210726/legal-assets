@@ -62,7 +62,7 @@ PAGE_TEMPLATES.inquiry = `
     <label>추가 수신자 이메일 <span style="font-weight:400;color:var(--text-muted);">(선택)</span></label>
     <div class="review-recipients">
       <div class="autocomplete-wrap" style="flex:1;">
-        <input type="text" id="inq-legal-to-input" placeholder="이름 또는 이메일 입력..." autocomplete="new-password" oninput="showAutocomplete('inq-legal-to-input','inq-legal-to-ac')" onkeydown="handleAcKeydown(event,'inq-legal-to-input','inq-legal-to-ac','inq-legal-to')">
+        <input type="text" id="inq-legal-to-input" style="width:100%;" placeholder="이름 또는 이메일 입력..." autocomplete="new-password" oninput="showAutocomplete('inq-legal-to-input','inq-legal-to-ac')" onkeydown="handleAcKeydown(event,'inq-legal-to-input','inq-legal-to-ac','inq-legal-to')">
         <div class="autocomplete-list" id="inq-legal-to-ac" style="display:none;"></div>
       </div>
       <button class="btn-add-recipient" onclick="addInqLegalRecipient('to')">+ 수신</button>
@@ -73,7 +73,7 @@ PAGE_TEMPLATES.inquiry = `
     <label>참조(CC) 이메일 <span style="font-weight:400;color:var(--text-muted);">(선택)</span></label>
     <div class="review-recipients">
       <div class="autocomplete-wrap" style="flex:1;">
-        <input type="text" id="inq-legal-cc-input" placeholder="이름 또는 이메일 입력..." autocomplete="new-password" oninput="showAutocomplete('inq-legal-cc-input','inq-legal-cc-ac')" onkeydown="handleAcKeydown(event,'inq-legal-cc-input','inq-legal-cc-ac','inq-legal-cc')">
+        <input type="text" id="inq-legal-cc-input" style="width:100%;" placeholder="이름 또는 이메일 입력..." autocomplete="new-password" oninput="showAutocomplete('inq-legal-cc-input','inq-legal-cc-ac')" onkeydown="handleAcKeydown(event,'inq-legal-cc-input','inq-legal-cc-ac','inq-legal-cc')">
         <div class="autocomplete-list" id="inq-legal-cc-ac" style="display:none;"></div>
       </div>
       <button class="btn-add-recipient" onclick="addInqLegalRecipient('cc')">+ 참조</button>
@@ -98,7 +98,7 @@ PAGE_TEMPLATES.myinquiry = '' +
 '<div class="list-card">' +
 '<div class="list-card-header"><h4>📋 내 문의 목록</h4><span class="lc-count" id="myinq-list-count">로드 중...</span></div>' +
 '<div class="ct-table-wrap"><table class="ct-table">' +
-'<colgroup><col style="width:28px"><col style="min-width:120px"><col><col class="hide-mobile" style="min-width:200px"><col style="min-width:90px"></colgroup>' +
+'<colgroup><col style="width:28px"><col style="width:180px"><col><col class="hide-mobile" style="width:175px"><col style="width:72px"></colgroup>' +
 '<thead><tr>' +
 '<th class="col-radio"></th>' +
 '<th style="text-align:center;white-space:nowrap;">유형</th>' +
