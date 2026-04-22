@@ -56,7 +56,7 @@ PAGE_TEMPLATES.inquiry = `
 <div class="page-title">문의하기</div>
 <div class="page-subtitle">ERP 등록, 티그리스 품의, 체결된 계약서 확인 등 법무 관련 문의를 남겨주세요</div>
 <div id="inquiry-main">
-<div class="inquiry-intro"><div class="icon">⚖️</div><div><h4>법무실 안내</h4><p><br>업무에 필요한 기본 사항은 <strong style="color:var(--gold);">전결규정</strong>, <strong style="color:var(--gold);">법무 매뉴얼</strong> 등 참고 자료 확인 부탁드립니다.<br><strong style="color:var(--gold);">법률 자문</strong>은 문의자 E-MAIL을 통해서 답변을 전달드립니다.</p></div></div>
+<div class="inquiry-intro"><div class="icon">⚖️</div><div><h4>법무실 안내</h4><p><br>업무에 필요한 기본 사항은 <strong style="color:var(--gold);">전결규정</strong>, <strong style="color:var(--gold);">법무 매뉴얼</strong> 등 참고 자료 확인 부탁드립니다.<br><strong style="color:var(--gold);">법률 자문</strong>은 문의자 E-MAIL을 통해 답변이 전송됩니다.</p></div></div>
 <div class="form-container"><div class="form-header"><div class="form-header-left"><div class="form-tag">INQUIRY</div><h3>문의 내용 작성</h3></div></div><div class="form-body"><div class="field-section-title">문의자 정보</div><div class="form-grid" style="margin-bottom:20px;"><div class="form-group"><label>이름 <span class="req">*</span></label><div class="autocomplete-wrap"><input type="text" id="inq-name" placeholder="예: 홍길동" autocomplete="new-password" oninput="showInqNameAc();checkInquiryReady()"><div class="autocomplete-list" id="inq-name-ac" style="display:none;"></div></div></div><div class="form-group"><label>부서 <span class="req">*</span></label><input type="text" id="inq-dept" placeholder="예: 파트너십팀" oninput="checkInquiryReady()"></div></div><div class="field-section-title">문의 유형 선택</div><div class="category-grid"><div class="category-card" onclick="selectCategory(this,'체결된 계약서 확인 요청')"><div class="cat-icon">🔍</div><div class="cat-text">체결된 계약서 확인 요청</div></div><div class="category-card" onclick="selectCategory(this,'ERP 및 티그리스 품의 문의')"><div class="cat-icon">✏️</div><div class="cat-text">ERP 및 티그리스 품의 문의</div></div><div class="category-card" onclick="selectCategory(this,'법률 자문')"><div class="cat-icon">⚖️</div><div class="cat-text">법률 자문</div></div><div class="category-card" onclick="selectCategory(this,'기타 문의')"><div class="cat-icon">💬</div><div class="cat-text">기타 문의</div></div></div><div id="inq-legal-recipients" style="display:none;">
   <div class="form-group">
     <label>추가 수신자 이메일 <span style="font-weight:400;color:var(--text-muted);">(선택)</span></label>
@@ -242,7 +242,7 @@ PAGE_TEMPLATES.myreview = `
 <button class="page-back" onclick="goBack('myreview')">← 뒤로가기</button>
 <div class="section-label">My Reviews</div>
 <div class="page-title">내 검토 현황</div>
-<div class="page-subtitle">내가 요청한 계약서 검토 진행 상황을 확인하세요</div>
+<div class="page-subtitle">내가 요청한 계약서 검토 진행 상황을 확인하세요.<br>수신, 참조로 지정된 계약 검토 현황도 함께 표기됩니다.</div>
 
 <div class="search-bar">
 <input type="text" id="myrev-search" placeholder="🔍  계약서명 검색..." oninput="filterMyRevTable()">
