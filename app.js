@@ -2222,7 +2222,7 @@ async function doMyRequestReReview() {
 
     // 성공
     var row = _myRevAll.find(function(r) { return r.id === _mySelectedRev.id; });
-    if (row) { row.status = '검토중'; _mySelectedRev = row; }
+    if (row) { row.status = '재검토중'; _mySelectedRev = row; }
     renderMyRevTable(_myRevFiltered.length ? _myRevFiltered : _myRevAll);
     cancelMyReReview();
     renderMyRevDetailPanel();
