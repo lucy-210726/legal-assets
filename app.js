@@ -601,7 +601,7 @@ function filterRevTable(){var q=document.getElementById('rev-search').value.trim
 function renderRevTable(rows){
 var tbody=document.getElementById('rev-tbody');
 var pendingCount=rows.filter(function(r){return !r.status||r.status==='검토대기';}).length;
-var progressCount=rows.filter(function(r){return r.status==='검토중';}).length;
+var progressCount=rows.filter(function(r){return r.status==='검토중'||r.status==='재검토중';}).length;
 var repliedCount=rows.filter(function(r){return r.status==='회신완료';}).length;
 var agreedCount=rows.filter(function(r){return r.status==='합의완료';}).length;
 var doneCount=rows.filter(function(r){return r.status==='검토완료';}).length;
@@ -613,9 +613,9 @@ revCountText+=' · 검토완료 '+doneCount+'건';
 document.getElementById('rev-list-count').textContent=revCountText;
 if(!rows.length){tbody.innerHTML='<tr><td colspan="8"><div class="list-empty"><div class="empty-icon">📭</div><p>검토 요청 내역이 없습니다.</p></div></td></tr>';return;}
 tbody.innerHTML=rows.map(function(r){
-var isDone=r.status==='검토완료', isProgress=r.status==='검토중', isAgreed=r.status==='합의완료', isReplied=r.status==='회신완료';
+var isDone=r.status==='검토완료', isProgress=r.status==='검토중', isReReviewing=r.status==='재검토중', isAgreed=r.status==='합의완료', isReplied=r.status==='회신완료';
+var revBadgeClass=isDone?'rev-status-done':isReReviewing?'rev-status-rereviewing':isProgress?'rev-status-inprogress':isReplied?'rev-status-replied':isAgreed?'rev-status-agreed':'rev-status-pending';
 var isSelected=_selectedRev&&_selectedRev.id===r.id;
-var revBadgeClass=isDone?'rev-status-done':isReplied?'rev-status-replied':isProgress?'rev-status-inprogress':isAgreed?'rev-status-agreed':'rev-status-pending';
 var progressName=r.confirmedBy||'';
 var partyLabel = r.contractParty || '\u2014';
 var revTypeLabel = r.contractType === 'nonstandard' ? '비표준' : '표준';
@@ -654,13 +654,14 @@ function renderRevDetailPanel() {
   var r = _selectedRev;
   var isDone = r.status === '검토완료', isProgress = r.status === '검토중', isAgreed = r.status === '합의완료';
   var isReplied = r.status === '회신완료';
+  var isReReviewing = r.status === '재검토중';
   var isPending = !r.status || r.status === '검토대기';
   var isLegal = IS_LEGAL_TEAM === 'true';
 
   document.getElementById('rev-detail-title').textContent = r.contractName;
   var badge = document.getElementById('rev-detail-status-badge');
   badge.textContent = r.status || '검토대기';
-  badge.className = 'rev-status-badge ' + (isDone ? 'rev-status-done' : isProgress ? 'rev-status-inprogress' : isReplied ? 'rev-status-replied' : isAgreed ? 'rev-status-agreed' : 'rev-status-pending');
+  badge.className = 'rev-status-badge ' + (isDone ? 'rev-status-done' : isProgress ? 'rev-status-inprogress' : isReReviewing ? 'rev-status-rereviewing' : isReplied ? 'rev-status-replied' : isAgreed ? 'rev-status-agreed' : 'rev-status-pending');
 
   document.getElementById('rev-detail-meta').innerHTML = [
     { lbl: '요청자', val: r.requesterName },
@@ -720,7 +721,7 @@ function renderRevDetailPanel() {
 
   // ── 진행자 변경 영역 ──
   var dynWrap = document.getElementById('rev-assignee-wrap-dynamic');
-  if ((isProgress || isReplied) && isLegal) {
+  if ((isProgress || isReReviewing || isReplied) && isLegal) {
     dynWrap.innerHTML = '<div style="padding:0 28px 16px;"><div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;"><span style="font-family:var(--font);font-size:0.82rem;font-weight:600;color:var(--ink-3);white-space:nowrap;">👤 진행자 변경</span><select id="rev-assignee-select" style="flex:1;font-family:var(--font);font-size:0.85rem;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;background:var(--white);color:var(--text);"><option value="">진행자 선택...</option></select><button onclick="doChangeRevAssignee()" style="font-family:var(--font);font-size:0.8rem;font-weight:600;padding:8px 16px;border-radius:8px;border:1.5px solid var(--gold);background:transparent;color:var(--gold);cursor:pointer;white-space:nowrap;">변경</button></div></div>';
     populateRevAssigneeSelect();
   } else { dynWrap.innerHTML = ''; }
@@ -735,10 +736,10 @@ function renderRevDetailPanel() {
     else { historyWrap.style.display = 'none'; }
   }
 
-  // ── 검토 의견 작성 섹션 (법무팀 + 검토중/합의완료) ──
+  // ── 검토 의견 작성 섹션 (법무팀 + 검토중/재검토중/합의완료) ──
   var replySection = document.getElementById('rev-reply-section');
   if (replySection) {
-    if (isLegal && (isProgress || isReplied || isAgreed)) {
+    if (isLegal && (isProgress || isReReviewing || isReplied || isAgreed)) {
       replySection.style.display = 'block';
       var assigneeName = koreanNameOnly(r.confirmedBy || USER_NAME || '');
       var requesterShort = koreanNameOnly(r.requesterName || '담당자');
@@ -763,7 +764,7 @@ function renderRevDetailPanel() {
     startBtn.onclick = doStartReview;
     foot.insertBefore(startBtn, confirmBtn);
     confirmBtn.style.display = 'none';
-  } else if ((isProgress || isReplied) && !isLegal && r.requesterEmail === USER_EMAIL) {
+  } else if ((isProgress || isReReviewing || isReplied) && !isLegal && r.requesterEmail === USER_EMAIL) {
     var agreeBtn = document.createElement('button');
     agreeBtn.id = 'rev-agree-btn'; agreeBtn.className = 'btn btn-gold'; agreeBtn.textContent = '✅ 합의 완료';
     agreeBtn.onclick = doAgreeReview;
@@ -785,6 +786,7 @@ function renderRevActionButtons(r, isLegal) {
   if (!wrap) return;
 
   var isProgress = r.status === '검토중';
+  var isReReviewing = r.status === '재검토중';
   var isReplied = r.status === '회신완료';
   var isAgreed = r.status === '합의완료';
   var isPending = !r.status || r.status === '검토대기';
@@ -794,6 +796,10 @@ function renderRevActionButtons(r, isLegal) {
 
   if (isProgress && isLegal) {
     // 검토중: Legal_Team → [회신완료] [진행 취소]
+    btns += '<button class="btn btn-gold" onclick="doCompleteReply()" style="font-size:0.84rem;padding:9px 20px;">📧 회신완료</button>';
+    btns += '<button class="btn btn-ghost" onclick="doCancelReview()" style="font-size:0.84rem;padding:9px 20px;border-color:#e74c3c;color:#e74c3c;">↩ 진행 취소</button>';
+  } else if (isReReviewing && isLegal) {
+    // 재검토중: Legal_Team → [회신완료] [진행 취소]
     btns += '<button class="btn btn-gold" onclick="doCompleteReply()" style="font-size:0.84rem;padding:9px 20px;">📧 회신완료</button>';
     btns += '<button class="btn btn-ghost" onclick="doCancelReview()" style="font-size:0.84rem;padding:9px 20px;border-color:#e74c3c;color:#e74c3c;">↩ 진행 취소</button>';
   } else if (isReplied && isRequester && !isLegal) {
@@ -859,20 +865,88 @@ function renderFileList(files) {
     }
   });
 
-  return files.map(function(f, idx) {
+  var html = files.map(function(f, idx) {
     var icon = getFileIcon(f.name);
     var isLatest = (idx === maxVersionIdx);
     var latestBadge = isLatest ? ' <span style="font-size:0.7rem;background:var(--gold);color:var(--white);padding:1px 6px;border-radius:8px;font-weight:600;">최신</span>' : '';
     var link = f.url || (f.fileId ? 'https://docs.google.com/document/d/' + f.fileId + '/edit' : '#');
     var isOriginal = f.name.startsWith('원본_');
     var readonlyBadge = isOriginal ? ' <span style="font-size:0.68rem;color:var(--text-muted);">(읽기 전용)</span>' : '';
+    var sizeStr = f.size ? ' <span style="font-size:0.68rem;color:var(--text-muted);">' + esc(f.size) + '</span>' : '';
 
     return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);">' +
       '<span style="font-size:1rem;">' + icon + '</span>' +
       '<a href="' + esc(link) + '" target="_blank" style="font-family:var(--font);font-size:0.82rem;color:var(--ink);text-decoration:none;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(f.name) + '</a>' +
-      latestBadge + readonlyBadge +
+      latestBadge + readonlyBadge + sizeStr +
       '</div>';
   }).join('');
+
+  // 다운로드 버튼 추가
+  html += '<div style="margin-top:10px;display:flex;gap:8px;align-items:center;">' +
+    '<button class="btn btn-ghost" onclick="downloadReviewFiles()" style="font-size:0.78rem;padding:6px 14px;border-radius:8px;">📥 파일 목록 다운로드</button>' +
+    '<button class="btn btn-ghost" onclick="openReviewFolder()" style="font-size:0.78rem;padding:6px 14px;border-radius:8px;">📂 폴더 열기</button>' +
+    '</div>';
+
+  return html;
+}
+
+
+// ── 파일 목록 다운로드 (파일별 다운로드 링크 목록 표시) ──
+function downloadReviewFiles() {
+  if (!_selectedRev) return;
+
+  var listEl = document.getElementById('rev-files-list');
+  var originalHtml = listEl ? listEl.innerHTML : '';
+
+  // 로딩 표시
+  if (listEl) {
+    var downloadArea = listEl.querySelector('#rev-download-area');
+    if (downloadArea) { downloadArea.remove(); }
+  }
+
+  google.script.run
+    .withSuccessHandler(function(result) {
+      if (result && result.ok && result.files && result.files.length > 0) {
+        var downloadHtml = '<div id="rev-download-area" style="margin-top:12px;padding:12px;background:#f8f9fa;border:1px solid var(--border);border-radius:10px;">' +
+          '<div style="font-family:var(--font);font-size:0.78rem;font-weight:700;color:var(--ink-3);margin-bottom:8px;">📥 파일 다운로드</div>';
+
+        result.files.forEach(function(f) {
+          downloadHtml += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;">' +
+            '<a href="' + esc(f.downloadUrl) + '" target="_blank" download style="font-family:var(--font);font-size:0.8rem;color:var(--gold);text-decoration:none;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">⬇ ' + esc(f.name) + '</a>' +
+            '<span style="font-size:0.7rem;color:var(--text-muted);white-space:nowrap;">' + esc(f.size) + '</span>' +
+            '</div>';
+        });
+
+        if (result.folderUrl) {
+          downloadHtml += '<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">' +
+            '<a href="' + esc(result.folderUrl) + '" target="_blank" style="font-family:var(--font);font-size:0.78rem;color:var(--ink-3);text-decoration:none;">📂 Google Drive 폴더에서 전체 다운로드 →</a>' +
+            '</div>';
+        }
+
+        downloadHtml += '<button onclick="this.parentElement.remove()" style="margin-top:8px;font-family:var(--font);font-size:0.72rem;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--white);color:var(--text-muted);cursor:pointer;">닫기</button>';
+        downloadHtml += '</div>';
+
+        if (listEl) {
+          listEl.insertAdjacentHTML('beforeend', downloadHtml);
+        }
+      } else {
+        showAlert('다운로드할 파일이 없습니다.', { title: '파일 없음', icon: 'ℹ️' });
+      }
+    })
+    .withFailureHandler(function(err) {
+      showAlert('파일 목록을 불러올 수 없습니다: ' + (err.message || String(err)), { title: '오류', icon: '❌' });
+    })
+    .getReviewFileDownloadList(_selectedRev.id);
+}
+
+
+// ── 검토 폴더 열기 ──
+function openReviewFolder() {
+  if (!_selectedRev || !_selectedRev.reviewCaseFolderId) {
+    showAlert('검토 폴더가 없습니다.', { title: '폴더 없음', icon: 'ℹ️' });
+    return;
+  }
+  window.open('https://drive.google.com/drive/folders/' + _selectedRev.reviewCaseFolderId, '_blank');
 }
 
 
@@ -953,7 +1027,7 @@ function doRequestReReview() {
           .withSuccessHandler(function(result) {
             if (result && result.ok) {
               var row = _revAll.find(function(r) { return r.id === _selectedRev.id; });
-              if (row) { row.status = '검토중'; _selectedRev = row; }
+              if (row) { row.status = '재검토중'; _selectedRev = row; }
               renderRevTable(_revFiltered.length ? _revFiltered : _revAll);
               renderRevDetailPanel();
               showAlert('재검토 요청이 전달되었습니다.', { title: '재검토 요청 완료', icon: '✅' });
@@ -1004,6 +1078,7 @@ function doFinalizeReview() {
     }
   );
 }
+
 
 function handleRevReplyAttach(e) {
   var files = Array.from(e.target.files || []);
@@ -1873,11 +1948,16 @@ function loadMyReviews() {
         // 1. 내가 요청자인 경우
         if (r.requesterEmail && r.requesterEmail.toLowerCase() === myEmail) return true;
         // 2. 내가 TO 수신자인 경우
-        if (r.toList && r.toList.toLowerCase().includes(myEmail)) return true;
+        try {
+          var toArr = JSON.parse(r.toList || '[]');
+          if (toArr.some(function(e) { return e.toLowerCase() === myEmail; })) return true;
+        } catch(e) {}
         // 3. 내가 CC 참조자인 경우
-        if (r.ccList && r.ccList.toLowerCase().includes(myEmail)) return true;
+        try {
+          var ccArr = JSON.parse(r.ccList || '[]');
+          if (ccArr.some(function(e) { return e.toLowerCase() === myEmail; })) return true;
+        } catch(e) {}
         return false;
-
       });
       _myRevFiltered = _myRevAll;
       renderMyRevTable(_myRevAll);
@@ -1921,9 +2001,9 @@ function renderMyRevTable(rows) {
   }
 
   tbody.innerHTML = rows.map(function(r) {
-    var isDone = r.status === '검토완료', isProgress = r.status === '검토중', isAgreed = r.status === '합의완료', isReplied = r.status === '회신완료';
+    var isDone = r.status === '검토완료', isProgress = r.status === '검토중', isAgreed = r.status === '합의완료', isReplied = r.status === '회신완료', isReReviewing = r.status === '재검토중';
     var isSelected = _mySelectedRev && _mySelectedRev.id === r.id;
-    var revBadgeClass = isDone ? 'rev-status-done' : isReplied ? 'rev-status-replied' : isProgress ? 'rev-status-inprogress' : isAgreed ? 'rev-status-agreed' : 'rev-status-pending';
+    var revBadgeClass = isDone ? 'rev-status-done' : isReplied ? 'rev-status-replied' : isReReviewing ? 'rev-status-rereviewing' : isProgress ? 'rev-status-inprogress' : isAgreed ? 'rev-status-agreed' : 'rev-status-pending';
     var partyLabel = r.contractParty || '—';
     var revTypeLabel = r.contractType === 'nonstandard' ? '비표준' : '표준';
 
@@ -1931,7 +2011,7 @@ function renderMyRevTable(rows) {
       '<td class="col-radio"><input type="radio" class="row-radio" name="myrev-row" ' + (isSelected ? 'checked' : '') + ' onclick="event.stopPropagation();selectMyRev(\'' + esc(r.id) + '\')"></td>' +
       '<td style="text-align:center;">' + esc(partyLabel) + '</td>' +
       '<td style="text-align:center;">' + revTypeLabel + '</td>' +
-      '<td class="col-rev-name" style="font-weight:500;">' + (r.requesterEmail && r.requesterEmail.toLowerCase() !== (USER_EMAIL||'').toLowerCase() ? '<span style="font-size:0.68rem;font-weight:700;color:#1c2333;background:transparent;border:1.5px solid #1c2333;padding:1px 6px;border-radius:6px;margin-right:6px;">CC</span>' : '') + esc(r.contractName) + '</td>' +
+      '<td class="col-rev-name" style="font-weight:500;">' + esc(r.contractName) + '</td>' +
       '<td class="col-rev-date hide-mobile" style="font-size:0.8rem;color:var(--text-muted);text-align:center;">' + esc(fmtDateTimeKo(r.requestDate)) + '</td>' +
       '<td class="col-rev-status" style="text-align:center;"><span class="rev-status-badge ' + revBadgeClass + '">' + esc(r.status || '검토대기') + '</span></td>' +
       '<td class="col-rev-confirmed hide-mobile" style="font-size:0.82rem;color:var(--text-muted);text-align:center;">' + esc(r.confirmedBy || '—') + '</td>' +
@@ -1960,14 +2040,14 @@ function renderMyRevDetailPanel() {
   var isDone = r.status === '검토완료';
   var isAgreed = r.status === '합의완료';
   var isProgress = r.status === '검토중';
+  var isReReviewing = r.status === '재검토중';
 
   document.getElementById('myrev-detail-title').textContent = r.contractName;
   var badge = document.getElementById('myrev-detail-status-badge');
   badge.textContent = r.status || '검토대기';
-  badge.className = 'rev-status-badge ' + (isDone ? 'rev-status-done' : isProgress ? 'rev-status-inprogress' : isReplied ? 'rev-status-replied' : isAgreed ? 'rev-status-agreed' : 'rev-status-pending');
+  badge.className='rev-status-badge '+(isDone?'rev-status-done':isReReviewing?'rev-status-rereviewing':isProgress?'rev-status-inprogress':isReplied?'rev-status-replied':isAgreed?'rev-status-agreed':'rev-status-pending');
 
   document.getElementById('myrev-detail-meta').innerHTML = [
-    { lbl: '요청자', val: r.requesterName || r.requesterEmail || '—' },
     { lbl: '요청일', val: fmtDateTimeKo(r.requestDate) },
     { lbl: '담당자', val: r.confirmedBy || '미배정' },
     { lbl: '상태', val: r.status || '검토대기' }
@@ -2153,6 +2233,7 @@ async function doMyRequestReReview() {
 
   btn.disabled = false; btn.textContent = '🔄 재검토 요청 전송';
 }
+
 
 // ── 검토 의견 회신 이력 로드 ──
 function loadRevReplyHistory(reviewId) {
