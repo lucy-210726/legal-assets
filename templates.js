@@ -40,7 +40,7 @@ PAGE_TEMPLATES.submit = `
 <button class="page-back" onclick="goBack('submit')">← 뒤로가기</button>
 <div class="section-label">Document Submission</div>
 <div class="page-title">계약서 원본 제출</div>
-<div class="page-subtitle">미제출 계약 목록에서 제출할 계약을 선택하면 모든 정보가 자동으로 입력됩니다</div>
+<div class="page-subtitle">미제출 계약 목록에서 제출할 계약을 선택하면 모든 정보가 자동으로 입력됩니다.</div>
 <div id="submit-flow" class="submit-wrapper">
 <div class="info-box"><div class="info-box-icon">ℹ️</div><p>아래 목록은 <strong>미제출 계약</strong>을 실시간으로 조회합니다.<br>제출 대상 계약을 선택한 후 <strong>PDF 파일을 첨부하여 제출</strong>하면 구글 드라이브에 자동 저장되고, 제출 상태가 <strong>'제출완료'</strong>로 즉시 업데이트됩니다.<br>제출된 계약서에 오류가 확인될 경우, <strong>반려 처리되며 관련 의견이 Slack 또는 메일로 전달됩니다.</strong></p></div>
 <div class="search-bar"><input type="text" id="list-search" placeholder="🔍  계약명, 계약상대방, 관리번호, 기안자 검색..." oninput="filterList()"><button class="btn-sm" onclick="refreshContractList()">↻ 새로고침</button></div>
@@ -54,7 +54,7 @@ PAGE_TEMPLATES.inquiry = `
 <button class="page-back" onclick="goBack('inquiry')">← 뒤로가기</button>
 <div class="section-label">Legal Inquiry</div>
 <div class="page-title">문의하기</div>
-<div class="page-subtitle">ERP 등록, 티그리스 품의, 체결된 계약서 확인 등 법무 관련 문의를 남겨주세요</div>
+<div class="page-subtitle">ERP 등록, 티그리스 품의, 체결된 계약서 확인 등 법무 관련 문의를 남겨주세요.</div>
 <div id="inquiry-main">
 <div class="inquiry-intro"><div class="icon">⚖️</div><div><h4>법무실 안내</h4><p><br>업무에 필요한 기본 사항은 <strong style="color:var(--gold);">전결규정</strong>, <strong style="color:var(--gold);">법무 매뉴얼</strong> 등 참고 자료 확인 부탁드립니다.<br><strong style="color:var(--gold);">법률 자문</strong>은 문의자 E-MAIL을 통해 답변이 전송됩니다.</p></div></div>
 <div class="form-container"><div class="form-header"><div class="form-header-left"><div class="form-tag">INQUIRY</div><h3>문의 내용 작성</h3></div></div><div class="form-body"><div class="field-section-title">문의자 정보</div><div class="form-grid" style="margin-bottom:20px;"><div class="form-group"><label>이름 <span class="req">*</span></label><div class="autocomplete-wrap"><input type="text" id="inq-name" placeholder="예: 홍길동" autocomplete="new-password" oninput="showInqNameAc();checkInquiryReady()"><div class="autocomplete-list" id="inq-name-ac" style="display:none;"></div></div></div><div class="form-group"><label>부서 <span class="req">*</span></label><input type="text" id="inq-dept" placeholder="예: 파트너십팀" oninput="checkInquiryReady()"></div></div><div class="field-section-title">문의 유형 선택</div><div class="category-grid"><div class="category-card" onclick="selectCategory(this,'체결된 계약서 확인 요청')"><div class="cat-icon">🔍</div><div class="cat-text">체결된 계약서 확인 요청</div></div><div class="category-card" onclick="selectCategory(this,'ERP 및 티그리스 품의 문의')"><div class="cat-icon">✏️</div><div class="cat-text">ERP 및 티그리스 품의 문의</div></div><div class="category-card" onclick="selectCategory(this,'법률 자문')"><div class="cat-icon">⚖️</div><div class="cat-text">법률 자문</div></div><div class="category-card" onclick="selectCategory(this,'기타 문의')"><div class="cat-icon">💬</div><div class="cat-text">기타 문의</div></div></div><div id="inq-legal-recipients" style="display:none;">
@@ -144,7 +144,7 @@ PAGE_TEMPLATES.inqmgmt = `
 <button class="page-back" onclick="goBack('inqmgmt')">← 뒤로가기</button>
 <div class="section-label">Inquiry Management</div>
 <div class="page-title">문의 관리</div>
-<div class="page-subtitle">접수된 문의 목록을 확인하고 답변을 전송하세요</div>
+<div class="page-subtitle">접수된 문의 목록을 확인하고 답변을 전송하세요.</div>
 <div class="search-bar"><input type="text" id="inq-search" placeholder="🔍  문의자, 유형, 제목 검색..." oninput="filterInqTable()"><button class="btn-sm" onclick="loadInqMgmt()">↻ 새로고침</button></div>
 <div class="list-card"><div class="list-card-header"><h4>📋 문의 목록</h4><span class="lc-count" id="inq-list-count">로드 중...</span></div><div class="ct-table-wrap"><table class="ct-table"><thead><tr><th class="col-radio"></th><th class="col-inq-name">문의자</th><th class="col-inq-type">문의 유형</th><th class="col-inq-title">문의 제목</th><th class="col-inq-date hide-mobile">접수일</th><th class="col-inq-status">상태</th><th class="col-inq-assignee hide-mobile">진행자</th></tr></thead><tbody id="inq-tbody"><tr><td colspan="7"><div class="dash-empty">⏳ 로드 중...</div></td></tr></tbody></table></div></div>
 <div class="inq-detail-panel" id="inq-detail-panel" style="display:none;"><div class="inq-detail-head"><h4 id="inq-detail-title">문의 상세</h4><span id="inq-detail-status-badge" class="inq-status-badge inq-status-pending">미답변</span></div><div class="inq-detail-body"><div class="inq-detail-meta" id="inq-detail-meta"></div><div class="inq-content-box"><div class="inq-content-label">📝 문의 내용</div><div class="inq-content-text" id="inq-detail-content"></div></div><div id="inq-detail-answer" style="display:none;"></div></div>
@@ -159,7 +159,7 @@ PAGE_TEMPLATES.reviewmgmt = `
 <button class="page-back" onclick="goBack('reviewmgmt')">← 뒤로가기</button>
 <div class="section-label">Review Dashboard</div>
 <div class="page-title">검토 요청 현황</div>
-<div class="page-subtitle">법무실로 요청된 계약 검토 사항을 확인하고 처리하세요</div>
+<div class="page-subtitle">법무실로 요청된 계약 검토 사항을 확인하고 처리하세요.</div>
 <div class="search-bar"><input type="text" id="rev-search" placeholder="🔍  요청자, 계약서명 검색..." oninput="filterRevTable()"><button class="btn-sm" onclick="loadReviewMgmt()">↻ 새로고침</button></div>
 <div class="list-card"><div class="list-card-header"><h4>📋 검토 요청 목록</h4><span class="lc-count" id="rev-list-count">로드 중...</span></div><div class="ct-table-wrap"><table class="ct-table"><thead><tr><th class="col-radio"></th><th class="col-rev-requester">요청자</th><th style="width:110px;">당사자</th><th style="width:80px;">계약유형</th><th class="col-rev-name">계약서명</th><th class="col-rev-date hide-mobile">요청일</th><th class="col-rev-status">상태</th><th class="col-rev-confirmed hide-mobile">진행자</th></tr></thead><tbody id="rev-tbody"><tr><td colspan="8"><div class="dash-empty">⏳ 로드 중...</div></td></tr></tbody></table></div></div>
 
@@ -242,7 +242,7 @@ PAGE_TEMPLATES.myreview = `
 <button class="page-back" onclick="goBack('myreview')">← 뒤로가기</button>
 <div class="section-label">My Reviews</div>
 <div class="page-title">내 검토 현황</div>
-<div class="page-subtitle">내가 요청한 계약서 검토 진행 상황을 확인하세요.<br>수신, 참조로 지정된 계약 검토 현황도 함께 표기됩니다.</div>
+<div class="page-subtitle">내가 직접 검토 요청한 계약 건은 물론, 제3자가 나를 수신 또는 참조로 지정하여 진행한 계약 건의 검토 진행 상황을 확인할 수 있습니다.<br>수신, 참조로 지정된 계약 검토 건은 계약명 앞에 "CC" 표시가 되어 있습니다.</div>
 
 <div class="search-bar">
 <input type="text" id="myrev-search" placeholder="🔍  계약서명 검색..." oninput="filterMyRevTable()">
