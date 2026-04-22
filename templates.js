@@ -89,8 +89,7 @@ PAGE_TEMPLATES.myinquiry = '' +
 '<button class="page-back" onclick="goBack(\'myinquiry\')">← 뒤로가기</button>' +
 '<div class="section-label">MY INQUIRIES</div>' +
 '<div class="page-title">내 문의 현황</div>' +
-'<div class="page-subtitle">내가 접수한 문의 내역과 답변을 확인하세요</div>' +
-'<div class="page-subtitle">💡매월 1일, <b>답변완료</b>된 문의 내역은 삭제됩니다.</div>' +  
+'<div class="page-subtitle">내가 접수한 문의 내역과 답변을 확인하세요.<br><span style="font-size:0.8rem;">💡매월 1일, <b>답변완료</b>된 문의 내역은 삭제됩니다.</span></div>' + 
 
 '<div class="search-bar">' +
 '<input type="text" id="myinq-search" placeholder="🔍  유형, 제목 검색..." oninput="filterMyInqTable()">' +
@@ -99,7 +98,7 @@ PAGE_TEMPLATES.myinquiry = '' +
 '<div class="list-card">' +
 '<div class="list-card-header"><h4>📋 내 문의 목록</h4><span class="lc-count" id="myinq-list-count">로드 중...</span></div>' +
 '<div class="ct-table-wrap"><table class="ct-table">' +
-'<colgroup><col style="width:28px"><col style="width:160px"><col><col class="hide-mobile" style="width:170px"><col style="width:90px"></colgroup>' +
+'<colgroup><col style="width:28px"><col style="min-width:180px"><col><col class="hide-mobile" style="min-width:200px"><col style="min-width:90px"></colgroup>' +
 '<thead><tr>' +
 '<th class="col-radio"></th>' +
 '<th style="text-align:center;white-space:nowrap;">유형</th>' +
