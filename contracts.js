@@ -159,7 +159,7 @@ var CONTRACTS_DATA = [
     templateId: '129Z3rApRkUehxs46GWHU71iYpkRDhszX',
     downloadId: '129Z3rApRkUehxs46GWHU71iYpkRDhszX',
     fields: [] 
-  }
+  },
 
   // ──────────────────────────────────────
   //  ADP
