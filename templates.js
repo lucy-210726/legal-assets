@@ -191,7 +191,7 @@ PAGE_TEMPLATES.reviewmgmt = `
 </div>
 </div>
 
-<!-- ═══ 검토 의견 작성 + 자주하는 답변 라벨 + RE: 메일 발송 ═══ -->
+<!-- ═══ 검토 의견 작성 + 자주하는 답변 라벨 + 메일 발송 ═══ -->
 <div id="rev-reply-section" style="display:none;padding:0 28px 20px;">
 <div style="border:1px solid var(--border);border-radius:12px;background:var(--white);padding:20px;">
 <label style="font-family:var(--font);font-size:0.88rem;font-weight:700;color:var(--ink);display:block;margin-bottom:10px;">✏️ 검토 의견 작성</label>
@@ -209,7 +209,7 @@ PAGE_TEMPLATES.reviewmgmt = `
 </div>
 </div>
 
-<textarea id="rev-reply-textarea" placeholder="검토 의견을 입력하세요. 작성 후 'RE: 메일 발송' 버튼을 클릭하면 요청자에게 이메일로 회신됩니다." style="width:100%;min-height:280px;font-family:var(--font);padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:0.88rem;resize:vertical;line-height:1.7;transition:border-color 0.2s;box-sizing:border-box;" onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+<textarea id="rev-reply-textarea" placeholder="검토 의견을 입력하세요. 작성 후 '메일 발송' 버튼을 클릭하면 요청자에게 이메일로 회신됩니다." style="width:100%;min-height:280px;font-family:var(--font);padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:0.88rem;resize:vertical;line-height:1.7;transition:border-color 0.2s;box-sizing:border-box;" onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border)'"></textarea>
 
 <!-- 파일 첨부 영역 -->
 <div style="margin-top:12px;">
@@ -227,7 +227,7 @@ PAGE_TEMPLATES.reviewmgmt = `
 <p style="font-family:var(--font);font-size:0.76rem;color:var(--text-muted);margin:0;">검토 의견 및 첨부파일은 <strong>이메일</strong>로 발송됩니다. Slack에는 알림만 전달됩니다.</p>
 <div style="display:flex;gap:8px;">
 <button class="btn btn-ghost" onclick="clearRevReply()" style="font-size:0.84rem;padding:9px 18px;">초기화</button>
-<button class="btn btn-gold" id="rev-reply-send-btn" onclick="sendRevReply()" style="font-size:0.84rem;padding:9px 22px;">📧 RE: 메일 발송 →</button>
+<button class="btn btn-gold" id="rev-reply-send-btn" onclick="sendRevReply()" style="font-size:0.84rem;padding:9px 22px;">📧 메일 발송 →</button>
 </div>
 </div>
 </div>
