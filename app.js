@@ -1167,7 +1167,7 @@ function sendRevReply() {
   if (ccArr.length > 0) recipientInfo += '\n참조(CC): ' + ccArr.join(', ');
   var attachInfo = _revReplyAttachFiles.length > 0 ? '\n첨부파일: ' + _revReplyAttachFiles.length + '건' : '';
   showConfirm(recipientInfo + attachInfo + '\n\n위 수신자에게 검토 의견을 이메일로 발송하시겠습니까?', {
-    title: 'RE: 검토 의견 발송', icon: '📧', okLabel: '발송',
+    title: '검토 의견 발송', icon: '📧', okLabel: '발송',
     onOk: async function() {
       var btn = document.getElementById('rev-reply-send-btn');
       btn.disabled = true; btn.textContent = '발송 중...';
@@ -1192,7 +1192,7 @@ function sendRevReply() {
         loadRevReplyHistory(_selectedRev.id);
         renderRevDetailPanel();
       } catch (e) { showAlert(e.message, { title: '발송 실패', icon: '❌' }); }
-      btn.disabled = false; btn.textContent = '📧 RE: 메일 발송 →';
+      btn.disabled = false; btn.textContent = '📧 메일 발송 →';
     }
   });
 }
