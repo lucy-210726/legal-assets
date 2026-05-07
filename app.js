@@ -300,7 +300,7 @@ await new Promise(function(res){ setTimeout(res, 500); });
 var submittedRowNum = r.rowNum;
 allRows  = allRows.filter(function(row){ return row.rowNum !== submittedRowNum; });
 filtered = filtered.filter(function(row){ return row.rowNum !== submittedRowNum; });
-showAlert('파일이 드라이브에 저장되었습니다.', {title: '제출이 완료되었습니다!',icon: '✅',onClose: function() {selectedR = null; selectedFile = null;document.getElementById('sel-panel').style.display = 'none';document.getElementById('upload-zone').style.display = 'block';document.getElementById('file-selected').style.display = 'none';document.getElementById('upload-progress').style.display = 'none';document.getElementById('list-search').value = '';refreshContractList();}});
+showAlert('파일이 드라이브에 저장되었습니다.', {title: '제출이 완료되었습니다!',icon: '✅',onClose: function() {selectedR = null; selectedFile = null;document.getElementById('sel-panel').style.display = 'none';document.getElementById('upload-zone').style.display = 'block';document.getElementById('file-selected').style.display = 'none';document.getElementById('upload-progress').style.display = 'none';document.getElementById('submit-pdf-btn').disabled = true;document.getElementById('submit-pdf-btn').textContent = '제출하기 →';document.getElementById('list-search').value = '';refreshContractList();}});
 } catch(e) {
 setProgress(0,''); prog.style.display='none';
 btn.disabled=false; btn.textContent='제출하기 →';
@@ -1536,7 +1536,8 @@ async function submitInquiry() {
       }
     });
   } catch (e) {
-    m.innerHTML = '<div class="state-panel"><h3>\u26a0\ufe0f 오류</h3><p>' + e.message + '</p></div>';
+  if (inqBtn) { inqBtn.disabled = false; inqBtn.textContent = '문의 전송'; }
+  showAlert(e.message, { title: '오류가 발생했습니다', icon: '❌' });  
   }
 }
 function downloadGeneratedContract() {
