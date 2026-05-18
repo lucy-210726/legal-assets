@@ -680,7 +680,7 @@ function renderRevDetailPanel() {
     // Proxy_Link 형태로 표시 (WEB_APP_URL이 있으면 사용)
     if (typeof WEB_APP_URL !== 'undefined' && WEB_APP_URL && r.id) {
       fileLink.href = WEB_APP_URL + '?action=open_review&id=' + r.id;
-      fileLink.textContent = '📄 Proxy_Link로 파일 열기 →';
+      fileLink.textContent = '📄 계약서 검토 파일 열기 →';
     } else if (r.fileUrl) {
       fileLink.href = r.fileUrl;
       fileLink.textContent = '📄 계약서 파일 열기 →';
