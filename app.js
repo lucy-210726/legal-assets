@@ -1388,6 +1388,10 @@ if(p==='myinquiry')  loadMyInquiries();
 if(p==='inqmgmt')    loadInqMgmt();
 if(p==='reviewmgmt') loadReviewMgmt();
 if(p==='myreview') loadMyReviews();
+if(p==='reference') {
+  var refBtn = document.getElementById('nav-reference');
+  if (refBtn) refBtn.classList.add('active');
+}  
 }
 
 function goBack(p){
@@ -1642,6 +1646,15 @@ loadRefPdf('guide');
 }
 document.getElementById('ref-modal-overlay').style.display = 'flex';
 }
+function downloadRef(key) {
+  var fileId = REF_FILES[key];
+  if (!fileId) return;
+  var url = 'https://drive.google.com/uc?export=download&id=' + fileId;
+  var a = document.createElement('a');
+  a.href = url;
+  a.target = '_blank';
+  a.click();
+}
 function switchRefTab(key, btn) {var tabs = document.getElementById('ref-modal-tabs');tabs.querySelectorAll('.company-tab').forEach(function(t){ t.classList.remove('active'); });btn.classList.add('active');loadRefPdf(key);}
 function loadRefPdf(key) {var fileId = REF_FILES[key];if (!fileId) return;document.getElementById('ref-modal-iframe').src = 'https://drive.google.com/file/d/' + fileId + '/preview';}
 function closeRefModal() {document.getElementById('ref-modal-overlay').style.display = 'none';document.getElementById('ref-modal-iframe').src = '';}
@@ -1774,6 +1787,7 @@ document.getElementById('page-myinquiry').innerHTML = PAGE_TEMPLATES.myinquiry;
 document.getElementById('page-inqmgmt').innerHTML = PAGE_TEMPLATES.inqmgmt;
 document.getElementById('page-reviewmgmt').innerHTML = PAGE_TEMPLATES.reviewmgmt;
 document.getElementById('page-myreview').innerHTML = PAGE_TEMPLATES.myreview;
+document.getElementById('page-reference').innerHTML = PAGE_TEMPLATES.reference;
 document.getElementById('modals-container').innerHTML = PAGE_TEMPLATES.modals;
 Array.from(document.body.childNodes).forEach(function(n){
 if(n.nodeType===3 && n.textContent.trim()) n.remove();
