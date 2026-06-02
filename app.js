@@ -679,11 +679,17 @@ function renderRevDetailPanel() {
     var fileLink = document.getElementById('rev-file-link');
     // Proxy_Link 형태로 표시 (WEB_APP_URL이 있으면 사용)
     if (typeof WEB_APP_URL !== 'undefined' && WEB_APP_URL && r.id) {
-      fileLink.href = WEB_APP_URL + '?action=open_review&id=' + r.id;
-      fileLink.textContent = '📄 계약서 검토 파일 열기 →';
+      var isGoogleDoc = r.fileUrl && r.fileUrl.includes('/document/');
+      if (isGoogleDoc) {
+        fileLink.href = WEB_APP_URL + '?action=open_review&id=' + r.id;
+        fileLink.textContent = '📄 계약서 검토 파일 열기 →';
+      } else if (r.fileId) {
+        fileLink.href = 'https://drive.google.com/file/d/' + r.fileId + '/view';
+        fileLink.textContent = '📥 계약서 검토 파일 다운로드 →';
+      }
     } else if (r.fileUrl) {
-      fileLink.href = r.fileUrl;
-      fileLink.textContent = '📄 계약서 파일 열기 →';
+    fileLink.href = r.fileUrl;
+    fileLink.textContent = '📄 계약서 파일 열기 →';
     }
   } else { fileWrap.style.display = 'none'; }
 
@@ -2157,12 +2163,20 @@ function renderMyRevDetailPanel() {
     fileWrap.style.display = 'block';
     var fileLink = document.getElementById('myrev-file-link');
     if (typeof WEB_APP_URL !== 'undefined' && WEB_APP_URL && r.id) {
-      fileLink.href = WEB_APP_URL + '?action=open_review&id=' + r.id;
-      fileLink.textContent = '📄 계약서 파일 열기 →';
+      var isGoogleDoc = r.fileUrl && r.fileUrl.includes('/document/');
+      if (isGoogleDoc) {
+        fileLink.href = WEB_APP_URL + '?action=open_review&id=' + r.id;
+        fileLink.textContent = '📄 계약서 검토 파일 열기 →';
+      } else if (r.fileId) {
+        fileLink.href = 'https://drive.google.com/file/d/' + r.fileId + '/view';
+        fileLink.textContent = '📥 계약서 검토 파일 다운로드 →';
+      }
     } else if (r.fileUrl) {
       fileLink.href = r.fileUrl;
+      fileLink.textContent = '📄 계약서 파일 열기 →';
     }
   } else { fileWrap.style.display = 'none'; }
+
 
   // 파일 목록
   var filesWrap = document.getElementById('myrev-files-wrap');
