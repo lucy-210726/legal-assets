@@ -22,10 +22,6 @@
 //  media                _ 통합매체계약서
 //  reward               _ 리워드매체계약서
 //
-//  [FIXTYPE]
-//  fixtype_service      _ 용역계약서
-//  fixtype_service_req  _ 용역계약서_용역의뢰서
-//  fixtype_folio        _ FIXFOLIO 서비스 이용 신청서
 // ═══════════════════════════════════════
 
 var CONTRACTS_DATA = [
@@ -242,34 +238,4 @@ var CONTRACTS_DATA = [
       { name: 'remarks',          label: '특약사항',              type: 'textarea', required: false, span: 2 }
     ]
   },
-
-  // ──────────────────────────────────────
-  //  FIXTYPE
-  // ──────────────────────────────────────
-  { id: 'fixtype_service',  
-    company: 'FIXTYPE',
-    name: '용역계약서',
-    desc: 'FIXTYPE 용역 표준 계약서',
-    templateId: '12Qk_mclOvrhs4x-6v5mjnKzonrFVIGBZ',
-    downloadId: '12Qk_mclOvrhs4x-6v5mjnKzonrFVIGBZ',
-    fields: [] 
-  },
-  
-  { id: 'fixtype_service_req', 
-    company: 'FIXTYPE',
-    name: '용역계약서_용역의뢰서',
-    desc: 'FIXTYPE 기 체결 용역 계약에 대한 부속 합의서',
-    templateId: '12Qk_mclOvrhs4x-6v5mjnKzonrFVIGBZ',
-    downloadId: '12Qk_mclOvrhs4x-6v5mjnKzonrFVIGBZ',
-    fields: [] 
-  },
-  
-  { id: 'fixtype_folio',
-    company: 'FIXTYPE',
-    name: 'FIXFOLIO 서비스 이용 신청서',
-    desc: 'FIXFOLIO 서비스 이용 신청서',
-    templateId: '12Qk_mclOvrhs4x-6v5mjnKzonrFVIGBZ',
-    downloadId: '12Qk_mclOvrhs4x-6v5mjnKzonrFVIGBZ',
-   fields: [] 
-  }
 ];
