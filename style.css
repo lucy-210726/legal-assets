@@ -217,3 +217,11 @@ footer{background:var(--ink);color:rgba(255,255,255,0.4);text-align:center;paddi
 .dash-table td.col-name {
   text-align: left !important;
 }
+
+.ref-page-grid { display:grid; grid-template-columns:1fr; gap:16px; }
+.ref-page-card { background:var(--white); border:1.5px solid var(--border); border-radius:14px; padding:24px; display:flex; align-items:center; gap:20px; transition:border-color 0.2s; }
+.ref-page-card:hover { border-color:var(--gold); }
+.ref-page-card-icon { font-size:2rem; }
+.ref-page-card-body h4 { font-family:var(--font); font-size:1rem; font-weight:700; color:var(--ink); margin-bottom:4px; }
+.ref-page-card-body p { font-family:var(--font); font-size:0.82rem; color:var(--text-muted); }
+.ref-page-card-actions { margin-left:auto; display:flex; gap:8px; flex-wrap:wrap; }
