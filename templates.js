@@ -348,13 +348,23 @@ PAGE_TEMPLATES.reference = `<div class="contract-page">
 <div class="ref-page-card">
 <div class="ref-page-card-icon">📋</div>
 <div class="ref-page-card-body">
-<h4>전결규정</h4>
-<p>IGAW / ADP 전결규정 확인</p>
+<h4>IGAW 전결규정</h4>
+<p>IGAW 전결규정 확인</p>
 </div>
 <div class="ref-page-card-actions">
-<button class="btn btn-ghost" onclick="openRef('approval')">미리보기</button>
-<button class="btn btn-ghost" onclick="downloadRef('approval_igaw')">IGAW 다운로드</button>
-<button class="btn btn-ghost" onclick="downloadRef('approval_adp')">ADP 다운로드</button>
+<button class="btn btn-ghost" onclick="openRefSingle('approval_igaw')">미리보기</button>
+<button class="btn btn-ghost" onclick="downloadRef('approval_igaw')">다운로드</button>
+</div>
+</div>
+<div class="ref-page-card">
+<div class="ref-page-card-icon">📋</div>
+<div class="ref-page-card-body">
+<h4>ADP 전결규정</h4>
+<p>ADP 전결규정 확인</p>
+</div>
+<div class="ref-page-card-actions">
+<button class="btn btn-ghost" onclick="openRefSingle('approval_adp')">미리보기</button>
+<button class="btn btn-ghost" onclick="downloadRef('approval_adp')">다운로드</button>
 </div>
 </div>
 <div class="ref-page-card">
@@ -364,7 +374,7 @@ PAGE_TEMPLATES.reference = `<div class="contract-page">
 <p>법무 업무 프로세스 안내</p>
 </div>
 <div class="ref-page-card-actions">
-<button class="btn btn-ghost" onclick="openRef('manual')">미리보기</button>
+<button class="btn btn-ghost" onclick="openRefSingle('manual')">미리보기</button>
 <button class="btn btn-ghost" onclick="downloadRef('manual')">다운로드</button>
 </div>
 </div>
@@ -375,7 +385,7 @@ PAGE_TEMPLATES.reference = `<div class="contract-page">
 <p>계약서 작성 시 참고 사항</p>
 </div>
 <div class="ref-page-card-actions">
-<button class="btn btn-ghost" onclick="openRef('guide')">미리보기</button>
+<button class="btn btn-ghost" onclick="openRefSingle('guide')">미리보기</button>
 <button class="btn btn-ghost" onclick="downloadRef('guide')">다운로드</button>
 </div>
 </div>
