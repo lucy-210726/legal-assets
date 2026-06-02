@@ -2396,3 +2396,25 @@ function stripGreetingSignature(text) {
   }
   return filtered.join('\n').replace(/^\n+/, '').replace(/\n+$/, '').trim();
 }
+
+// 모든 .attach-zone에 드래그 앤 드롭 지원
+document.addEventListener('dragover', function(e) {
+  var zone = e.target.closest('.attach-zone');
+  if (zone) { e.preventDefault(); zone.classList.add('drag'); }
+});
+document.addEventListener('dragleave', function(e) {
+  var zone = e.target.closest('.attach-zone');
+  if (zone) zone.classList.remove('drag');
+});
+document.addEventListener('drop', function(e) {
+  var zone = e.target.closest('.attach-zone');
+  if (!zone) return;
+  e.preventDefault();
+  zone.classList.remove('drag');
+  var input = zone.querySelector('input[type=file]');
+  if (!input) return;
+  var dt = new DataTransfer();
+  Array.from(e.dataTransfer.files).forEach(function(f) { dt.items.add(f); });
+  input.files = dt.files;
+  input.dispatchEvent(new Event('change', { bubbles: true }));
+});
