@@ -776,8 +776,6 @@ function renderRevDetailPanel() {
     agreeBtn.onclick = doAgreeReview;
     foot.insertBefore(agreeBtn, confirmBtn);
     confirmBtn.style.display = 'none';
-  } else if (isAgreed && isLegal) {
-    confirmBtn.style.display = 'inline-block'; confirmBtn.disabled = false; confirmBtn.textContent = '✅ 검토 확인 완료';
   } else { confirmBtn.style.display = 'none'; }
 
   var panel = document.getElementById('rev-detail-panel');
