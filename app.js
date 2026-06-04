@@ -2455,7 +2455,7 @@ function renderReplyHistoryCards(historyText) {
     var headerParts = header.split('·').map(function(s){ return s.trim(); });
     var dateStr = headerParts[0] || '';
     var nameStr = headerParts[1] || '';
-    var displayName = koreanNameOnly(nameStr) || nameStr;
+    var displayName = nameStr;
     var num = entries.length - idx;
     return '<div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:8px;">' +
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">' +
