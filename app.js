@@ -800,11 +800,9 @@ function renderRevActionButtons(r, isLegal) {
 
   if (isProgress && isLegal) {
     // 검토중: Legal_Team → [회신완료] [진행 취소]
-    btns += '<button class="btn btn-gold" onclick="doCompleteReply()" style="font-size:0.84rem;padding:9px 20px;">📧 회신완료</button>';
     btns += '<button class="btn btn-ghost" onclick="doCancelReview()" style="font-size:0.84rem;padding:9px 20px;border-color:#e74c3c;color:#e74c3c;">↩ 진행 취소</button>';
   } else if (isReReviewing && isLegal) {
     // 재검토중: Legal_Team → [회신완료] [진행 취소]
-    btns += '<button class="btn btn-gold" onclick="doCompleteReply()" style="font-size:0.84rem;padding:9px 20px;">📧 회신완료</button>';
     btns += '<button class="btn btn-ghost" onclick="doCancelReview()" style="font-size:0.84rem;padding:9px 20px;border-color:#e74c3c;color:#e74c3c;">↩ 진행 취소</button>';
   } else if (isReplied && isRequester && !isLegal) {
     // 회신완료: Requester → [합의완료] [재검토 요청]
@@ -1211,7 +1209,7 @@ function sendRevReply() {
         loadRevReplyHistory(_selectedRev.id);
         renderRevDetailPanel();
       } catch (e) { showAlert(e.message, { title: '발송 실패', icon: '❌' }); }
-      btn.disabled = false; btn.textContent = '📧 메일 발송 →';
+      btn.disabled = false; btn.textContent = '📧 메일 발송 (회신완료) →';
     }
   });
 }
