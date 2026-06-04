@@ -306,6 +306,13 @@ PAGE_TEMPLATES.myreview = `
 <div style="border:1px solid var(--border);border-radius:12px;background:var(--surface);padding:14px 16px;">
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;"><span style="font-family:var(--font);font-size:0.82rem;font-weight:700;color:var(--ink-3);">📁 검토 파일 목록</span><button class="btn-sm" onclick="loadReviewFiles(_selectedRev.id)" style="font-size:0.72rem;padding:4px 10px;">↻ 새로고침</button></div>
 <div id="myrev-files-list" style="font-family:var(--font);font-size:0.84rem;color:var(--text);"></div>
+<!-- 검토 의견 회신 이력 -->
+<div id="myrev-reply-history-wrap" style="display:none;margin-top:16px;padding:0;">
+<div style="border:1px solid var(--border);border-radius:12px;background:var(--surface);padding:16px 18px;">
+<div style="font-family:var(--font);font-size:0.82rem;font-weight:700;color:var(--ink-3);margin-bottom:10px;">📨 검토 의견 회신 이력</div>
+<div id="myrev-reply-history-content" style="font-family:var(--font);font-size:0.84rem;color:var(--text);line-height:1.7;white-space:pre-wrap;"></div>
+</div>
+</div>
 </div>
 </div>
 
