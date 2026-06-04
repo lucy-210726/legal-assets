@@ -234,7 +234,7 @@ PAGE_TEMPLATES.reviewmgmt = `
 <p style="font-family:var(--font);font-size:0.76rem;color:var(--text-muted);margin:0;">검토 의견 및 첨부파일은 <strong>이메일</strong>로 발송됩니다. Slack에는 알림만 전달됩니다.</p>
 <div style="display:flex;gap:8px;">
 <button class="btn btn-ghost" onclick="clearRevReply()" style="font-size:0.84rem;padding:9px 18px;">초기화</button>
-<button class="btn btn-gold" id="rev-reply-send-btn" onclick="sendRevReply()" style="font-size:0.84rem;padding:9px 22px;">📧 메일 발송 →</button>
+<button class="btn btn-gold" id="rev-reply-send-btn" onclick="sendRevReply()" style="font-size:0.84rem;padding:9px 22px;">📧 메일 발송 (회신완료) →</button>
 </div>
 </div>
 </div>
