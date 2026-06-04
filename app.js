@@ -683,6 +683,14 @@ function renderRevDetailPanel() {
       if (isGoogleDoc) {
         fileLink.href = WEB_APP_URL + '?action=open_review&id=' + r.id;
         fileLink.textContent = '📄 계약서 검토 파일 열기 →';
+        fileLink.onclick = function() {
+        var attempts = 0;
+        var poll = setInterval(function() {
+        attempts++;
+        loadReviewFiles(_selectedRev.id);
+        if (attempts >= 4) clearInterval(poll);
+        }, 5000);
+      };
       } else if (r.fileId) {
         fileLink.href = 'https://drive.google.com/file/d/' + r.fileId + '/view';
         fileLink.textContent = '📥 계약서 검토 파일 다운로드 →';
@@ -2178,6 +2186,14 @@ function renderMyRevDetailPanel() {
       if (isGoogleDoc) {
         fileLink.href = WEB_APP_URL + '?action=open_review&id=' + r.id;
         fileLink.textContent = '📄 계약서 검토 파일 열기 →';
+        fileLink.onclick = function() {
+        var attempts = 0;
+        var poll = setInterval(function() {
+        attempts++;
+        loadReviewFiles(_selectedRev.id);
+        if (attempts >= 4) clearInterval(poll);
+        }, 5000);
+      };
       } else if (r.fileId) {
         fileLink.href = 'https://drive.google.com/file/d/' + r.fileId + '/view';
         fileLink.textContent = '📥 계약서 검토 파일 다운로드 →';
