@@ -2222,7 +2222,26 @@ function renderMyRevDetailPanel() {
       .withFailureHandler(function() { listEl.innerHTML = ''; })
       .getReviewFiles(r.id);
   } else if (filesWrap) { filesWrap.style.display = 'none'; }
-
+      // 검토 의견 회신 이력
+    var myRevHistoryWrap = document.getElementById('myrev-reply-history-wrap');
+    if (myRevHistoryWrap) {
+    myRevHistoryWrap.style.display = 'block';
+    var myRevHistoryContent = document.getElementById('myrev-reply-history-content');
+    myRevHistoryContent.innerHTML = '<span style="color:var(--text-muted);">로드 중...</span>';
+    google.script.run
+    .withSuccessHandler(function(result) {
+      if (result && result.ok && result.history) {
+        myRevHistoryContent.innerHTML = renderReplyHistoryCards(result.history);
+      } else {
+        myRevHistoryContent.innerHTML = '<span style="color:var(--text-muted);font-style:italic;">아직 회신 이력이 없습니다.</span>';
+      }
+    })
+    .withFailureHandler(function() {
+      myRevHistoryContent.innerHTML = '';
+      myRevHistoryWrap.style.display = 'none';
+    })
+    .getReviewReplyHistory(r.id);
+  }
   // 액션 버튼 (회신완료 상태 + 요청자 본인에게만)
   var actionWrap = document.getElementById('myrev-action-wrap');
   var actionBtns = document.getElementById('myrev-action-buttons');
