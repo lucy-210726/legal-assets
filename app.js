@@ -1056,33 +1056,48 @@ function doFinalizeReview() {
     showAlert('합의완료 상태에서만 검토완료 처리가 가능합니다.', { title: '처리 불가', icon: '⚠️' });
     return;
   }
-  showConfirm(
-    '검토완료 처리하시겠습니까?\n요청자에게 최종 알림이 발송됩니다.',
-    {
-      title: '검토완료',
-      icon: '✅',
-      okLabel: '검토완료 처리',
-      onOk: function() {
-        google.script.run
-          .withSuccessHandler(function(result) {
-            if (result && result.ok) {
-              var row = _revAll.find(function(r) { return r.id === _selectedRev.id; });
-              if (row) { row.status = '검토완료'; row.confirmedAt = fmtDateTimeKo(new Date()); _selectedRev = row; }
-              renderRevTable(_revFiltered.length ? _revFiltered : _revAll);
-              renderRevDetailPanel();
-            } else {
-              showAlert((result && result.error) || '알 수 없는 오류', { title: '처리 실패', icon: '❌' });
-            }
-          })
-          .withFailureHandler(function(err) {
-            showAlert(err.message || String(err), { title: '오류', icon: '❌' });
-          })
-          .finalizeReview(_selectedRev.id);
-      }
-    }
-  );
+    // 후속조치 선택 팝업
+  var overlay = document.getElementById('next-action-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'next-action-overlay';
+    overlay.style.cssText = 'display:flex;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:600;align-items:center;justify-content:center;';
+    overlay.innerHTML =
+      '<div style="background:var(--white);border-radius:20px;padding:36px 32px;max-width:440px;width:92%;box-shadow:var(--shadow-lg);font-family:var(--font);text-align:center;">' +
+      '<div style="font-size:1.5rem;margin-bottom:14px;">📋</div>' +
+      '<div style="font-size:1rem;font-weight:700;color:var(--ink);margin-bottom:8px;">후속 조치 선택</div>' +
+      '<div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:24px;">요청자가 진행할 후속 조치를 선택해 주세요.</div>' +
+      '<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;">' +
+        '<button class="btn btn-ghost" onclick="submitFinalizeWithAction(\'일반품의서\')" style="width:100%;text-align:left;padding:14px 18px;font-size:0.88rem;">📝 일반품의서</button>' +
+        '<button class="btn btn-ghost" onclick="submitFinalizeWithAction(\'ERP 등록 및 계약등록/변경품의\')" style="width:100%;text-align:left;padding:14px 18px;font-size:0.88rem;">💼 ERP 등록 및 계약등록/변경품의</button>' +
+        '<button class="btn btn-ghost" onclick="submitFinalizeWithAction(\'전자계약품의\')" style="width:100%;text-align:left;padding:14px 18px;font-size:0.88rem;">📄 전자계약품의</button>' +
+      '</div>' +
+      '<button onclick="document.getElementById(\'next-action-overlay\').style.display=\'none\'" style="padding:9px 24px;border-radius:10px;border:1.5px solid var(--border);background:var(--white);font-family:var(--font);font-size:0.85rem;font-weight:600;cursor:pointer;color:var(--text-muted);">취소</button>' +
+      '</div>';
+    document.body.appendChild(overlay);
+  } else {
+    overlay.style.display = 'flex';
+  }
 }
 
+function submitFinalizeWithAction(nextAction) {
+  document.getElementById('next-action-overlay').style.display = 'none';
+  google.script.run
+    .withSuccessHandler(function(result) {
+      if (result && result.ok) {
+        var row = _revAll.find(function(r) { return r.id === _selectedRev.id; });
+        if (row) { row.status = '검토완료'; row.nextAction = nextAction; row.confirmedAt = fmtDateTimeKo(new Date()); _selectedRev = row; }
+        renderRevTable(_revFiltered.length ? _revFiltered : _revAll);
+        renderRevDetailPanel();
+      } else {
+        showAlert((result && result.error) || '알 수 없는 오류', { title: '처리 실패', icon: '❌' });
+      }
+    })
+    .withFailureHandler(function(err) {
+      showAlert(err.message || String(err), { title: '오류', icon: '❌' });
+    })
+    .finalizeReview(_selectedRev.id, nextAction);
+}
 
 function handleRevReplyAttach(e) {
   var files = Array.from(e.target.files || []);
