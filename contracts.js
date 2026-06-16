@@ -1,241 +1,419 @@
 // ════════════════════════════════════════════════════════════
-//  IGAW 법무 원스톱 센터 — 계약서 유형 정의
-//  GitHub CDN으로 관리: https://lucy-210726.github.io/legal-assets/contracts.js
+//  IGAW 법무 원스톱 센터 — 계약서 유형 정의 v2
+//  GitHub CDN: https://lucy-210726.github.io/legal-assets/contracts.js
 //
-//  양식 추가/수정 시 이 파일만 수정하면 됩니다.
-//  Code.gs의 getContracts() 함수는 더 이상 사용하지 않습니다.
+//  변경점:
+//  - autoWrite 플래그 추가 (true: 자동작성 지원, false: 미리보기/다운로드/수정본검토만)
+//  - 전체 37개 계약서 (IGAW 21개 + ADP 16개) → 실제 39개 (IGAW 21 + ADP 18)
+//  - templateId: 자동작성용 (변수 placeholder 포함) — autoWrite:false면 빈 문자열
+//  - downloadId: 미리보기/다운로드용 (깨끗한 양식)
 // ════════════════════════════════════════════════════════════
-
-// ═══════════════════════════════════════
-//  [IGAW]
-//  service              _ 용역위탁계약서
-//  addendum             _ 부속 합의서
-//  subscription         _ 모바일인덱스 구독계약서
-//  service_use          _ 서비스 이용 계약서(ADB_MAU)
-//  amendment            _ 계약 변경 합의서
-//  dfinery              _ 디파이너리 이용 계약서
-//  tv_index             _ TV INDEX 구독 계약서
-
-//
-//  [ADP]
-//  ad                   _ 광고 계약서
-//  media                _ 통합매체계약서
-//  reward               _ 리워드매체계약서
-//
-// ═══════════════════════════════════════
 
 var CONTRACTS_DATA = [
 
-  // ──────────────────────────────────────
-  //  IGAW
-  // ──────────────────────────────────────
+  // ══════════════════════════════════════════════════════════
+  //  IGAW — 자동작성 지원 (8개)
+  // ══════════════════════════════════════════════════════════
   {
-    id: 'subscription',
-    company: 'IGAW',
-    name: '모바일인덱스 구독계약서',
-    desc: '모바일인덱스 서비스 구독 계약서',
-    templateId: '1kzAJARW3b2UjZJagCnUn_TWZwLhJNmDD',
-    downloadId: '1kzAJARW3b2UjZJagCnUn_TWZwLhJNmDD',
-    fields: [
-      { section: '구매자 정보' },
-      { name: 'buyer_name',      label: '구매자명',       type: 'text', required: true },
-      { name: 'buyer_address',   label: '구매자 주소',    type: 'text', required: true, span: 2 },
-      { name: 'buyer_ceo',       label: '구매자 대표이사', type: 'text', required: true },
-      { name: 'business_number', label: '사업자등록번호',  type: 'text', required: true },
-      { section: '계약 기간' },
-      { name: 'contract_date', label: '계약체결일',     type: 'date',  required: true },
-      { name: 'service_start', label: '이용기간 시작일', type: 'date',  required: true },
-      { name: 'service_end',   label: '이용기간 종료일', type: 'date',  required: true },
-      { name: 'auto_renewal',  label: '자동갱신',       type: 'radio', required: true, options: ['동의함', '동의하지 않음'] },
-      { section: '서비스 및 금액' },
-      { name: 'services',    label: '서비스 선택',      type: 'checkbox', required: true, span: 2, options: ['사용량 인덱스 (앱 사용량 데이터 분석)', '앱 마켓 인덱스 (마켓정보, 마켓 매출 데이터 분석)', '소비 인덱스 (카드 결제 데이터 분석)'] },
-      { name: 'total_amount', label: '총 계약금액 (원)', type: 'number', required: true },
-      { name: 'monthly_fee',  label: '월 구독료 (원)',   type: 'number', required: true }
-    ]
-  },
-
-  {
-    id: 'service_use',
-    company: 'IGAW',
-    name: '서비스 이용 계약서(ADB_MAU)',
-    desc: 'IGAW 서비스 이용에 관한 표준 계약서',
-    templateId: '1ougKohxhx-HKjcfUxLjr26giKA1hX9Qs',
-    downloadId: '1ougKohxhx-HKjcfUxLjr26giKA1hX9Qs',
-    fields: [
-      { section: '이용자 정보' },
-      { name: 'client_name',     label: '이용자(갑)명',    type: 'text', required: true },
-      { name: 'client_address',  label: '이용자 주소',     type: 'text', required: true, span: 2 },
-      { name: 'client_ceo',      label: '이용자 대표이사', type: 'text', required: true },
-      { name: 'business_number', label: '사업자등록번호',   type: 'text', required: true },
-      { section: '계약 정보' },
-      { name: 'contract_date', label: '계약체결일',    type: 'date', required: true },
-      { name: 'service_name',  label: '서비스명',      type: 'text', required: true, span: 2 },
-      { name: 'service_start', label: '서비스 시작일', type: 'date', required: true },
-      { name: 'service_end',   label: '서비스 종료일', type: 'date', required: true },
-      { section: '요금 및 결제' },
-      { name: 'contract_amount', label: '계약금액 (원)', type: 'number', required: true },
-      { name: 'payment_method',  label: '결제 방식',     type: 'text',   required: false, hint: '예: 월납, 선납 등' },
-      { section: '서비스 범위' },
-      { name: 'service_scope', label: '서비스 제공 범위', type: 'textarea', required: true,  span: 2 },
-      { name: 'remarks',       label: '기타사항',        type: 'textarea', required: false, span: 2 }
-    ]
-  },
-  { id: 'dfinery',  
-    company: 'IGAW',
-    name: '디파이너리 이용 계약서',
-    desc: '디파이너리 이용에 관한 표준 계약서',
-    templateId: '1WmnE_Tk-vHbi08Y0yyi5wqgSwIwqdWJD',
-    downloadId: '1WmnE_Tk-vHbi08Y0yyi5wqgSwIwqdWJD',
-    fields: [] 
-  },
-  { id: 'tv_index',  
-    company: 'IGAW',
-    name: 'TV INDEX 구독 계약서',
-    desc: 'TV INDEX 이용에 관한 표준 계약서',
-    templateId: '1U9SsxSetrXYtkpH0Xv2B9k7QnVYJ2mnN',
-    downloadId: '1U9SsxSetrXYtkpH0Xv2B9k7QnVYJ2mnN',
-    fields: [] 
-  },
-   {
-    id: 'service',
-    company: 'IGAW',
-    name: '용역위탁계약서',
-    desc: '용역 업무 위탁 관련 표준 계약서',
-    templateId: '12Qk_mclOvrhs4x-6v5mjnKzonrFVIGBZ',
-    downloadId: '12Qk_mclOvrhs4x-6v5mjnKzonrFVIGBZ',
-    fields: [
-      { section: '수탁자 정보' },
-      { name: 'trustee_name',    label: '수탁자명',       type: 'text', required: true },
-      { name: 'trustee_address', label: '수탁자 주소',    type: 'text', required: true, span: 2 },
-      { name: 'trustee_ceo',     label: '수탁자 대표이사', type: 'text', required: true },
-      { section: '계약 기본 정보' },
-      { name: 'contract_date',  label: '계약체결일',        type: 'date',   required: true },
-      { name: 'contract_name',  label: '계약명',            type: 'text',   required: true, span: 2 },
-      { name: 'service_cost',   label: '용역대금 (원)',     type: 'number', required: true },
-      { name: 'service_start',  label: '용역기간 시작일',   type: 'date',   required: true },
-      { name: 'service_end',    label: '용역기간 종료일',   type: 'date',   required: true },
-      { section: '결제 정보' },
-      { name: 'invoice_date',   label: '세금계산서 발행일', type: 'text', required: false, hint: '기본값: 용역 완료 월의 말일' },
-      { name: 'payment_date',   label: '대금지급일',        type: 'text', required: false, hint: '기본값: 세금계산서 발행일 기준 익월 말일 이내' },
-      { name: 'bank_name',      label: '은행명',            type: 'text', required: false },
-      { name: 'account_number', label: '계좌번호',          type: 'text', required: false },
-      { name: 'account_holder', label: '예금주',            type: 'text', required: false },
-      { section: '업무 범위 및 결과물' },
-      { name: 'work_scope',       label: '수행 업무 범위',    type: 'textarea', required: true,  span: 2 },
-      { name: 'deliverables',     label: '결과물',            type: 'textarea', required: true,  span: 2 },
-      { name: 'submit_deadline',  label: '제출기한',          type: 'text',     required: false },
-      { name: 'remarks',          label: '기타사항 (특약)',   type: 'textarea', required: false, span: 2 }
-    ]
-  },
-  {
-    id: 'addendum',
-    company: 'IGAW',
-    name: '부속 합의서',
-    desc: '기 체결 계약에 대한 부속 합의서',
-    templateId: '1BcUP2kmiTHysIwy0Bk40U3sr38JO7_hP',
-    downloadId: '1BcUP2kmiTHysIwy0Bk40U3sr38JO7_hP',
-    fields: [
-      { section: '고객사 정보' },
-      { name: 'client_name',    label: '고객사명',       type: 'text', required: true },
-      { name: 'client_address', label: '고객사 주소',    type: 'text', required: true, span: 2 },
-      { name: 'client_ceo',     label: '고객사 대표이사', type: 'text', required: true },
-      { section: '원계약 정보' },
-      { name: 'original_contract_name', label: '원계약 계약명', type: 'text', required: true, span: 2 },
-      { name: 'original_contract_date', label: '원계약 체결일', type: 'date', required: true },
-      { section: '합의 내용' },
-      { name: 'agreement_detail', label: '합의사항', type: 'textarea', required: true, span: 2 },
-      { section: '합의서 정보' },
-      { name: 'SIGN_DATE', label: '합의서 체결일', type: 'date', required: true }
-    ]
-  },
-  { id: 'amendment',  
+    id: 'igaw_amendment',
     company: 'IGAW',
     name: '계약 변경 합의서',
     desc: '기 체결 계약 내용 변경에 대한 합의서',
-    templateId: '129Z3rApRkUehxs46GWHU71iYpkRDhszX',
-    downloadId: '129Z3rApRkUehxs46GWHU71iYpkRDhszX',
-    fields: [] 
+    autoWrite: true,
+    templateId: '1wnM5JECnRGl6TxvsHhX5CntfRtrNe3MW8ELQRoW-6SA',
+    downloadId: '108Tm2TbZerLV2o7R19TXMQmu2kpZ6TXVMfNFowiSpNI',
+    fields: []
+  },
+  {
+    id: 'igaw_data_supply',
+    company: 'IGAW',
+    name: '데이터공급계약서',
+    desc: '데이터 공급에 관한 표준 계약서',
+    autoWrite: true,
+    templateId: '1-wiMtooymwT_9jH2oAhwpSHwJdt5NmSQbqMq8QCYO78',
+    downloadId: '1t1Q0ooDlEIyvPI-p0Ya7RNhZR47kUKwoQOlUkXyDlFk',
+    fields: []
+  },
+  {
+    id: 'igaw_dfinery_solution',
+    company: 'IGAW',
+    name: '디파이너리 솔루션 이용 및 대금지급 약정서',
+    desc: '디파이너리 솔루션 이용 및 대금 지급에 관한 약정서',
+    autoWrite: true,
+    templateId: '1WzLCi59d1U3FQwuUEUvzkY4m1AakGAIr3xb72FFyLfs',
+    downloadId: '1fGsBFDSmo0sxcYvcLS6IARbGJzEy3fMbOIhaf_feiIU',
+    fields: []
+  },
+  {
+    id: 'igaw_subscription',
+    company: 'IGAW',
+    name: '모바일인덱스 구독 계약서',
+    desc: '모바일인덱스 서비스 구독 계약서',
+    autoWrite: true,
+    templateId: '1EwKYcEfkAyaz5OKcDjPpi4VSfdfzgTvC35vbKNiDnY0',
+    downloadId: '1JPTT8P50nZIPSTkPDXGRbphvBgrImGsl_nrjee5NOT0',
+    fields: []
+  },
+  {
+    id: 'igaw_addendum',
+    company: 'IGAW',
+    name: '부속 합의서',
+    desc: '기 체결 계약에 대한 부속 합의서',
+    autoWrite: true,
+    templateId: '1tYGPkIX_igH5Zr4u_KJazBogXoNH1Ze25KdyUnruu5k',
+    downloadId: '1k_cFLvQSdP8801YYuOSP1W4bNTLDcFiR1D0pTkRNuc4',
+    fields: []
+  },
+  {
+    id: 'igaw_adbrix_solution',
+    company: 'IGAW',
+    name: '애드브릭스 솔루션 이용 및 대금지급 약정서',
+    desc: '애드브릭스 솔루션 이용 및 대금 지급에 관한 약정서',
+    autoWrite: true,
+    templateId: '1NbG2pU3Rhu3iXut2r7j71xEoNW4lgDeIrBAba2Pwk2g',
+    downloadId: '19N9h77MG8y9v7TKDKxvd6B3VByJA-2iBKlKGOkYzkt0',
+    fields: []
+  },
+  {
+    id: 'igaw_service',
+    company: 'IGAW',
+    name: '표준용역위탁계약서',
+    desc: '용역 업무 위탁 관련 표준 계약서',
+    autoWrite: true,
+    templateId: '11HwYhseAmkmdEXrJl8F8-J8srVCLgFJvVN1XEyW3gyY',
+    downloadId: '1ml_DWZt4yb60f7vKUufBj45dURliVkh7KZxIwBz9_uE',
+    fields: []
+  },
+  {
+    id: 'igaw_tv_index',
+    company: 'IGAW',
+    name: 'TV INDEX 구독계약서',
+    desc: 'TV INDEX 이용에 관한 구독 계약서',
+    autoWrite: true,
+    templateId: '1zlMHljUYLkCfIjSBItM-Satga0jJpwozWbiQO_Dte_A',
+    downloadId: '1p1s9Y3jHngc9Z8KkRdkdGjL1a6EILpEpaH4UPhozOng',
+    fields: []
   },
 
-  // ──────────────────────────────────────
-  //  ADP
-  // ──────────────────────────────────────
+  // ══════════════════════════════════════════════════════════
+  //  IGAW — 양식만 제공 (13개)
+  // ══════════════════════════════════════════════════════════
   {
-    id: 'ad',
+    id: 'igaw_privacy_trustee',
+    company: 'IGAW',
+    name: '개인정보 처리업무 위수탁 약정서(수탁자)',
+    desc: '개인정보 처리업무 위수탁에 관한 약정서',
+    autoWrite: false,
+    templateId: '',
+    downloadId: '1bXIaZwRCxOmjLEX_fqvo6rDJZIsW5bqMuHLo07lx2w0',
+    fields: []
+  },
+  {
+    id: 'igaw_dfinery_contract',
+    company: 'IGAW',
+    name: '디파이너리 이용계약서',
+    desc: '디파이너리 이용에 관한 표준 계약서',
+    autoWrite: false,
+    templateId: '',
+    downloadId: '1dr-uZt55U849X50UlbY2_ZRNVyBFpmMJ09dn39lvsfE',
+    fields: []
+  },
+  {
+    id: 'igaw_dfinery_cdp_crm',
+    company: 'IGAW',
+    name: '디파이너리 이용계약서(CDP CRM)',
+    desc: '디파이너리 CDP CRM 이용 계약서',
+    autoWrite: false,
+    templateId: '',
+    downloadId: '1NDF7IgsS7o7lIZuNNWfVYGPVX7E2EhAZBMvHE4KCRMk',
+    fields: []
+  },
+  {
+    id: 'igaw_dfinery_mmp',
+    company: 'IGAW',
+    name: '디파이너리 이용계약서(MMP 재계약용)',
+    desc: '디파이너리 MMP 재계약용 계약서',
+    autoWrite: false,
+    templateId: '',
+    downloadId: '1q1nRs-LIfpSLts8lJrOuKx37gXA0cv8JcDhzhnmbzMw',
+    fields: []
+  },
+  {
+    id: 'igaw_dfinery_application',
+    company: 'IGAW',
+    name: '디파이너리 이용신청서',
+    desc: '디파이너리 이용 신청서',
+    autoWrite: false,
+    templateId: '',
+    downloadId: '1xEK6F2ixFAmqLIVXBEEk0WrL0jRLSV6o8JQa0_cVhvs',
+    fields: []
+  },
+  {
+    id: 'igaw_mi_payment',
+    company: 'IGAW',
+    name: '모바일인덱스 대금 지급 약정서',
+    desc: '모바일인덱스 대금 지급에 관한 약정서',
+    autoWrite: false,
+    templateId: '',
+    downloadId: '1Bl38WSSNPv_A1hKTutcbmmYFWwLYBlzzi4ZHYFu4JfI',
+    fields: []
+  },
+  {
+    id: 'igaw_nda',
+    company: 'IGAW',
+    name: '비밀유지계약서',
+    desc: '비밀유지(NDA) 계약서',
+    autoWrite: false,
+    templateId: '',
+    downloadId: '1NEni_ZaeGQH_cs-suNzCttgSNc33opnMWMUz8sR_YPU',
+    fields: []
+  },
+  {
+    id: 'igaw_service_use_conversion',
+    company: 'IGAW',
+    name: '서비스 이용 계약서_ADB(Conversion)',
+    desc: 'ADB Conversion 서비스 이용 계약서',
+    autoWrite: false,
+    templateId: '',
+    downloadId: '1xw9OmMVjxF2ftvs8V0r0v8S_LcMYUcC6oA-mckiRxLA',
+    fields: []
+  },
+  {
+    id: 'igaw_service_use_mau',
+    company: 'IGAW',
+    name: '서비스 이용 계약서_ADB(MAU)',
+    desc: 'ADB MAU 서비스 이용 계약서',
+    autoWrite: false,
+    templateId: '',
+    downloadId: '1Hd6MMXYYKbsB3eTcUACOcmenW5MVXUfW2E2x5XT-dQ4',
+    fields: []
+  },
+  {
+    id: 'igaw_guarantee',
+    company: 'IGAW',
+    name: '연대보증확약서',
+    desc: '연대보증 확약서',
+    autoWrite: false,
+    templateId: '',
+    downloadId: '1eSv-KnNhR-quKul74l-T0GO-ZdvSrI9jqfRTooHjXvI',
+    fields: []
+  },
+  {
+    id: 'igaw_advisory',
+    company: 'IGAW',
+    name: '자문용역계약서',
+    desc: '자문 용역에 관한 계약서',
+    autoWrite: false,
+    templateId: '',
+    downloadId: '1KBkRPb6OeGlBv3p93-pKuHdJXXtlGapkccVz32nEg2M',
+    fields: []
+  },
+  {
+    id: 'igaw_consulting',
+    company: 'IGAW',
+    name: '컨설팅위탁계약서_용역의뢰서',
+    desc: '컨설팅 위탁 계약서 및 용역의뢰서',
+    autoWrite: false,
+    templateId: '',
+    downloadId: '1WTEr5NARtrqJcHBViFyu4zilxsag7tYPI092Mmx6msM',
+    fields: []
+  },
+  {
+    id: 'igaw_service_order',
+    company: 'IGAW',
+    name: '표준용역위탁계약_용역의뢰서',
+    desc: '표준 용역위탁 계약 용역의뢰서',
+    autoWrite: false,
+    templateId: '',
+    downloadId: '1UBYek2E1-8KNDHPtJgC5_49TdffyxB7wPRHd48wg_bY',
+    fields: []
+  },
+
+  // ══════════════════════════════════════════════════════════
+  //  ADP — 자동작성 지원 (10개)
+  // ══════════════════════════════════════════════════════════
+  {
+    id: 'adp_amendment',
     company: 'ADP',
-    name: '광고 계약서',
+    name: '계약 변경 합의서',
+    desc: '기 체결 계약 내용 변경에 대한 합의서',
+    autoWrite: true,
+    templateId: '1bCKBrFUDHDsgDPM9L5ve8dWKmwA7JLOMkWMCizM3Osw',
+    downloadId: '14YH6xzHZ06bKZw0L91AFo91PNKcb2dmY_ASYWTQA1fg',
+    fields: []
+  },
+  {
+    id: 'adp_ad',
+    company: 'ADP',
+    name: '광고계약서',
     desc: 'ADP 광고 집행 관련 표준 계약서',
-    templateId: '12Qk_mclOvrhs4x-6v5mjnKzonrFVIGBZ',
-    downloadId: '12Qk_mclOvrhs4x-6v5mjnKzonrFVIGBZ',
-    fields: [
-      { section: '광고주 정보' },
-      { name: 'advertiser_name',    label: '광고주명',       type: 'text', required: true },
-      { name: 'advertiser_address', label: '광고주 주소',    type: 'text', required: true, span: 2 },
-      { name: 'advertiser_ceo',     label: '광고주 대표이사', type: 'text', required: true },
-      { name: 'business_number',    label: '사업자등록번호',  type: 'text', required: true },
-      { section: '광고 계약 내용' },
-      { name: 'contract_date', label: '계약체결일',        type: 'date',   required: true },
-      { name: 'campaign_name', label: '캠페인명',          type: 'text',   required: true, span: 2 },
-      { name: 'ad_start',      label: '광고 집행 시작일',  type: 'date',   required: true },
-      { name: 'ad_end',        label: '광고 집행 종료일',  type: 'date',   required: true },
-      { name: 'ad_budget',     label: '광고 집행 금액 (원)', type: 'number', required: true },
-      { section: '광고 상세' },
-      { name: 'ad_type',     label: '광고 유형',    type: 'text',     required: true, hint: '예: CPI, CPA, CPM 등' },
-      { name: 'target_kpi',  label: '목표 KPI',     type: 'text',     required: false },
-      { name: 'ad_platform', label: '집행 플랫폼',  type: 'textarea', required: true,  span: 2 },
-      { name: 'remarks',     label: '특약사항',     type: 'textarea', required: false, span: 2 }
-    ]
+    autoWrite: true,
+    templateId: '1JZ-64oQc7svIF8eFer3GZrO-72uB1wl2LM5-L50V8rk',
+    downloadId: '1jVDZ7TnxU_IwrE4q4C_izhNse_5GQHB5lsFGGnUdzOc',
+    fields: []
+  },
+  {
+    id: 'adp_naver_addendum',
+    company: 'ADP',
+    name: '네이버 애드 매니저 연동에 관한 부속합의서',
+    desc: '네이버 애드 매니저 연동 관련 부속 합의서',
+    autoWrite: true,
+    templateId: '1Bf1sYeZ0kioCs611YznZLWpXwopAbD0TktDCDlQOIPY',
+    downloadId: '1dg56lqb6WZfiIPUuFkbgPjr-odfANiq2fYOVAiV24Sw',
+    fields: []
+  },
+  {
+    id: 'adp_reward_plus_addendum',
+    company: 'ADP',
+    name: '매체제휴부속합의서(보상형광고플러스)',
+    desc: '보상형광고플러스 서비스 제공 관련 부속합의서',
+    autoWrite: true,
+    templateId: '1l85478fmqglJtDMKroIz19I19flnwJNzewzIeISiG4A',
+    downloadId: '1bOHEi8t0ngptaTQW7Kpoooay_Gihmy2Ce8gRgin5RCs',
+    fields: []
+  },
+  {
+    id: 'adp_addendum',
+    company: 'ADP',
+    name: '부속 합의서',
+    desc: '기 체결 계약에 대한 부속 합의서',
+    autoWrite: true,
+    templateId: '1ojgc3boZo1a7fFjtit4CO5z9VbqkxiO9nI0MMVp00Mo',
+    downloadId: '1PgIdNwTwxGtM-AUbjJGeWxX4vqD-xbCMkF1_29o8jek',
+    fields: []
+  },
+  {
+    id: 'adp_media_integrated',
+    company: 'ADP',
+    name: '통합매체제휴계약서',
+    desc: 'ADP 통합 매체 제휴 계약서',
+    autoWrite: true,
+    templateId: '1X2-NNDXsmRY28ysL5j4_mqM8TRS8qA_-RDqHI7bzSuk',
+    downloadId: '1E019HrNhKpiuaozDQYOfthLHpmnYgB79VMB9OPQBW0Q',
+    fields: []
+  },
+  {
+    id: 'adp_popcontent_addendum',
+    company: 'ADP',
+    name: '팝콘텐츠 제공에 관한 부속합의서',
+    desc: '팝콘텐츠 제공 관련 부속 합의서',
+    autoWrite: true,
+    templateId: '1k8ipDHvSVIX0hP6mgWHZO2sfOn8pkFwBUEnEWEiLgvM',
+    downloadId: '16VoLCDujfYNhWooCHH6iIVS5uwBPZ5_UeRja-3Thy9M',
+    fields: []
+  },
+  {
+    id: 'adp_service',
+    company: 'ADP',
+    name: '표준용역위탁계약서',
+    desc: '용역 업무 위탁 관련 표준 계약서',
+    autoWrite: true,
+    templateId: '1JXmqhOy_k2I9IWIiXZpeV0PHAS6JFVWPATS499b3HrM',
+    downloadId: '1Gouz2cwZyNvd5v-mwfKHgJRuARplBgkOxODnCNblatg',
+    fields: []
   },
 
+  // ══════════════════════════════════════════════════════════
+  //  ADP — 양식만 제공 (10개)
+  // ══════════════════════════════════════════════════════════
   {
-    id: 'media',
+    id: 'adp_privacy_trustee',
     company: 'ADP',
-    name: '통합매체계약서',
-    desc: 'ADP 통합 매체 운영 계약서',
-    templateId: '12Qk_mclOvrhs4x-6v5mjnKzonrFVIGBZ',
-    downloadId: '12Qk_mclOvrhs4x-6v5mjnKzonrFVIGBZ',
-    fields: [
-      { section: '매체사 정보' },
-      { name: 'media_name',      label: '매체사명',       type: 'text', required: true },
-      { name: 'media_address',   label: '매체사 주소',    type: 'text', required: true, span: 2 },
-      { name: 'media_ceo',       label: '매체사 대표이사', type: 'text', required: true },
-      { name: 'business_number', label: '사업자등록번호',  type: 'text', required: true },
-      { section: '계약 내용' },
-      { name: 'contract_date', label: '계약체결일',       type: 'date',   required: true },
-      { name: 'media_start',   label: '계약 시작일',      type: 'date',   required: true },
-      { name: 'media_end',     label: '계약 종료일',      type: 'date',   required: true },
-      { name: 'revenue_share', label: '수익 배분율 (%)',  type: 'number', required: true },
-      { section: '매체 정보' },
-      { name: 'app_name',     label: '앱/서비스명',    type: 'text',     required: true },
-      { name: 'app_category', label: '카테고리',       type: 'text',     required: false, hint: '예: 게임, 쇼핑, 유틸리티 등' },
-      { name: 'media_scope',  label: '매체 운영 범위', type: 'textarea', required: true,  span: 2 },
-      { name: 'remarks',      label: '특약사항',       type: 'textarea', required: false, span: 2 }
-    ]
+    name: '개인정보 처리업무 위탁 약정서(수탁자)',
+    desc: '개인정보 처리업무 위탁에 관한 약정서 (수탁자용)',
+    autoWrite: false,
+    templateId: '',
+    downloadId: '1tnJLewEYfQXVkuR0PkdT4rPR7NJLe-JHTWBxgDVUwsE',
+    fields: []
   },
-
   {
-    id: 'reward',
+    id: 'adp_privacy_delegator',
     company: 'ADP',
-    name: '리워드매체계약서',
-    desc: 'ADP 리워드 광고 매체 계약서',
-    templateId: '12Qk_mclOvrhs4x-6v5mjnKzonrFVIGBZ',
-    downloadId: '12Qk_mclOvrhs4x-6v5mjnKzonrFVIGBZ',
-    fields: [
-      { section: '매체사 정보' },
-      { name: 'media_name',      label: '매체사명',       type: 'text', required: true },
-      { name: 'media_address',   label: '매체사 주소',    type: 'text', required: true, span: 2 },
-      { name: 'media_ceo',       label: '매체사 대표이사', type: 'text', required: true },
-      { name: 'business_number', label: '사업자등록번호',  type: 'text', required: true },
-      { section: '리워드 계약 내용' },
-      { name: 'contract_date', label: '계약체결일',      type: 'date',   required: true },
-      { name: 'reward_start',  label: '계약 시작일',     type: 'date',   required: true },
-      { name: 'reward_end',    label: '계약 종료일',     type: 'date',   required: true },
-      { name: 'reward_type',   label: '리워드 유형',     type: 'text',   required: true, hint: '예: 포인트, 캐시, 쿠폰 등' },
-      { name: 'cpa_rate',      label: 'CPA 단가 (원)',   type: 'number', required: true },
-      { section: '운영 상세' },
-      { name: 'reward_scope',     label: '리워드 광고 운영 범위', type: 'textarea', required: true,  span: 2 },
-      { name: 'settlement_cycle', label: '정산 주기',             type: 'text',     required: false, hint: '예: 월 1회, 격주 등' },
-      { name: 'remarks',          label: '특약사항',              type: 'textarea', required: false, span: 2 }
-    ]
+    name: '개인정보 처리업무 위탁 약정서(위탁자)',
+    desc: '개인정보 처리업무 위탁에 관한 약정서 (위탁자용)',
+    autoWrite: false,
+    templateId: '',
+    downloadId: '13I7kWt2gbsJPQQr-ERztTMtqDjWroUcJbXoRBr5hhbU',
+    fields: []
   },
+  {
+    id: 'adp_ad_agency',
+    company: 'ADP',
+    name: '광고계약서P(대행수수료 포함)',
+    desc: 'ADP 광고 계약서 (대행수수료 포함)',
+    autoWrite: false,
+    templateId: '',
+    downloadId: '1mb7Vz_PwGKqedwB4MFu5iJ-214B70LWNp8PjsR4MN0g',
+    fields: []
+  },
+  {
+    id: 'adp_media_sales',
+    company: 'ADP',
+    name: '매체영업대행 업무제휴계약서',
+    desc: '매체 영업대행 업무제휴 계약서',
+    autoWrite: false,
+    templateId: '',
+    downloadId: '1xJRugFdyKldYSlf6y07B6GSETWYfBtELs1DMJPbriD8',
+    fields: []
+  },
+  {
+    id: 'adp_media_partnership',
+    company: 'ADP',
+    name: '매체제휴계약서',
+    desc: 'ADP 매체 제휴 계약서',
+    autoWrite: false,
+    templateId: '',
+    downloadId: '1YUcw04J1QyMcwys3ysgqZCnmGoCL0trjkm-gvlBRisk',
+    fields: []
+  },
+  {
+    id: 'adp_nda',
+    company: 'ADP',
+    name: '비밀유지계약서',
+    desc: '비밀유지(NDA) 계약서',
+    autoWrite: false,
+    templateId: '',
+    downloadId: '1jwgK21IMoJD3mtYBt8jIybeK02CAjXShwSVbembn0k0',
+    fields: []
+  },
+  {
+    id: 'adp_business_partnership',
+    company: 'ADP',
+    name: '업무제휴계약서',
+    desc: '업무 제휴 계약서',
+    autoWrite: false,
+    templateId: '',
+    downloadId: '1sxOKBqRhRdkocsIOMCszfbJBFCAObJOaTrMqrRnu9Io',
+    fields: []
+  },
+  {
+    id: 'adp_guarantee',
+    company: 'ADP',
+    name: '연대보증확약서',
+    desc: '연대보증 확약서',
+    autoWrite: false,
+    templateId: '',
+    downloadId: '1dU0y8OllFyIdf2ccC2zQMaqQCQUp0vfspFRSZFT2BvA',
+    fields: []
+  },
+  {
+    id: 'adp_service_order',
+    company: 'ADP',
+    name: '표준용역위탁계약_용역의뢰서',
+    desc: '표준 용역위탁 계약 용역의뢰서',
+    autoWrite: false,
+    templateId: '',
+    downloadId: '1e_ethbP39WTWEkEoYoW90VeOBpS8ius0c6t5fcHtoE4',
+    fields: []
+  },
+  {
+    id: 'adp_service_agreement_en',
+    company: 'ADP',
+    name: 'ADPOPCORN SERVICE AGREEMENT',
+    desc: 'Adpopcorn Service Agreement (English)',
+    autoWrite: false,
+    templateId: '',
+    downloadId: '1JFu1KjGabsjlhfXg6unbg-EIpZBgNchdebrZ44hsMwU',
+    fields: []
+  }
 ];
