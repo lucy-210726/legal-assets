@@ -1425,7 +1425,60 @@ showPage('home');
 }
 
 function filterCompany(company,e){ currentCompany=company; document.querySelectorAll('.company-tab').forEach(function(t){t.classList.remove('active');}); if(e&&e.target) e.target.classList.add('active'); renderContractGrid(); }
-function renderContractGrid(){document.getElementById('contract-grid').innerHTML=CONTRACTS.filter(function(c){return c.company===currentCompany;}).map(function(c){var btns='';if(c.templateId||c.downloadId){btns='<div class="card-btns" style="display:flex;justify-content:center;gap:8px;margin-top:14px;">';if(c.templateId) btns+='<button class="btn-sm" onclick="event.stopPropagation();previewTemplate(\''+c.templateId+'\',\''+esc(c.name)+'\')">양식 미리보기</button>';if(c.downloadId) btns+='<button class="btn-sm" onclick="event.stopPropagation();downloadTemplate(\''+c.downloadId+'\',\''+esc(c.name)+'\')">양식 다운로드</button>';btns+='</div>';btns+='<div style="margin-top:8px;"><button class="btn-sm" style="width:100%;padding:9px 0;border-color:var(--gold);color:var(--gold);" onclick="event.stopPropagation();requestModifiedReview(\''+c.id+'\',\''+esc(c.name)+'\',\''+c.company+'\')">수정본 검토 요청</button></div>';}return '<div class="contract-type-card" onclick="selectContractType(\''+c.id+'\')"><span class="tag '+c.company.toLowerCase()+'">'+c.company+'</span><h4>'+c.name+'</h4><p>'+c.desc+'</p>'+btns+'</div>';}).join('');}
+function renderContractGrid() {
+  var allContracts = CONTRACTS.filter(function(c) { return c.company === currentCompany; });
+  var autoWriteContracts = allContracts.filter(function(c) { return c.autoWrite; });
+  var templateOnlyContracts = allContracts.filter(function(c) { return !c.autoWrite; });
+  var html = '';
+// ── 자동작성 지원 섹션 ──
+  if (autoWriteContracts.length > 0) {
+    html += '<div class="contract-section-label">✍️ 자동작성 지원</div>';
+    html += '<div class="contract-grid-inner">';
+    html += autoWriteContracts.map(function(c) {
+      var btns = '<div class="card-btns" style="display:flex;justify-content:center;gap:8px;margin-top:14px;">';
+      btns += '<button class="btn-sm" onclick="event.stopPropagation();previewTemplate(\'' + c.downloadId + '\',\'' + esc(c.name) + '\')">양식 미리보기</button>';
+      btns += '<button class="btn-sm" onclick="event.stopPropagation();downloadTemplate(\'' + c.downloadId + '\',\'' + esc(c.name) + '\')">양식 다운로드</button>';
+      btns += '</div>';
+      btns += '<div style="margin-top:8px;"><button class="btn-sm" style="width:100%;padding:9px 0;border-color:var(--gold);color:var(--gold);" onclick="event.stopPropagation();requestModifiedReview(\'' + c.id + '\',\'' + esc(c.name) + '\',\'' + c.company + '\')">수정본 검토 요청</button></div>';
+      return '<div class="contract-type-card" onclick="selectContractType(\'' + c.id + '\')">' +
+        '<span class="tag ' + c.company.toLowerCase() + '">' + c.company + '</span>' +
+        '<span class="auto-write-badge">✍️ 자동작성</span>' +
+        '<h4>' + c.name + '</h4>' +
+        '<p>' + c.desc + '</p>' +
+        btns +
+        '</div>';
+    }).join('');
+    html += '</div>';
+  }
+
+  // ── 양식만 제공 섹션 ──
+  if (templateOnlyContracts.length > 0) {
+    html += '<div class="contract-section-label" style="margin-top:32px;">📄 양식 제공 <span style="font-size:0.78rem;color:var(--text-muted);font-weight:400;">(미리보기 · 다운로드 · 수정본 검토)</span></div>';
+    html += '<div class="contract-grid-inner">';
+    html += templateOnlyContracts.map(function(c) {
+      var btns = '<div class="card-btns" style="display:flex;justify-content:center;gap:8px;margin-top:14px;">';
+      btns += '<button class="btn-sm" onclick="event.stopPropagation();previewTemplate(\'' + c.downloadId + '\',\'' + esc(c.name) + '\')">양식 미리보기</button>';
+      btns += '<button class="btn-sm" onclick="event.stopPropagation();downloadTemplate(\'' + c.downloadId + '\',\'' + esc(c.name) + '\')">양식 다운로드</button>';
+      btns += '</div>';
+      btns += '<div style="margin-top:8px;"><button class="btn-sm" style="width:100%;padding:9px 0;border-color:var(--gold);color:var(--gold);" onclick="event.stopPropagation();requestModifiedReview(\'' + c.id + '\',\'' + esc(c.name) + '\',\'' + c.company + '\')">수정본 검토 요청</button></div>';
+      return '<div class="contract-type-card" onclick="showNoAutoWriteAlert()">' +
+        '<span class="tag ' + c.company.toLowerCase() + '">' + c.company + '</span>' +
+        '<h4>' + c.name + '</h4>' +
+        '<p>' + c.desc + '</p>' +
+        btns +
+        '</div>';
+    }).join('');
+    html += '</div>';
+  }
+
+  document.getElementById('contract-grid').innerHTML = html;
+}  
+function showNoAutoWriteAlert() {
+  showAlert('자동작성 기능을 지원하지 않습니다.\n양식 미리보기/다운로드 또는 수정본 검토 요청을 이용해주세요.', {
+    title: '❎ 자동작성 미지원',
+    icon: '❎'
+  });
+}
 function previewTemplate(templateId, name) {
 document.getElementById('ref-modal-title').textContent = name + ' 미리보기';
 document.getElementById('ref-modal-tabs').style.display = 'none';
