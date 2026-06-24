@@ -222,7 +222,7 @@ var CONTRACTS_DATA = [
     id: 'igaw_consulting',
     company: 'IGAW',
     name: '컨설팅용역계약서_용역의뢰서',
-    desc: '컨설팅용계약서의 개별계약(부속)',
+    desc: '컨설팅용역계약서의 개별계약(부속)',
     autoWrite: false,
     templateId: '',
     downloadId: '1WTEr5NARtrqJcHBViFyu4zilxsag7tYPI092Mmx6msM',
