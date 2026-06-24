@@ -1474,7 +1474,7 @@ function renderContractGrid() {
   document.getElementById('contract-grid').innerHTML = html;
 }  
 function showNoAutoWriteAlert() {
-  showAlert('자동작성 기능을 지원하지 않습니다.\n양식 미리보기/다운로드 또는 수정본 검토 요청을 이용해주세요.', {
+  showAlert('자동작성 기능을 지원하지 않습니다.\n양식 다운로드 후 수정본 검토 요청을 이용해주세요.', {
     title: '❎ 자동작성 미지원',
     icon: '❎'
   });
