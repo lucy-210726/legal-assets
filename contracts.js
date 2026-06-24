@@ -22,7 +22,21 @@ var CONTRACTS_DATA = [
     autoWrite: true,
     templateId: '1wnM5JECnRGl6TxvsHhX5CntfRtrNe3MW8ELQRoW-6SA',
     downloadId: '108Tm2TbZerLV2o7R19TXMQmu2kpZ6TXVMfNFowiSpNI',
-    fields: []
+    fields: [
+    { section: '고객사 정보' },
+    { name: 'client_name',    label: '고객사명',       type: 'text', required: true },
+    { name: 'client_address', label: '고객사 주소',    type: 'text', required: true, span: 2 },
+    { name: 'client_ceo',     label: '고객사 대표이사', type: 'text', required: true },
+    { section: '원계약 정보' },
+    { name: 'original_contract_name', label: '원계약 계약명', type: 'text', required: true, span: 2 },
+    { name: 'original_contract_date', label: '원계약 체결일', type: 'date', required: true },
+    { section: '변경사항' },
+    { name: 'change_category', label: '변경 구분',  type: 'text',     required: true },
+    { name: 'change_before',   label: '변경 전',    type: 'textarea', required: true, span: 2 },
+    { name: 'change_after',    label: '변경 후',    type: 'textarea', required: true, span: 2 },
+    { section: '합의서 정보' },
+    { name: 'sign_date', label: '합의서 체결일', type: 'date', required: true }
+  ]
   },
   {
     id: 'igaw_data_supply',
@@ -42,7 +56,25 @@ var CONTRACTS_DATA = [
     autoWrite: true,
     templateId: '1WzLCi59d1U3FQwuUEUvzkY4m1AakGAIr3xb72FFyLfs',
     downloadId: '1fGsBFDSmo0sxcYvcLS6IARbGJzEy3fMbOIhaf_feiIU',
-    fields: []
+    fields: [
+      { section: '대행사 정보' },
+      { name: 'agency_name',       label: '대행사명',         type: 'text', required: true },
+      { name: 'agency_address',    label: '대행사 주소',      type: 'text', required: true, span: 2 },
+      { name: 'agency_ceo',        label: '대행사 대표이사',  type: 'text', required: true },
+      { name: 'agency_biz_number', label: '사업자등록번호',   type: 'text', required: true },
+      { name: 'agency_contact',    label: '담당자',           type: 'text', required: true },
+      { name: 'agency_email',      label: '이메일',           type: 'text', required: true },
+      { name: 'invoice_email',     label: '계산서 이메일',    type: 'text', required: false },
+      { section: '원계약 정보' },
+      { name: 'client_name',            label: '회원사명',       type: 'text', required: true },
+      { name: 'original_contract_date', label: '원계약 체결일',  type: 'date', required: true },
+      { section: '약정 정보' },
+      { name: 'sign_date',         label: '약정서 체결일',  type: 'date', required: true },
+      { name: 'agreement_period',  label: '약정 기간',      type: 'text', required: true, hint: '예: 2026.01.01 ~ 2026.12.31' },
+      { name: 'payment_method',    label: '지급방식',       type: 'radio', required: true, options: ['일시납', '분기납', '월분납'] },
+      { section: '기타' },
+      { name: 'special_terms',     label: '특약사항',       type: 'textarea', required: false, span: 2 }
+  ]
   },
   {
     id: 'igaw_subscription',
@@ -72,7 +104,25 @@ var CONTRACTS_DATA = [
     autoWrite: true,
     templateId: '1NbG2pU3Rhu3iXut2r7j71xEoNW4lgDeIrBAba2Pwk2g',
     downloadId: '19N9h77MG8y9v7TKDKxvd6B3VByJA-2iBKlKGOkYzkt0',
-    fields: []
+    fields: [
+      { section: '대행사 정보' },
+      { name: 'agency_name',       label: '대행사명',         type: 'text', required: true },
+      { name: 'agency_address',    label: '대행사 주소',      type: 'text', required: true, span: 2 },
+      { name: 'agency_ceo',        label: '대행사 대표이사',  type: 'text', required: true },
+      { name: 'agency_biz_number', label: '사업자등록번호',   type: 'text', required: true },
+      { name: 'agency_contact',    label: '담당자',           type: 'text', required: true },
+      { name: 'agency_email',      label: '이메일',           type: 'text', required: true },
+      { name: 'invoice_email',     label: '계산서 이메일',    type: 'text', required: false },
+      { section: '원계약 정보' },
+      { name: 'client_name',            label: '회원사명',       type: 'text', required: true },
+      { name: 'original_contract_date', label: '원계약 체결일',  type: 'date', required: true },
+      { section: '약정 정보' },
+      { name: 'sign_date',         label: '약정서 체결일',  type: 'date', required: true },
+      { name: 'agreement_period',  label: '약정 기간',      type: 'text', required: true, hint: '예: 2026.01.01 ~ 2026.12.31' },
+      { name: 'payment_method',    label: '지급방식',       type: 'radio', required: true, options: ['일시납', '분기납', '월분납'] },
+      { section: '기타' },
+      { name: 'special_terms',     label: '특약사항',       type: 'textarea', required: false, span: 2 }
+  ]
   },
   {
     id: 'igaw_service',
@@ -92,7 +142,36 @@ var CONTRACTS_DATA = [
     autoWrite: true,
     templateId: '1zlMHljUYLkCfIjSBItM-Satga0jJpwozWbiQO_Dte_A',
     downloadId: '1p1s9Y3jHngc9Z8KkRdkdGjL1a6EILpEpaH4UPhozOng',
-    fields: []
+    fields: [
+      { section: '구매자 정보' },
+      { name: 'client_name',       label: '구매자명',         type: 'text', required: true },
+      { name: 'client_address',    label: '구매자 주소',      type: 'text', required: true, span: 2 },
+      { name: 'client_ceo',        label: '구매자 대표이사',  type: 'text', required: true },
+      { name: 'client_biz_number', label: '사업자등록번호',   type: 'text', required: true },
+      { section: '계약 기간' },
+      { name: 'sign_date',   label: '계약 체결일',    type: 'date', required: true },
+      { name: 'start_date',  label: '이용기간 시작일', type: 'date', required: true },
+      { name: 'end_date',    label: '이용기간 종료일', type: 'date', required: true },
+      { section: 'TV INDEX 서비스' },
+      { name: 'tvindex_fee',     label: 'TV INDEX LITE 금액',  type: 'text', required: true },
+      { name: 'etc_1',           label: 'TV INDEX 비고',       type: 'text', required: false },
+      { name: 'account_fee',    label: '계정 추가 금액',       type: 'text', required: false },
+      { name: 'etc_2',           label: '계정 추가 비고',      type: 'text', required: false },
+      { name: 'discount_fee',   label: '할인적용 금액',        type: 'text', required: false },
+      { name: 'etc_3',           label: '할인 비고',           type: 'text', required: false },
+      { name: 'total_fee',      label: '총 이용료 (원)',       type: 'number', required: true },
+      { name: 'total_month_fee', label: '월 이용료 (원)',      type: 'number', required: true },
+      { section: '이용권한' },
+      { name: 'channel',  label: '채널 수량',  type: 'text', required: true },
+      { name: 'etc_4',    label: '채널 비고',  type: 'text', required: false },
+      { name: 'account',  label: '계정 수량',  type: 'text', required: true },
+      { name: 'etc_5',    label: '계정 비고',  type: 'text', required: false },
+      { section: '지급 조건' },
+      { name: 'payment_method', label: '정산방식', type: 'radio', required: true, options: ['일시납', '분기납', '월분납'] },
+      { name: 'invoice_email',  label: '세금계산서 이메일', type: 'text', required: true },
+      { section: '기타' },
+      { name: 'special_terms', label: '기타사항', type: 'textarea', required: false, span: 2 }
+    ]
   },
 
   // ══════════════════════════════════════════════════════════
