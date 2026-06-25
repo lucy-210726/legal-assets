@@ -1574,7 +1574,7 @@ function renderField(f){
   var linkedAttr = f.linkedTo ? ' data-linked-to="'+f.linkedTo+'" style="display:none;"' : '';
   var inp='';
   if(f.type==='textarea') inp='<textarea id="f_'+f.name+'" placeholder="'+f.label+'" oninput="onFieldChange()"></textarea>';
-  else if(f.type==='checkbox') inp='<div class="checkbox-list">'+f.options.map(function(o){return '<label class="checkbox-item"><input type="checkbox" value="'+o+'" data-field="'+f.name+'" onchange="this.closest(\'.checkbox-item\').classList.toggle(\'checked\',this.checked);onFieldChange();toggleLinkedFields()"><span>'+o+'</span></label>';}).join('')+'</div>';
+  else if(f.type==='checkbox') { inp='<div class="checkbox-list">'+f.options.map(function(o,idx){ var num=idx+1; return '<label class="checkbox-item"><input type="checkbox" value="'+o+'" data-field="'+f.name+'" onchange="this.closest(\'.checkbox-item\').classList.toggle(\'checked\',this.checked);onFieldChange();toggleLinkedFields()"><span>'+o+'</span></label>'+'<div class="linked-fields-inline" data-linked-to="'+o+'" style="display:none;padding:8px 0 12px 28px;"><div class="form-grid" style="gap:12px;"><div class="form-group"><label>금액 (KRW)</label><input type="text" id="f_fee_'+num+'" placeholder="금액" oninput="onFieldChange()"></div><div class="form-group"><label>비고</label><input type="text" id="f_etc_'+num+'" placeholder="비고" oninput="onFieldChange()"></div></div></div>';}).join('')+'</div>'; }
   else if(f.type==='radio') inp='<div class="radio-row">'+f.options.map(function(o){return '<label class="radio-item"><input type="radio" name="f_'+f.name+'" value="'+o+'" onchange="onFieldChange();if(this.name===\'f_payment_method\')updatePaymentDetail()"><span>'+o+'</span></label>';}).join('')+'</div>';
   else {var isEndDate=f.name.endsWith('_end')||f.name==='end_date', isStartDate=f.name.endsWith('_start')||f.name==='start_date';var extraAttr='';if(isStartDate){var endFieldName=f.name.replace('_start','_end').replace('start_date','end_date');extraAttr=' onchange="onFieldChange();updateEndDateMin(\'f_'+f.name+'\',\'f_'+endFieldName+'\')"';}if(isEndDate) extraAttr=' oninput="onFieldChange()"';inp='<input type="'+f.type+'" id="f_'+f.name+'" placeholder="'+f.label+'"'+(isEndDate||isStartDate?'':' oninput="onFieldChange()"')+extraAttr+'>';}
   return '<div class="form-group'+sc+'"'+linkedAttr+'><label>'+f.label+' '+req+'</label>'+inp+hint+'</div>';
@@ -1599,10 +1599,10 @@ function updatePaymentDetail() {
 }
 function toggleLinkedFields() {
   var checkedValues = Array.from(document.querySelectorAll('input[data-field="services"]:checked')).map(function(el){ return el.value; });
-  var linkedFields = document.querySelectorAll('[data-linked-to]');
+  var linkedFields = document.querySelectorAll('.linked-fields-inline');
   linkedFields.forEach(function(el) {
     var linkedTo = el.getAttribute('data-linked-to');
-    el.style.display = checkedValues.indexOf(linkedTo) >= 0 ? '' : 'none';
+    el.style.display = checkedValues.indexOf(linkedTo) >= 0 ? 'block' : 'none';
   });
 }
 function validateCurrentForm(){if(!currentContract) return false;for(var i=0;i<currentContract.fields.length;i++){var f=currentContract.fields[i];if(!f.required||f.section) continue;if(f.type==='checkbox'){if(!document.querySelectorAll('input[data-field="'+f.name+'"]:checked').length) return false;}else if(f.type==='radio'){if(!document.querySelector('input[name="f_'+f.name+'"]:checked')) return false;}else{var el=document.getElementById('f_'+f.name);if(!el||!el.value.trim()) return false;}}return true;}
