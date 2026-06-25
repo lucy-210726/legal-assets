@@ -194,7 +194,7 @@ var CONTRACTS_DATA = [
       { name: 'client_ceo',        label: '구매자 대표이사',  type: 'text', required: true },
       { name: 'client_biz_number', label: '사업자등록번호',   type: 'text', required: true },
       { section: '계약 기간' },
-      { name: 'sign_date',   label: '계약 체결일',    type: 'date', required: true },
+      { name: 'sign_date',   label: '계약 체결일',    type: 'date', required: true, span: 2 },
       { name: 'start_date',  label: '이용기간 시작일', type: 'date', required: true },
       { name: 'end_date',    label: '이용기간 종료일', type: 'date', required: true },
       { section: 'TV INDEX 서비스' },
