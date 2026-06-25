@@ -72,7 +72,8 @@ var CONTRACTS_DATA = [
       { name: 'sign_date',         label: '약정서 체결일',  type: 'date', required: true },
       { name: 'agreement_start', label: '약정 시작일', type: 'date', required: true },
       { name: 'agreement_end',   label: '약정 종료일', type: 'date', required: true },
-      { name: 'payment_method',    label: '지급방식',       type: 'radio', required: true, options: ['일시납', '분기납', '월분납'] },
+      { name: 'payment_method', label: '지급방식', type: 'radio', required: true, options: ['일시납', '분기납', '월분납'] },
+      { name: 'payment_detail', label: '지급조건 상세', type: 'textarea', required: false, span: 2, hint: '지급방식 선택 시 기본 내용이 채워집니다. 수정 가능합니다.' },
       { section: '기타' },
       { name: 'special_terms',     label: '특약사항',       type: 'textarea', required: false, span: 2 }
   ]
@@ -113,7 +114,8 @@ var CONTRACTS_DATA = [
       { name: 'total_fee',       label: '총 이용료 (원)',  type: 'number', required: true },
       { name: 'total_month_fee', label: '월 구독료 (원)',  type: 'number', required: true },
       { section: '지급 조건' },
-      { name: 'payment_method', label: '정산방식', type: 'radio', required: true, options: ['일시납', '분기납', '월분납'] },
+      { name: 'payment_method', label: '지급방식', type: 'radio', required: true, options: ['일시납', '분기납', '월분납'] },
+      { name: 'payment_detail', label: '지급조건 상세', type: 'textarea', required: false, span: 2, hint: '지급방식 선택 시 기본 내용이 채워집니다. 수정 가능합니다.' },
       { name: 'invoice_email',  label: '세금계산서 이메일', type: 'text', required: true },
       { section: '기타' },
       { name: 'special_terms', label: '기타사항', type: 'textarea', required: false, span: 2 }
@@ -153,7 +155,8 @@ var CONTRACTS_DATA = [
       { name: 'sign_date',         label: '약정서 체결일',  type: 'date', required: true },
       { name: 'agreement_start', label: '약정 시작일', type: 'date', required: true },
       { name: 'agreement_end',   label: '약정 종료일', type: 'date', required: true },
-      { name: 'payment_method',    label: '지급방식',       type: 'radio', required: true, options: ['일시납', '분기납', '월분납'] },
+      { name: 'payment_method', label: '지급방식', type: 'radio', required: true, options: ['일시납', '분기납', '월분납'] },
+      { name: 'payment_detail', label: '지급조건 상세', type: 'textarea', required: false, span: 2, hint: '지급방식 선택 시 기본 내용이 채워집니다. 수정 가능합니다.' },
       { section: '기타' },
       { name: 'special_terms',     label: '특약사항',       type: 'textarea', required: false, span: 2 }
   ]
@@ -201,7 +204,8 @@ var CONTRACTS_DATA = [
       { name: 'account',  label: '계정 수량',  type: 'text', required: true },
       { name: 'etc_5',    label: '계정 비고',  type: 'text', required: false },
       { section: '지급 조건' },
-      { name: 'payment_method', label: '정산방식', type: 'radio', required: true, options: ['일시납', '분기납', '월분납'] },
+      { name: 'payment_method', label: '지급방식', type: 'radio', required: true, options: ['일시납', '분기납', '월분납'] },
+      { name: 'payment_detail', label: '지급조건 상세', type: 'textarea', required: false, span: 2, hint: '지급방식 선택 시 기본 내용이 채워집니다. 수정 가능합니다.' },
       { name: 'invoice_email',  label: '세금계산서 이메일', type: 'text', required: true },
       { section: '기타' },
       { name: 'special_terms', label: '기타사항', type: 'textarea', required: false, span: 2 }
