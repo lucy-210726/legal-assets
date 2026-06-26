@@ -46,7 +46,27 @@ var CONTRACTS_DATA = [
     autoWrite: true,
     templateId: '1-wiMtooymwT_9jH2oAhwpSHwJdt5NmSQbqMq8QCYO78',
     downloadId: '1t1Q0ooDlEIyvPI-p0Ya7RNhZR47kUKwoQOlUkXyDlFk',
-    fields: []
+    fields: [
+      { id: 'sign_date',        label: '서명일',                 type: 'date',     required: true },
+      { id: 'client_name',      label: '고객사 법인명',          type: 'text',     required: true },
+      { id: 'client_address',   label: '고객사 주소',            type: 'text',     required: true },
+      { id: 'client_ceo',       label: '고객사 대표이사',        type: 'text',     required: true },
+      { id: 'client_biz_number',label: '사업자등록번호',         type: 'text',     required: true,  placeholder: '000-00-00000' },
+      { id: 'client_contact',   label: '고객사 담당자',          type: 'text',     required: true },
+      { id: 'client_mail',      label: '고객사 이메일',          type: 'email',    required: true },
+      { id: 'invoice_email',    label: '계산서 수신 이메일',     type: 'email',    required: true }, 
+      { id: 'company_name',     label: '회사 담당자',            type: 'text',     required: true },
+      { id: 'company_mail',     label: '회사 담당자 이메일',     type: 'email',    required: true },
+      { id: 'agreement_start',  label: '계약 시작일',            type: 'date',     required: true },
+      { id: 'agreement_end',    label: '계약 종료일',            type: 'date',     required: true },
+      { id: 'agreement_renew',  label: '계약갱신 조건',          type: 'text',     required: false, placeholder: '예: 자동갱신 1년, 해당사항 없음 등' },
+      { id: 'total_fee',        label: '계약금액 (부가세 별도)',  type: 'text',     required: true,  placeholder: '예: 10,000,000' },
+      { id: 'invoice_date',     label: '세금계산서 발행일',      type: 'text',     required: true,  placeholder: '예: 매월 말일, 데이터 공급월 말일 등' },
+      { id: 'payment_date',     label: '입금일',                 type: 'text',     required: true,  defaultValue: '세금계산서 발행일 기준 익월 말일 이내' },
+      { id: 'data_spec',        label: '데이터 스팩',            type: 'textarea', required: true,  placeholder: '데이터 처리 목적, 내용, 범위 등' },
+      { id: 'data_supplytime',  label: '공급시기/주기',          type: 'text',     required: true,  placeholder: '예: 매월 1회, 익월 5영업일 이내' },
+      { id: 'special_terms',    label: '기타사항',               type: 'textarea', required: false, placeholder: '추가 합의사항' }
+    ]
   },
   {
     id: 'igaw_dfinery_solution',
