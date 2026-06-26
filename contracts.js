@@ -48,7 +48,6 @@ var CONTRACTS_DATA = [
     downloadId: '1t1Q0ooDlEIyvPI-p0Ya7RNhZR47kUKwoQOlUkXyDlFk',
     fields: [
       { section: '계약 당사자 정보' },
-      { name: 'sign_date',         label: '서명일',              type: 'date',     required: true },
       { name: 'client_name',       label: '고객사 법인명',       type: 'text',     required: true },
       { name: 'client_address',    label: '고객사 주소',         type: 'text',     required: true, span: 2 },
       { name: 'client_ceo',        label: '고객사 대표이사',     type: 'text',     required: true },
@@ -62,6 +61,7 @@ var CONTRACTS_DATA = [
       { name: 'company_mail',      label: '회사 담당자 이메일',  type: 'text',     required: true },
     
       { section: '계약 조건' },
+      { name: 'sign_date',         label: '계약 체결일',         type: 'date',     required: true, span: 2 },
       { name: 'agreement_start',   label: '계약 시작일',         type: 'date',     required: true },
       { name: 'agreement_end',     label: '계약 종료일',         type: 'date',     required: true },
       { name: 'agreement_renew',   label: '계약갱신 조건',       type: 'text',     required: false, span: 2, hint: '예: 자동갱신 1년, 해당사항 없음 등' },
