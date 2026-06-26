@@ -49,8 +49,8 @@ var CONTRACTS_DATA = [
     fields: [
       { section: '계약 당사자 정보' },
       { name: 'client_name',       label: '고객사 법인명',       type: 'text',     required: true },
-      { name: 'client_address',    label: '고객사 주소',         type: 'text',     required: true, span: 2 },
       { name: 'client_ceo',        label: '고객사 대표이사',     type: 'text',     required: true },
+      { name: 'client_address',    label: '고객사 주소',         type: 'text',     required: true, span: 2 },
       { name: 'client_biz_number', label: '사업자등록번호',      type: 'text',     required: true },
       { name: 'client_contact',    label: '고객사 담당자',       type: 'text',     required: true },
       { name: 'client_mail',       label: '고객사 이메일',       type: 'text',     required: true },
