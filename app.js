@@ -47,7 +47,14 @@ if (!activePage) return;
 var pageId = activePage.id.replace('page-','');
 if (pageId !== 'home') goBack(pageId);
 });
-
+function formatNumberInput(el) {
+  var pos = el.selectionStart;
+  var oldLen = el.value.length;
+  var raw = el.value.replace(/[^0-9]/g, '');
+  el.value = raw.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  var newLen = el.value.length;
+  el.setSelectionRange(pos + (newLen - oldLen), pos + (newLen - oldLen));
+}
 // ════════════════════════════════════════════════════════════
 //  승인/반려 팝업
 // ════════════════════════════════════════════════════════════
@@ -1583,7 +1590,8 @@ function renderField(f){
     inp='<div class="checkbox-list">'+f.options.map(function(o,idx){
       var num=idx+1;
       return '<label class="checkbox-item"><input type="checkbox" value="'+o+'" data-field="'+f.name+'" onchange="this.closest(\'.checkbox-item\').classList.toggle(\'checked\',this.checked);onFieldChange();toggleLinkedFields()"><span>'+o+'</span></label>'
-        +'<div class="linked-fields-inline" data-linked-to="'+o+'" style="display:none;padding:8px 0 12px 28px;"><div class="form-grid" style="gap:12px;"><div class="form-group"><label>금액 (KRW)</label><input type="text" id="f_fee_'+num+'" placeholder="금액" oninput="onFieldChange()"></div><div class="form-group"><label>비고</label><input type="text" id="f_etc_'+num+'" placeholder="비고" oninput="onFieldChange()"></div></div></div>';
+        +'<div class="linked-fields-inline" data-linked-to="'+o+'" style="display:none;padding:8px 0 12px 28px;"><div class="form-grid" style="gap:12px;"><div class="form-group"><label>금액 (KRW)</label>'<input type="text" id="f_fee_'+num+'" placeholder="금액" oninput="formatNumberInput(this);onFieldChange()">'
+</div><div class="form-group"><label>비고</label><input type="text" id="f_etc_'+num+'" placeholder="비고" oninput="onFieldChange()"></div></div></div>';
     }).join('')+'</div>';
   }
 
@@ -1602,7 +1610,8 @@ function renderField(f){
     }
     if(isEndDate) extraAttr=' oninput="onFieldChange()"';
 
-    inp='<input type="'+f.type+'" id="f_'+f.name+'" placeholder="'+(f.placeholder||f.label)+'"'+(f.defaultValue?' value="'+f.defaultValue+'"':'')+''+(isEndDate||isStartDate?'':' oninput="onFieldChange()"')+extraAttr+'>';
+    var currencyAttr = (f.format==='currency') ? ' oninput="formatNumberInput(this);onFieldChange()"' : '';
+inp='<input type="'+f.type+'" id="f_'+f.name+'" placeholder="'+f.label+'"'+(f.defaultValue?' value="'+f.defaultValue+'"':'')+(f.format==='currency' ? currencyAttr : (isEndDate||isStartDate?'':' oninput="onFieldChange()"'))+extraAttr+'>';
   }
 
   return '<div class="form-group'+sc+'"'+linkedAttr+'><label>'+f.label+' '+req+'</label>'+inp+hint+'</div>';
