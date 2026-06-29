@@ -152,7 +152,20 @@ var CONTRACTS_DATA = [
     autoWrite: true,
     templateId: '1tYGPkIX_igH5Zr4u_KJazBogXoNH1Ze25KdyUnruu5k',
     downloadId: '1k_cFLvQSdP8801YYuOSP1W4bNTLDcFiR1D0pTkRNuc4',
-    fields: []
+    fields: [  
+      { section: '고객사 정보' },
+      { name: 'client_name',      label: '고객사 법인명',     type: 'text', required: true },
+      { name: 'client_address',   label: '고객사 주소',       type: 'text', required: true, span: 2 },
+      { name: 'client_ceo',       label: '고객사 대표이사',   type: 'text', required: true },
+  
+      { section: '원계약 정보' },
+      { name: 'original_contract_name', label: '원계약 계약명', type: 'text', required: true, span: 2 },
+      { name: 'original_contract_date', label: '원계약 체결일', type: 'date', required: true },
+  
+      { section: '합의 내용' },
+      { name: 'sign_date',         label: '합의서 체결일',    type: 'date',     required: true },
+      { name: 'agreement_detail',  label: '합의사항',         type: 'textarea', required: true, span: 2, hint: '제2조에 들어갈 합의 내용을 기재해 주세요.' }
+  ]
   },
   {
     id: 'igaw_adbrix_solution',
@@ -193,7 +206,33 @@ var CONTRACTS_DATA = [
     autoWrite: true,
     templateId: '11HwYhseAmkmdEXrJl8F8-J8srVCLgFJvVN1XEyW3gyY',
     downloadId: '1ml_DWZt4yb60f7vKUufBj45dURliVkh7KZxIwBz9_uE',
-    fields: []
+    fields: [   
+      { section: '수탁자 정보' },
+      { name: 'trustee_name',     label: '수탁자 법인명',     type: 'text', required: true },
+      { name: 'trustee_address',  label: '수탁자 주소',       type: 'text', required: true, span: 2 },
+      { name: 'trustee_ceo',      label: '수탁자 대표이사',   type: 'text', required: true },
+  
+      { section: '계약 조건' },
+      { name: 'contract_date',    label: '계약 체결일',       type: 'date', required: true },
+      { name: 'contractName',     label: '계약명',            type: 'text', required: true, span: 2 },
+      { name: 'service_cost',     label: '용역대금 (부가세 별도)', type: 'text', required: true, format: 'currency', hint: '예: 10,000,000' },
+      { name: 'service_start',    label: '용역 시작일',       type: 'date', required: true },
+      { name: 'service_end',      label: '용역 종료일',       type: 'date', required: true },
+  
+      { section: '대금 지급' },
+      { name: 'invoice_date',     label: '세금계산서 발행일', type: 'text', required: true, hint: '예: 용역완료 후 즉시, 매월 말일 등' },
+      { name: 'payment_date',     label: '대금지급일',        type: 'text', required: true, defaultValue: '세금계산서 발행일 기준 익월 말일 이내' },
+      { name: 'bank_name',        label: '은행명',            type: 'text', required: true },
+      { name: 'account_number',   label: '계좌번호',          type: 'text', required: true },
+      { name: 'account_holder',   label: '예금주',            type: 'text', required: true },
+  
+      { section: '수행 업무' },
+      { name: 'work_scope',       label: '수행 업무 범위',    type: 'textarea', required: true, span: 2 },
+      { name: 'deliverables',     label: '결과물',            type: 'textarea', required: true, span: 2 },
+      { name: 'submit_deadline',  label: '제출 기한',         type: 'text', required: false, hint: '예: 용역 종료일까지' },
+  
+      { section: '기타' },
+      { name: 'remarks',          label: '기타사항',          type: 'textarea', required: false, span: 2 }]
   },
   {
     id: 'igaw_tv_index',
