@@ -110,6 +110,16 @@ var CONTRACTS_DATA = [
       { name: 'special_terms',     label: '특약사항',       type: 'textarea', required: false, span: 2 }
   ]
   },
+   {
+    id: 'igaw_dfinery_cdp_crm',
+    company: 'IGAW',
+    name: '디파이너리 이용계약서(CDP,CRM)',
+    desc: '디파이너리 CDP,CRM 이용 계약서',
+    autoWrite: true,
+    templateId: '',
+    downloadId: '1NDF7IgsS7o7lIZuNNWfVYGPVX7E2EhAZBMvHE4KCRMk',
+    fields: []
+  },
   {
     id: 'igaw_subscription',
     company: 'IGAW',
@@ -166,6 +176,16 @@ var CONTRACTS_DATA = [
       { name: 'sign_date',         label: '합의서 체결일',    type: 'date',     required: true },
       { name: 'agreement_detail',  label: '합의사항',         type: 'textarea', required: true, span: 2, hint: '제2조에 들어갈 합의 내용을 기재해 주세요.' }
   ]
+  },
+  {
+    id: 'igaw_service_use_mau',
+    company: 'IGAW',
+    name: '서비스 이용 계약서_ADB(MAU)',
+    desc: 'ADB MAU 서비스 이용 계약서',
+    autoWrite: true,
+    templateId: '',
+    downloadId: '1Hd6MMXYYKbsB3eTcUACOcmenW5MVXUfW2E2x5XT-dQ4',
+    fields: []
   },
   {
     id: 'igaw_adbrix_solution',
@@ -276,7 +296,7 @@ var CONTRACTS_DATA = [
   },
 
   // ══════════════════════════════════════════════════════════
-  //  IGAW — 양식만 제공 (13개)
+  //  IGAW — 양식만 제공
   // ══════════════════════════════════════════════════════════
   {
     id: 'igaw_privacy_trustee',
@@ -296,16 +316,6 @@ var CONTRACTS_DATA = [
     autoWrite: false,
     templateId: '',
     downloadId: '1dr-uZt55U849X50UlbY2_ZRNVyBFpmMJ09dn39lvsfE',
-    fields: []
-  },
-  {
-    id: 'igaw_dfinery_cdp_crm',
-    company: 'IGAW',
-    name: '디파이너리 이용계약서(CDP,CRM)',
-    desc: '디파이너리 CDP,CRM 이용 계약서',
-    autoWrite: false,
-    templateId: '',
-    downloadId: '1NDF7IgsS7o7lIZuNNWfVYGPVX7E2EhAZBMvHE4KCRMk',
     fields: []
   },
   {
@@ -356,16 +366,6 @@ var CONTRACTS_DATA = [
     autoWrite: false,
     templateId: '',
     downloadId: '1xw9OmMVjxF2ftvs8V0r0v8S_LcMYUcC6oA-mckiRxLA',
-    fields: []
-  },
-  {
-    id: 'igaw_service_use_mau',
-    company: 'IGAW',
-    name: '서비스 이용 계약서_ADB(MAU)',
-    desc: 'ADB MAU 서비스 이용 계약서',
-    autoWrite: false,
-    templateId: '',
-    downloadId: '1Hd6MMXYYKbsB3eTcUACOcmenW5MVXUfW2E2x5XT-dQ4',
     fields: []
   },
   {
