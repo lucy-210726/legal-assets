@@ -240,7 +240,7 @@ var CONTRACTS_DATA = [
       { name: 'service_end',      label: '용역 종료일',       type: 'date', required: true },
   
       { section: '대금 지급' },
-      { name: 'invoice_date',     label: '세금계산서 발행일', type: 'text', required: true, defaultValue: '용역완료월의 말일' hint: '예: 매월 말일, 별도 협의 등' },
+      { name: 'invoice_date',     label: '세금계산서 발행일', type: 'text', required: true, defaultValue: '용역완료월의 말일', hint: '예: 매월 말일, 별도 협의 등' },
       { name: 'payment_date',     label: '대금지급일',        type: 'text', required: true, defaultValue: '세금계산서 발행일 기준 익월 말일 이내' },
       { name: 'bank_name',        label: '은행명',            type: 'text', required: true },
       { name: 'account_number',   label: '계좌번호',          type: 'text', required: true },
