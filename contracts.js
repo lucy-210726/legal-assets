@@ -453,6 +453,50 @@ var CONTRACTS_DATA = [
     fields: []
   },
   {
+  id: 'adp_reward_media_partnership',
+  company: 'ADP',
+  name: '리워드 매체제휴계약서',
+  desc: '리워드 매체 제휴 계약서',
+  autoWrite: true,
+  templateId: '여기에_templateId_입력',
+  downloadId: '1BH5SoSX3dOsp5RuKAy-Jodu7PZHLrBih-EGPVbqcc6U',
+  fields: [
+    { section: '고객사 정보' },
+    { name: 'client_name',       label: '고객사 법인명',      type: 'text',  required: true },
+    { name: 'client_address',    label: '고객사 주소',        type: 'text',  required: true, span: 2 },
+    { name: 'client_ceo',        label: '고객사 대표이사',    type: 'text',  required: true },
+    { name: 'client_BIZ_NUMBER', label: '사업자등록번호',     type: 'text',  required: true },
+    { name: 'client_contact',    label: '고객사 담당자',      type: 'text',  required: true },
+    { name: 'client_email',      label: '고객사 이메일',      type: 'text',  required: true },
+    { name: 'invoice_email',     label: '계산서 이메일',      type: 'text',  required: true },
+
+    { section: '회사 담당자 정보' },
+    { name: 'company_contact',       label: '회사 담당자',         type: 'text',  required: true },
+    { name: 'company_email',         label: '회사 이메일',         type: 'text',  required: true },
+    { name: 'company_invoice_email', label: '회사 계산서 이메일',   type: 'text',  required: true },
+
+    { section: '계약사항' },
+    { name: 'sign_date',   label: '계약 체결일',      type: 'date',  required: true, span: 2 },
+    { name: 'start_date',  label: '계약기간 시작일',  type: 'date',  required: true },
+    { name: 'end_date',    label: '계약기간 종료일',  type: 'date',  required: true },
+    { name: 'renewal_terms',      label: '계약갱신 조건',       type: 'textarea', required: false, span: 2, hint: '기본: 계약 만료 전 30일 이내에 서면으로 계약갱신 거절의 의사표시 또는 계약 내용의 변경 요구를 하지 아니하면 계약기간 만료일 익일부터 동일한 조건으로 자동적으로 1년씩 갱신된다.' },
+    { name: 'invoice_date_terms', label: '세금계산서 발행일',   type: 'text',     required: false, hint: '기본: 광고집행월(M월) 말일' },
+    { name: 'payment_date_terms', label: '입금일',             type: 'text',     required: false, hint: '기본: 세금계산서 발행일 기준 익월(M+1) 말일 (주말, 공휴일인 경우 익영업일 이내)' },
+
+    { section: '입금계좌정보' },
+    { name: 'bank_name',       label: '은행명',    type: 'text', required: true },
+    { name: 'account_number',  label: '계좌번호',  type: 'text', required: true },
+    { name: 'account_holder',  label: '예금주',    type: 'text', required: true },
+
+    { section: '수익 배분율' },
+    { name: 'revenue_company', label: '회사 배분율(%)',   type: 'text', required: true, hint: '기본: 30' },
+    { name: 'revenue_client',  label: '고객사 배분율(%)', type: 'text', required: true, hint: '기본: 70' },
+
+    { section: '기타' },
+    { name: 'special_terms', label: '기타사항', type: 'textarea', required: false, span: 2 }
+  ]
+},
+  {
     id: 'adp_reward_plus_addendum',
     company: 'ADP',
     name: '매체제휴부속합의서(보상형광고플러스)',
