@@ -235,7 +235,7 @@ var CONTRACTS_DATA = [
       { section: '계약 조건' },
       { name: 'contract_date',    label: '계약 체결일',       type: 'date', required: true },
       { name: 'contractName',     label: '계약명',            type: 'text', required: true, span: 2 },
-      { name: 'service_cost',     label: '용역대금 (부가세 별도)', type: 'text', required: true, format: 'currency', hint: '숫자만 기재하세요.' },
+      { name: 'service_cost',     label: '용역대금 (원)', type: 'text', required: true, format: 'currency', hint: '숫자만 기재하세요.' },
       { name: 'service_start',    label: '용역 시작일',       type: 'date', required: true },
       { name: 'service_end',      label: '용역 종료일',       type: 'date', required: true },
   
