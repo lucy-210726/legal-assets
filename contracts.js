@@ -249,7 +249,7 @@ var CONTRACTS_DATA = [
       { section: '수행 업무' },
       { name: 'work_scope',       label: '수행 업무 범위',    type: 'textarea', required: true, span: 2 },
       { name: 'deliverables',     label: '결과물',            type: 'textarea', required: true, span: 2 },
-      { name: 'submit_deadline',  label: '제출 기한',         type: 'text', required: false, hint: '예: 용역 종료일까지' },
+      { name: 'submit_deadline',  label: '제출 기한',         type: 'text', required: false, hint: '예: 용역 종료일까지, 별도 협의한 기한 특정(20**. **. **)' },
   
       { section: '기타' },
       { name: 'remarks',          label: '기타사항',          type: 'textarea', required: false, span: 2 }]
