@@ -142,7 +142,7 @@ var CONTRACTS_DATA = [
       { name: 'services', label: '서비스 선택', type: 'checkbox', required: true, span: 2,
         options: ['사용량 인덱스', '앱 마켓 인덱스', '소비 인덱스', 'TV 애드 인덱스', '모바일인덱스 GAME'] },
       { section: '할인 및 합계' },
-      { name: 'fee_6',           label: '최종 할인적용 금액', type: 'text',   required: false, format: 'currency' },
+      { name: 'fee_6',           label: '최종 할인적용 금액', type: 'text',   required: false, format: 'currency', hint: '숫자만 기재하세요' },
       { name: 'etc_6',           label: '할인 비고',         type: 'text',   required: false },
       { name: 'total_fee',      label: '총 이용료 (원)',    type: 'number', required: true, format: 'currency', hint: '숫자만 기재하세요' },
       { name: 'total_month_fee', label: '월 구독료 (원)',   type: 'number', required: true, format: 'currency', hint: '숫자만 기재하세요' }, 
