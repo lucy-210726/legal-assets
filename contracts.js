@@ -458,7 +458,7 @@ var CONTRACTS_DATA = [
   name: '리워드 매체제휴계약서',
   desc: '리워드 매체 제휴 계약서',
   autoWrite: true,
-  templateId: '여기에_templateId_입력',
+  templateId: '1gXLir1fujESABcFcRgRedei1abCYysOZ5208oUqBNIw',
   downloadId: '1BH5SoSX3dOsp5RuKAy-Jodu7PZHLrBih-EGPVbqcc6U',
   fields: [
     { section: '고객사 정보' },
@@ -514,16 +514,6 @@ var CONTRACTS_DATA = [
     autoWrite: true,
     templateId: '1ojgc3boZo1a7fFjtit4CO5z9VbqkxiO9nI0MMVp00Mo',
     downloadId: '1PgIdNwTwxGtM-AUbjJGeWxX4vqD-xbCMkF1_29o8jek',
-    fields: []
-  },
-  {
-    id: 'adp_media_integrated',
-    company: 'ADP',
-    name: '통합매체제휴계약서',
-    desc: 'ADP 통합 매체 제휴 계약서',
-    autoWrite: true,
-    templateId: '1X2-NNDXsmRY28ysL5j4_mqM8TRS8qA_-RDqHI7bzSuk',
-    downloadId: '1E019HrNhKpiuaozDQYOfthLHpmnYgB79VMB9OPQBW0Q',
     fields: []
   },
   {
@@ -628,6 +618,16 @@ var CONTRACTS_DATA = [
     autoWrite: false,
     templateId: '',
     downloadId: '1dU0y8OllFyIdf2ccC2zQMaqQCQUp0vfspFRSZFT2BvA',
+    fields: []
+  },
+ {
+    id: 'adp_media_integrated',
+    company: 'ADP',
+    name: '통합매체제휴계약서',
+    desc: 'ADP 통합 매체 제휴 계약서',
+    autoWrite: false,
+    templateId: '',
+    downloadId: '1E019HrNhKpiuaozDQYOfthLHpmnYgB79VMB9OPQBW0Q',
     fields: []
   },
   {
