@@ -1597,8 +1597,9 @@ function renderField(f){
   var linkedAttr = f.linkedTo ? ' data-linked-to="'+f.linkedTo+'" style="display:none;"' : '';
   var inp='';
 
-  if(f.type==='textarea')
-    inp='<textarea id="f_'+f.name+'" placeholder="'+(f.placeholder||f.label)+'" oninput="onFieldChange()">'+(f.defaultValue||'')+'</textarea>';
+    if(f.type==='textarea')
+    inp='<textarea id="f_'+f.name+'" placeholder="'+(f.placeholder||f.label)+'" oninput="onFieldChange()">'+(f.defaultValue||'')+'</textarea>'
+      +'<div class="ai-btn-row"><button type="button" class="btn-ai" onclick="aiAssist(\''+f.name+'\')">✨ AI 추천</button></div>';
 
   else if(f.type==='checkbox') {
     inp='<div class="checkbox-list">'+f.options.map(function(o,idx){
@@ -2702,4 +2703,123 @@ document.addEventListener('drop', function(e) {
   Array.from(e.dataTransfer.files).forEach(function(f) { dt.items.add(f); });
   input.files = dt.files;
   input.dispatchEvent(new Event('change', { bubbles: true }));
+});
+// ════════════════════════════════════════════════════════════
+//  AI 법무 문구 추천
+// ════════════════════════════════════════════════════════════
+var COUNTERPARTY_FIELD_CANDIDATES = ['trustee_name','agency_name','client_name','media_name','advertiser_name','buyer_name'];
+
+function getCounterPartyInfo_(){
+  if(!currentContract) return { label:'상대방', name:'' };
+  var field = currentContract.fields.find(function(f){ return COUNTERPARTY_FIELD_CANDIDATES.indexOf(f.name) >= 0; });
+  var label = field ? field.label.replace(/(\s*법인)?명$/, '') : '상대방';
+  var name = '';
+  if(field){ var el = document.getElementById('f_'+field.name); name = el ? el.value.trim() : ''; }
+  return { label: label, name: name };
+}
+
+function getFieldLabel_(fieldName){
+  if(!currentContract) return fieldName;
+  var field = currentContract.fields.find(function(f){ return f.name === fieldName; });
+  return field ? field.label : fieldName;
+}
+
+var _aiModalState = { fieldName:'' };
+window._aiSuggestions = [];
+
+function ensureAiModal_(){
+  if(document.getElementById('ai-modal-overlay')) return;
+  var html =
+    '<div id="ai-modal-overlay" class="ai-modal-overlay" style="display:none;">'+
+      '<div class="ai-modal">'+
+        '<div class="ai-modal-head">'+
+          '<h4 id="ai-modal-title">AI 추천 문구</h4>'+
+          '<button type="button" class="ai-modal-close" onclick="closeAiModal()">✕</button>'+
+        '</div>'+
+        '<div class="ai-modal-body" id="ai-modal-body"></div>'+
+        '<div class="ai-modal-foot">'+
+          '<button type="button" class="btn btn-ghost" onclick="closeAiModal()">취소</button>'+
+          '<button type="button" class="btn btn-ghost" onclick="aiRegenerate()">🔄 다시 생성</button>'+
+          '<button type="button" class="btn btn-gold" onclick="applyAiEdit()">적용</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function aiAssist(fieldName){ runAiAssist_(fieldName); }
+function aiRegenerate(){ runAiAssist_(_aiModalState.fieldName); }
+
+function runAiAssist_(fieldName){
+  var el = document.getElementById('f_'+fieldName);
+  var userInput = el ? el.value.trim() : '';
+  if(!userInput){
+    showAlert('상황 설명이나 작성 중인 초안을 먼저 입력해주세요.', {title:'입력 필요', icon:'⚠️'});
+    return;
+  }
+  ensureAiModal_();
+  _aiModalState = { fieldName: fieldName };
+  document.getElementById('ai-modal-title').textContent = '✨ AI 추천 문구';
+  document.getElementById('ai-modal-body').innerHTML = '<div class="ai-modal-loading"><div class="spinner"></div><p>AI가 문구를 검토하고 있습니다...</p></div>';
+  document.getElementById('ai-modal-overlay').style.display = 'flex';
+
+  var counter = getCounterPartyInfo_();
+  google.script.run
+    .withSuccessHandler(function(result){ renderAiResult_(result); })
+    .withFailureHandler(function(err){ renderAiError_(err.message || String(err)); })
+    .aiAssistText({
+      userInput: userInput,
+      fieldLabel: getFieldLabel_(fieldName),
+      contractName: currentContract ? currentContract.name : '',
+      ourParty: currentContract ? currentContract.company : '',
+      counterPartyLabel: counter.label,
+      counterPartyName: counter.name
+    });
+}
+
+function renderAiError_(msg){
+  document.getElementById('ai-modal-body').innerHTML = '<div class="ai-modal-error">❌ '+esc(msg)+'</div>';
+}
+
+function renderAiResult_(result){
+  if(!result || !result.ok){ renderAiError_((result&&result.error)||'AI 호출 실패'); return; }
+  var html = '';
+  if(result.issues && result.issues.length){
+    html += '<div class="ai-issue-list">'+result.issues.map(function(i){
+      return '<div class="ai-issue"><span class="ai-issue-type">'+esc(i.type)+'</span><div class="ai-issue-body"><s>'+esc(i.original)+'</s> → <b>'+esc(i.fixed)+'</b><div class="ai-issue-reason">'+esc(i.reason)+'</div></div></div>';
+    }).join('')+'</div>';
+  }
+  html += '<div class="ai-card-grid">'+(result.suggestions||[]).map(function(s, idx){
+    return '<div class="ai-card" data-idx="'+idx+'" onclick="selectAiCard(this,'+idx+')"><div class="ai-card-text">'+esc(s.text)+'</div><div class="ai-card-note">'+esc(s.note)+'</div></div>';
+  }).join('')+'</div>';
+  html += '<textarea id="ai-edit-area" class="ai-edit-area" placeholder="카드를 선택하면 여기에 복사됩니다. 자유롭게 수정 후 적용하세요."></textarea>';
+  document.getElementById('ai-modal-body').innerHTML = html;
+  window._aiSuggestions = result.suggestions || [];
+}
+
+function selectAiCard(el, idx){
+  document.querySelectorAll('#ai-modal-body .ai-card').forEach(function(c){ c.classList.remove('selected'); });
+  el.classList.add('selected');
+  var area = document.getElementById('ai-edit-area');
+  if(area && window._aiSuggestions[idx]) area.value = window._aiSuggestions[idx].text;
+}
+
+function applyAiEdit(){
+  var area = document.getElementById('ai-edit-area');
+  var text = area ? area.value.trim() : '';
+  if(!text){ showAlert('적용할 문구를 카드에서 선택하거나 직접 입력해주세요.', {title:'선택 필요', icon:'⚠️'}); return; }
+  var target = document.getElementById('f_'+_aiModalState.fieldName);
+  if(target){ target.value = text; onFieldChange(); }
+  closeAiModal();
+}
+
+function closeAiModal(){
+  var overlay = document.getElementById('ai-modal-overlay');
+  if(overlay) overlay.style.display = 'none';
+}
+
+document.addEventListener('keydown', function(e){
+  if(e.key !== 'Escape') return;
+  var ov = document.getElementById('ai-modal-overlay');
+  if(ov && ov.style.display === 'flex') closeAiModal();
 });
