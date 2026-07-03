@@ -1610,7 +1610,7 @@ function renderField(f){
 
   else if(f.type==='radio')
     inp='<div class="radio-row">'+f.options.map(function(o){
-      return '<label class="radio-item"><input type="radio" name="f_'+f.name+'" value="'+o+'" onchange="onFieldChange();if(this.name===\'f_payment_method\')updatePaymentDetail()"><span>'+o+'</span></label>';
+      return '<label class="radio-item"><input type="radio" name="f_'+f.name+'" value="'+o+'" onchange="onFieldChange();toggleLinkedFields();if(this.name===\'f_payment_method\')updatePaymentDetail()"><span>'+o+'</span></label>';
     }).join('')+'</div>';
 
   else {
@@ -1648,11 +1648,23 @@ function updatePaymentDetail() {
   textarea.value = templates[method.value] || '';
 }
 function toggleLinkedFields() {
+  // 체크박스 연동 (모바일인덱스 서비스 등)
   var checkedValues = Array.from(document.querySelectorAll('input[data-field="services"]:checked')).map(function(el){ return el.value; });
-  var linkedFields = document.querySelectorAll('.linked-fields-inline');
-  linkedFields.forEach(function(el) {
+  var linkedInline = document.querySelectorAll('.linked-fields-inline');
+  linkedInline.forEach(function(el) {
     var linkedTo = el.getAttribute('data-linked-to');
     el.style.display = checkedValues.indexOf(linkedTo) >= 0 ? 'block' : 'none';
+  });
+
+  // 라디오 연동 (선불/후불, 보증보험 제출/미제출 등)
+  var allLinkedGroups = document.querySelectorAll('.form-group[data-linked-to]');
+  allLinkedGroups.forEach(function(el) { el.style.display = 'none'; });
+  var radios = document.querySelectorAll('input[type="radio"]:checked');
+  radios.forEach(function(r) {
+    var val = r.value;
+    document.querySelectorAll('.form-group[data-linked-to="' + val + '"]').forEach(function(el) {
+      el.style.display = '';
+    });
   });
 }
 function validateCurrentForm(){if(!currentContract) return false;for(var i=0;i<currentContract.fields.length;i++){var f=currentContract.fields[i];if(!f.required||f.section) continue;if(f.type==='checkbox'){if(!document.querySelectorAll('input[data-field="'+f.name+'"]:checked').length) return false;}else if(f.type==='radio'){if(!document.querySelector('input[name="f_'+f.name+'"]:checked')) return false;}else{var el=document.getElementById('f_'+f.name);if(!el||!el.value.trim()) return false;}}return true;}
