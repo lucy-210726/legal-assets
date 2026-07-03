@@ -430,7 +430,21 @@ var CONTRACTS_DATA = [
     autoWrite: true,
     templateId: '1bCKBrFUDHDsgDPM9L5ve8dWKmwA7JLOMkWMCizM3Osw',
     downloadId: '14YH6xzHZ06bKZw0L91AFo91PNKcb2dmY_ASYWTQA1fg',
-    fields: []
+    fields: [
+    { section: '고객사 정보' },
+    { name: 'client_name',    label: '고객사명',       type: 'text', required: true },
+    { name: 'client_address', label: '고객사 주소',    type: 'text', required: true, span: 2 },
+    { name: 'client_ceo',     label: '고객사 대표이사', type: 'text', required: true },
+    { section: '원계약 정보' },
+    { name: 'original_contract_name', label: '원계약 계약명', type: 'text', required: true, span: 2, hint: '실제 체결된 계약명과 동일하게 기재하세요.' },
+    { name: 'original_contract_date', label: '원계약 체결일', type: 'date', required: true },
+    { section: '변경사항' },
+    { name: 'change_category', label: '변경 구분',  type: 'text',     required: true, hint: '※ 변경 사항이 1개일 때만 자동작성 가능합니다. 항목이 여러 개인 경우 양식 다운로드 후 직접 작성해주세요.' },
+    { name: 'change_before',   label: '변경 전',    type: 'textarea', required: true, span: 2 },
+    { name: 'change_after',    label: '변경 후',    type: 'textarea', required: true, span: 2 },
+    { section: '합의서 정보' },
+    { name: 'sign_date', label: '합의서 체결일', type: 'date', required: true }
+  ]
   },
   {
     id: 'adp_ad',
@@ -440,7 +454,37 @@ var CONTRACTS_DATA = [
     autoWrite: true,
     templateId: '1JZ-64oQc7svIF8eFer3GZrO-72uB1wl2LM5-L50V8rk',
     downloadId: '1jVDZ7TnxU_IwrE4q4C_izhNse_5GQHB5lsFGGnUdzOc',
-    fields: []
+    fields: [
+    { section: '고객사 정보' },
+    { name: 'client_name',       label: '고객사 법인명',   type: 'text', required: true },
+    { name: 'client_address',    label: '고객사 주소',     type: 'text', required: true, span: 2 },
+    { name: 'client_ceo',        label: '고객사 대표이사', type: 'text', required: true },
+    { name: 'client_BIZ_NUMBER', label: '사업자등록번호',  type: 'text', required: true },
+    { name: 'client_contact',    label: '고객사 담당자',   type: 'text', required: true },
+    { name: 'client_mail',       label: '고객사 이메일',   type: 'text', required: true },
+    { name: 'invoice_email',     label: '계산서 이메일',   type: 'text', required: true },
+    { section: '회사 담당자 정보' },
+    { name: 'company_name', label: '회사 담당자',        type: 'text', required: true },
+    { name: 'company_mail', label: '회사 담당자 이메일', type: 'text', required: true },
+    { section: '계약사항' },
+    { name: 'sign_date',       label: '계약 체결일',     type: 'date', required: true, span: 2 },
+    { name: 'agreement_start', label: '계약기간 시작일', type: 'date', required: true },
+    { name: 'agreement_end',   label: '계약기간 종료일', type: 'date', required: true },
+    { name: 'agreement_renew', label: '계약갱신 조건',   type: 'text', required: false, span: 2, defaultValue: '계약 만료 전 30일 이내에 서면으로 계약갱신 거절의 의사표시 또는 계약 내용의 변경 요구를 하지 아니하면 계약기간 만료일 익일부터 동일한 조건으로 자동적으로 1년씩 갱신된다.' },
+    { section: '지급조건' },
+    { name: 'pay_type',       label: '지급방식',              type: 'radio', required: true, options: ['선불', '후불'] },
+    { name: 'payment_date',   label: '선불 입금일',           type: 'text',  required: false, defaultValue: '업무 수행 3영업일 전'  },
+    { name: 'invoice_date',   label: '후불 세금계산서 발행일', type: 'text',  required: false, defaultValue: '업무 수행 월 말일'  },
+    { name: 'payment_date2',  label: '후불 입금일',           type: 'text',  required: false, defaultValue: '세금계산서 발행일 기준 익월 말일 이내'  },
+    { section: '보증보험' },
+    { name: 'has_insurance',  label: '보증보험 제출 여부', type: 'radio', required: true, options: ['제출', '미제출'] },
+    { name: 'in_fee',         label: '가입금액(원)',           type: 'text', required: false, format: 'currency', hint: '숫자만 기재하세요' },
+    { name: 'in_start_date',  label: '보험 시작일',        type: 'date', required: false },
+    { name: 'in_end_date',    label: '보험 종료일',        type: 'date', required: false },
+    { name: 'in_summit_date', label: '증권 제출기한',      type: 'date', required: false },
+    { section: '기타' },
+    { name: 'special_terms', label: '기타사항', type: 'textarea', required: false, span: 2 }
+  ]
   },
   {
     id: 'adp_naver_addendum',
@@ -450,7 +494,14 @@ var CONTRACTS_DATA = [
     autoWrite: true,
     templateId: '1Bf1sYeZ0kioCs611YznZLWpXwopAbD0TktDCDlQOIPY',
     downloadId: '1dg56lqb6WZfiIPUuFkbgPjr-odfANiq2fYOVAiV24Sw',
-    fields: []
+    fields: [
+    { section: '제휴사 정보' },
+    { name: 'client_name',    label: '제휴사 법인명',   type: 'text', required: true },
+    { name: 'client_address', label: '제휴사 주소',     type: 'text', required: true, span: 2 },
+    { name: 'client_ceo',     label: '제휴사 대표이사', type: 'text', required: true },
+    { section: '합의서 정보' },
+    { name: 'sign_date', label: '체결일', type: 'date', required: true }
+  ]
   },
  {
   id: 'adp_reward_media_partnership',
@@ -504,7 +555,14 @@ var CONTRACTS_DATA = [
     autoWrite: true,
     templateId: '1l85478fmqglJtDMKroIz19I19flnwJNzewzIeISiG4A',
     downloadId: '1bOHEi8t0ngptaTQW7Kpoooay_Gihmy2Ce8gRgin5RCs',
-    fields: []
+    fields: [
+    { section: '제휴사 정보' },
+    { name: 'client_name',    label: '제휴사 법인명',   type: 'text', required: true },
+    { name: 'client_address', label: '제휴사 주소',     type: 'text', required: true, span: 2 },
+    { name: 'client_ceo',     label: '제휴사 대표이사', type: 'text', required: true },
+    { section: '합의서 정보' },
+    { name: 'sign_date', label: '체결일', type: 'date', required: true }
+  ]
   },
   {
     id: 'adp_addendum',
@@ -514,7 +572,18 @@ var CONTRACTS_DATA = [
     autoWrite: true,
     templateId: '1ojgc3boZo1a7fFjtit4CO5z9VbqkxiO9nI0MMVp00Mo',
     downloadId: '1PgIdNwTwxGtM-AUbjJGeWxX4vqD-xbCMkF1_29o8jek',
-    fields: []
+    fields: [
+    { section: '고객사 정보' },
+    { name: 'client_name',    label: '고객사 법인명',   type: 'text', required: true },
+    { name: 'client_address', label: '고객사 주소',     type: 'text', required: true, span: 2 },
+    { name: 'client_ceo',     label: '고객사 대표이사', type: 'text', required: true },
+    { section: '원계약 정보' },
+    { name: 'original_contract_name', label: '원계약 계약명', type: 'text', required: true, span: 2, hint: '실제 체결된 계약명과 동일하게 기재하세요.' },
+    { name: 'original_contract_date', label: '원계약 체결일', type: 'date', required: true },
+    { section: '합의 내용' },
+    { name: 'sign_date',        label: '합의서 체결일', type: 'date',     required: true },
+    { name: 'agreement_detail', label: '합의사항',      type: 'textarea', required: true, span: 2, hint: '제2조에 들어갈 합의 내용을 기재해 주세요.' }
+  ]
   },
   {
     id: 'adp_popcontent_addendum',
@@ -524,7 +593,14 @@ var CONTRACTS_DATA = [
     autoWrite: true,
     templateId: '1k8ipDHvSVIX0hP6mgWHZO2sfOn8pkFwBUEnEWEiLgvM',
     downloadId: '16VoLCDujfYNhWooCHH6iIVS5uwBPZ5_UeRja-3Thy9M',
-    fields: []
+    fields: [
+    { section: '제휴사 정보' },
+    { name: 'client_name',    label: '제휴사 법인명',   type: 'text', required: true },
+    { name: 'client_address', label: '제휴사 주소',     type: 'text', required: true, span: 2 },
+    { name: 'client_ceo',     label: '제휴사 대표이사', type: 'text', required: true },
+    { section: '합의서 정보' },
+    { name: 'sign_date', label: '체결일', type: 'date', required: true }
+  ]
   },
   {
     id: 'adp_service',
@@ -534,7 +610,30 @@ var CONTRACTS_DATA = [
     autoWrite: true,
     templateId: '1JXmqhOy_k2I9IWIiXZpeV0PHAS6JFVWPATS499b3HrM',
     downloadId: '1Gouz2cwZyNvd5v-mwfKHgJRuARplBgkOxODnCNblatg',
-    fields: []
+    fields: [
+    { section: '수탁자 정보' },
+    { name: 'trustee_name',    label: '수탁자 법인명',   type: 'text', required: true },
+    { name: 'trustee_address', label: '수탁자 주소',     type: 'text', required: true, span: 2 },
+    { name: 'trustee_ceo',     label: '수탁자 대표이사', type: 'text', required: true },
+    { section: '계약 조건' },
+    { name: 'contract_date', label: '계약 체결일',            type: 'date', required: true },
+    { name: 'contractName',  label: '계약명',                 type: 'text', required: true, span: 2 },
+    { name: 'service_cost',  label: '용역대금 (부가세 별도)', type: 'text', required: true, format: 'currency', hint: '숫자만 기재하세요.' },
+    { name: 'service_start', label: '용역 시작일',            type: 'date', required: true },
+    { name: 'service_end',   label: '용역 종료일',            type: 'date', required: true },
+    { section: '대금 지급' },
+    { name: 'invoice_date',   label: '세금계산서 발행일', type: 'text', required: true, defaultValue: '용역완료월의 말일', hint: '예: 매월 말일, 별도 협의 등' },
+    { name: 'payment_date',   label: '대금지급일',        type: 'text', required: true, defaultValue: '세금계산서 발행일 기준 익월 말일 이내' },
+    { name: 'bank_name',      label: '은행명',            type: 'text', required: true },
+    { name: 'account_number', label: '계좌번호',          type: 'text', required: true },
+    { name: 'account_holder', label: '예금주',            type: 'text', required: true },
+    { section: '수행 업무' },
+    { name: 'work_scope',      label: '수행 업무 범위', type: 'textarea', required: true, span: 2 },
+    { name: 'deliverables',    label: '결과물',         type: 'textarea', required: true, span: 2 },
+    { name: 'submit_deadline', label: '제출 기한',      type: 'text',     required: false, hint: '예: 용역 종료일까지, 별도 협의한 기한 특정(20**. **. **)' },
+    { section: '기타' },
+    { name: 'remarks', label: '기타사항', type: 'textarea', required: false, span: 2 }
+  ]
   },
 
   // ══════════════════════════════════════════════════════════
