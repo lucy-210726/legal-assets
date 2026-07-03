@@ -1,4 +1,4 @@
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; } 
 :root {--ink:#0d1117; --ink-2:#1c2333; --ink-3:#2d3748;--gold:#c9a84c; --gold-light:#e8c96a; --gold-dim:rgba(201,168,76,0.15);--surface:#f7f6f2; --white:#ffffff;--red:#c0392b; --green:#1a6b42; --green-light:#e8f5ee;--text:#2c2c2c; --text-muted:#7a7a7a; --border:#ddd9d0;--shadow:0 4px 24px rgba(0,0,0,0.08); --shadow-lg:0 12px 48px rgba(0,0,0,0.14);--font:'Noto Sans KR',sans-serif;}
 html { scroll-behavior:smooth; }body { font-family:var(--font); background:#ffffff; color:var(--text); min-height:100vh; display:flex; flex-direction:column; }
 .topbar { background:var(--ink); color:rgba(255,255,255,0.5); font-family:var(--font); font-size:0.75rem; padding:6px 40px; display:flex; justify-content:space-between; align-items:center; letter-spacing:0.05em; }.topbar span { color:var(--gold); font-weight:600; }
