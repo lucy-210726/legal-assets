@@ -2821,5 +2821,5 @@ function closeAiModal(){
 document.addEventListener('keydown', function(e){
   if(e.key !== 'Escape') return;
   var ov = document.getElementById('ai-modal-overlay');
-  if(ov && ov.style.display === 'flex') closeAiModal();
-});
+  if(ov && ov.style.display === 'flex'){ e.stopPropagation(); closeAiModal(); }
+}, true);
