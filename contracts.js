@@ -117,7 +117,7 @@ var CONTRACTS_DATA = [
     desc: '디파이너리 CDP,CRM 이용 계약서',
     autoWrite: true,
     templateId: '1U8YwHCke2hOwBit_UBJrmjNCFab9EDLlY3WiHbFHm4c',
-    downloadId: '1NDF7IgsS7o7lIZuNNWfVYGPVX7E2EhAZBMvHE4KCRMk',
+    downloadId: '1BeWDmBZGxIkIEIqm39GhCTxqkL8fST7o7XeF5a6v3SY',
     fields: [
     { section: '회원사 정보' },
     { name: 'client_name',    label: '회원사명',         type: 'text', required: true },
@@ -262,7 +262,7 @@ var CONTRACTS_DATA = [
     desc: 'ADB MAU 서비스 이용 계약서',
     autoWrite: true,
     templateId: '1b0p5cjoMt2geVlg0B0ROh3XvyX4OtzF2wconRXLuyM4',
-    downloadId: '1Hd6MMXYYKbsB3eTcUACOcmenW5MVXUfW2E2x5XT-dQ4',
+    downloadId: '1IUgKImkj-vJTp6dYjk931dL-xGWJC2iX8718jefMPmE',
     fields: [   
     { section: '회원사 정보' },
     { name: 'client_name',    label: '회원사명',         type: 'text', required: true },
