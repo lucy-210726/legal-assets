@@ -1611,9 +1611,9 @@ function renderField(f){
     else if(f.type==='checkbox') {
   if (f.options) {
     inp='<div class="checkbox-list">'+f.options.map(function(o,idx){var num=idx+1;return '<label class="checkbox-item"><input type="checkbox" value="'+o+'" data-field="'+f.name+'" onchange="this.closest(\'.checkbox-item\').classList.toggle(\'checked\',this.checked);onFieldChange();toggleLinkedFields()"><span>'+o+'</span></label>'+'<div class="linked-fields-inline" data-linked-to="'+o+'" style="display:none;padding:8px 0 12px 28px;"><div class="form-grid" style="gap:12px;"><div class="form-group"><label>금액 (KRW)</label><input type="text" id="f_fee_'+num+'" placeholder="금액" oninput="formatNumberInput(this);onFieldChange()"></div><div class="form-group"><label>비고</label><input type="text" id="f_etc_'+num+'" placeholder="비고" oninput="onFieldChange()"></div></div></div>';}).join('')+'</div>';
-  } else {
-    inp='<label class="checkbox-item"><input type="checkbox" data-field="'+f.name+'" value="true" onchange="this.closest(\'.checkbox-item\').classList.toggle(\'checked\',this.checked);onFieldChange()"><span>'+f.label+'</span></label>';
-  }
+ } else {
+  inp='<label class="checkbox-item"><input type="checkbox" data-field="'+f.name+'" value="true" onchange="this.closest(\'.checkbox-item\').classList.toggle(\'checked\',this.checked);onFieldChange();toggleLinkedFields()"><span>'+f.label+'</span></label>';
+}
 }
 
   else if(f.type==='radio')
@@ -1652,6 +1652,7 @@ function updatePaymentDetail() {
     '일시납': '세금계산서 발행일 기준 익월 말일 이내 (세금계산서 발행일: 이용시작월 말일자 발행)',
     '분기납': '세금계산서 발행일 기준 익월 말일 이내 (세금계산서 발행일: 분기 마지막월 말일자 발행)',
     '월분납': '세금계산서 발행일 기준 익월 말일 이내 (세금계산서 발행일: 매월 말일자 발행)'
+    '기타': '아래 기타사항에 명시한 바에 따름'
   };
   textarea.value = templates[method.value] || '';
 }
