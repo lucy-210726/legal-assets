@@ -207,12 +207,9 @@ PAGE_TEMPLATES.reviewmgmt = `
 <div style="margin-bottom:12px;">
 <div style="font-family:var(--font);font-size:0.76rem;font-weight:600;color:var(--text-muted);margin-bottom:8px;letter-spacing:0.03em;">🏷️ 자주하는 답변</div>
 <div id="rev-quick-labels" style="display:flex;flex-wrap:wrap;gap:6px;">
-<button class="rev-quick-label" onclick="insertQuickLabel('검토 결과 특이사항 없습니다. 진행하셔도 됩니다.')">✅ 특이사항 없음</button>
-<button class="rev-quick-label" onclick="insertQuickLabel('계약서 내용 검토 완료하였습니다. 날인 진행 부탁드립니다.')">📝 날인 진행 요청</button>
-<button class="rev-quick-label" onclick="insertQuickLabel('아래 수정사항 반영 후 재송부 부탁드립니다.')">🔄 수정 후 재송부</button>
-<button class="rev-quick-label" onclick="insertQuickLabel('계약 조건 관련 추가 협의가 필요합니다. 미팅 일정 조율 부탁드립니다.')">🤝 추가 협의 필요</button>
-<button class="rev-quick-label" onclick="insertQuickLabel('첨부된 수정본 확인 부탁드립니다. 수정 사항은 아래와 같습니다.')">📎 수정본 첨부</button>
-<button class="rev-quick-label" onclick="insertQuickLabel('해당 조항은 당사 표준 약관과 상이하여 수정이 필요합니다.')">⚠️ 표준 약관 상이</button>
+<button class="rev-quick-label" onclick="insertQuickLabel('검토하였으나 별도 특이사항 없습니다.')">✅ 특이사항 없음</button>
+<button class="rev-quick-label" onclick="insertQuickLabel('품의 상신하시어 날인 진행하시기 바랍니다.')">📝 품의 진행 요청</button>
+<button class="rev-quick-label" onclick="insertQuickLabel('검토하였으나 일부 수정 사항이 있습니다.<br> 상세 수정 내용은 수정본을 통해 확인 부탁드립니다.')">🔄 수정 사항</button>
 </div>
 </div>
 
