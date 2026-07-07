@@ -209,7 +209,7 @@ PAGE_TEMPLATES.reviewmgmt = `
 <div id="rev-quick-labels" style="display:flex;flex-wrap:wrap;gap:6px;">
 <button class="rev-quick-label" onclick="insertQuickLabel('검토하였으나 별도 특이사항 없습니다.')">✅ 특이사항 없음</button>
 <button class="rev-quick-label" onclick="insertQuickLabel('품의 상신하시어 날인 진행하시기 바랍니다.')">📝 품의 진행 요청</button>
-<button class="rev-quick-label" onclick="insertQuickLabel('검토하였으나 일부 수정 사항이 있습니다.<br> 상세 수정 내용은 수정본을 통해 확인 부탁드립니다.')">🔄 수정 사항</button>
+<button class="rev-quick-label" onclick="insertQuickLabel('검토하였으나 일부 수정 사항이 있습니다.\n상세 수정 내용은 수정본을 통해 확인 부탁드립니다.')">🔄 수정 사항</button>
 </div>
 </div>
 
