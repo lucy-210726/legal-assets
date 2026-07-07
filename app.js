@@ -50,8 +50,13 @@ if (pageId !== 'home') goBack(pageId);
 function formatNumberInput(el) {
   var pos = el.selectionStart;
   var oldLen = el.value.length;
-  var raw = el.value.replace(/[^0-9]/g, '');
-  el.value = raw.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  var raw = el.value.replace(/[^0-9.]/g, '');
+  // 소수점이 2개 이상이면 첫 번째만 유지
+  var parts = raw.split('.');
+  if (parts.length > 2) raw = parts[0] + '.' + parts.slice(1).join('');
+  // 정수부에만 3자리 쉼표 적용
+  var intPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  el.value = parts.length > 1 ? intPart + '.' + parts[1] : intPart;
   var newLen = el.value.length;
   el.setSelectionRange(pos + (newLen - oldLen), pos + (newLen - oldLen));
 }
