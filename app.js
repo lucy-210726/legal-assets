@@ -1576,6 +1576,13 @@ c.fields.forEach(function(f){ if(f.section){flush();html+='<div class="field-sec
 document.getElementById('contract-form-container').innerHTML='<div class="form-container"><div class="form-header"><div class="form-header-left"><div class="form-tag">'+c.company+' \u00b7 Standard Contract</div><h3>'+c.name+'</h3></div><div class="form-header-right">필수 항목<br><strong>'+c.fields.filter(function(f){return f.required;}).length+'개</strong></div></div><div class="form-body">'+html+'</div><div class="review-section"><label class="review-toggle"><input type="checkbox" id="review-check" onchange="toggleReviewFields()"><div><div class="review-toggle-label">\u2696\ufe0f 법무실 검토 요청</div><div class="review-toggle-sub">체크 시 생성된 계약서와 검토 의견이 법무실 이메일로 전송되며, 법무실은 하단 수신자 또는 참조자로 지정하지 않아도 됩니다.</div></div></label><div class="review-fields" id="review-fields" style="display:flex;"><div class="form-group"><label>검토 요청 의견</label><textarea id="review-opinion" placeholder="검토가 필요한 부분이나 특이사항을 작성해 주세요." oninput="onFieldChange()"></textarea></div><div class="form-group"><label>추가 수신자 이메일 <span style="font-weight:400;color:var(--text-muted);">(선택)</span></label><div class="review-recipients"><div class="autocomplete-wrap"><input type="text" id="recipient-input" placeholder="이름 또는 이메일 입력..." autocomplete="new-password" oninput="showAutocomplete(\'recipient-input\',\'to-ac\')" onkeydown="handleAcKeydown(event,\'recipient-input\',\'to-ac\',\'to\')"><div class="autocomplete-list" id="to-ac" style="display:none;"></div></div><button class="btn-add-recipient" onclick="addRecipient(\'to\')">+ 수신</button></div><div class="recipient-tags" id="to-tags"></div></div><div class="form-group"><label>참조(CC) 이메일 <span style="font-weight:400;color:var(--text-muted);">(선택)</span></label><div class="review-recipients"><div class="autocomplete-wrap"><input type="text" id="cc-input" placeholder="이름 또는 이메일 입력..." autocomplete="new-password" oninput="showAutocomplete(\'cc-input\',\'cc-ac\')" onkeydown="handleAcKeydown(event,\'cc-input\',\'cc-ac\',\'cc\')"><div class="autocomplete-list" id="cc-ac" style="display:none;"></div></div><button class="btn-add-recipient" onclick="addRecipient(\'cc\')">+ 참조</button></div><div class="recipient-tags" id="cc-tags"></div></div></div></div><div class="form-footer"><div class="form-footer-note"><strong>*</strong> 필수 항목</div><div class="btn-row"><button class="btn btn-ghost" onclick="showContractList()">취소</button><button class="btn btn-ghost" id="preview-btn" onclick="previewCurrentContract()" disabled>미리보기</button><button class="btn btn-gold" id="gen-btn" onclick="generateContract()" disabled>작성 완료</button></div></div></div>';
 window._reviewToList=[]; window._reviewCcList=[];
 // ── 기본값 세팅 (innerHTML 이후) ──
+  // textarea 기본값 높이 자동 조절
+document.querySelectorAll('#contract-form-container textarea').forEach(function(ta) {
+  if (ta.value) {
+    ta.style.height = 'auto';
+    ta.style.height = Math.max(96, ta.scrollHeight) + 'px';
+  }
+});
   if (c.id === 'adp_reward_media_partnership') {
     var defaults = {
       'renewal_terms':      '계약 만료 전 30일 이내에 서면으로 계약갱신 거절의 의사표시 또는 계약 내용의 변경 요구를 하지 아니하면 계약기간 만료일 익일부터 동일한 조건으로 자동적으로 1년씩 갱신된다.',
@@ -1649,7 +1656,7 @@ function updatePaymentDetail() {
   textarea.value = templates[method.value] || '';
 }
 function toggleLinkedFields() {
-  // 체크박스 연동 (모바일인덱스 서비스 등)
+  // 1. 체크박스 연동 — 멀티 체크박스 (모바일인덱스 서비스 등)
   var checkedValues = Array.from(document.querySelectorAll('input[data-field="services"]:checked')).map(function(el){ return el.value; });
   var linkedInline = document.querySelectorAll('.linked-fields-inline');
   linkedInline.forEach(function(el) {
@@ -1657,9 +1664,32 @@ function toggleLinkedFields() {
     el.style.display = checkedValues.indexOf(linkedTo) >= 0 ? 'block' : 'none';
   });
 
-  // 라디오 연동 (선불/후불, 보증보험 제출/미제출 등)
+  // 2. 단독 체크박스 연동 (use_lite, use_standard, use_pro, use_mau, use_support, use_discount 등)
+  var soloCheckboxes = document.querySelectorAll('input[type="checkbox"][data-field][value="true"]');
+  soloCheckboxes.forEach(function(cb) {
+    var fieldName = cb.getAttribute('data-field');
+    var isChecked = cb.checked;
+    // 해당 체크박스의 label 텍스트를 linkedTo 값으로 사용
+    var label = cb.closest('.checkbox-item') ? cb.closest('.checkbox-item').querySelector('span').textContent : '';
+    if (label) {
+      document.querySelectorAll('.form-group[data-linked-to="' + label + '"]').forEach(function(el) {
+        el.style.display = isChecked ? '' : 'none';
+      });
+    }
+  });
+
+  // 3. 라디오 연동 (선불/후불, 보증보험 제출/미제출 등)
   var allLinkedGroups = document.querySelectorAll('.form-group[data-linked-to]');
-  allLinkedGroups.forEach(function(el) { el.style.display = 'none'; });
+  allLinkedGroups.forEach(function(el) {
+    var linkedTo = el.getAttribute('data-linked-to');
+    // 단독 체크박스에서 이미 처리된 것은 건너뛰기
+    var handledBySolo = false;
+    soloCheckboxes.forEach(function(cb) {
+      var lbl = cb.closest('.checkbox-item') ? cb.closest('.checkbox-item').querySelector('span').textContent : '';
+      if (lbl === linkedTo) handledBySolo = true;
+    });
+    if (!handledBySolo) el.style.display = 'none';
+  });
   var radios = document.querySelectorAll('input[type="radio"]:checked');
   radios.forEach(function(r) {
     var val = r.value;
@@ -1667,6 +1697,13 @@ function toggleLinkedFields() {
       el.style.display = '';
     });
   });
+// toggleLinkedFields 함수 맨 끝에 추가
+document.querySelectorAll('#contract-form-container textarea').forEach(function(ta) {
+  if (ta.value && ta.offsetParent !== null) {
+    ta.style.height = 'auto';
+    ta.style.height = Math.max(96, ta.scrollHeight) + 'px';
+  }
+});
 }
 function validateCurrentForm(){if(!currentContract) return false;for(var i=0;i<currentContract.fields.length;i++){var f=currentContract.fields[i];if(!f.required||f.section) continue;if(f.type==='checkbox'){if(!document.querySelectorAll('input[data-field="'+f.name+'"]:checked').length) return false;}else if(f.type==='radio'){if(!document.querySelector('input[name="f_'+f.name+'"]:checked')) return false;}else{var el=document.getElementById('f_'+f.name);if(!el||!el.value.trim()) return false;}}return true;}
 function collectFormData(){var d={};currentContract.fields.forEach(function(f){if(f.section) return;if(f.type==='checkbox') d[f.name]=Array.from(document.querySelectorAll('input[data-field="'+f.name+'"]:checked')).map(function(c){return c.value;});else if(f.type==='radio'){var el=document.querySelector('input[name="f_'+f.name+'"]:checked');d[f.name]=el?el.value:'';}else{var el=document.getElementById('f_'+f.name);d[f.name]=el?el.value:'';}});return d;}
