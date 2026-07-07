@@ -136,6 +136,7 @@ var CONTRACTS_DATA = [
     { name: 'total_month_fee', label: '월 기본 이용료 (원)',  type: 'number', required: true, format: 'currency', hint: '숫자만 기재하세요'  },
     { name: 'payment_method',  label: '지급조건', type: 'radio', required: true, span: 2,
       options: ['일시납', '월분납', '기타'] },
+    { name: 'payment_detail', label: '지급조건 상세', type: 'textarea', required: false, span: 2, hint: '지급방식 선택 시 기본 내용이 채워지며 수정 가능합니다.'},
     { name: 'payer',           label: '결제 주체', type: 'radio', required: true,
       options: ['회원사', '대행사'] },
     { name: 'invoice_email',   label: '세금계산서 이메일', type: 'text', required: true },
@@ -281,6 +282,7 @@ var CONTRACTS_DATA = [
     { name: 'total_month_fee', label: '월 기본 이용료 (원)',  type: 'number', required: true, format: 'currency', hint: '숫자만 기재하세요' },
     { name: 'payment_method',  label: '지급조건', type: 'radio', required: true, span: 2,
       options: ['일시납', '월분납', '기타'] },
+    { name: 'payment_detail', label: '지급조건 상세', type: 'textarea', required: false, span: 2, hint: '지급방식 선택 시 기본 내용이 채워지며 수정 가능합니다.' },
     { name: 'payer',           label: '결제 주체', type: 'radio', required: true,
       options: ['회원사', '대행사'] },
     { name: 'invoice_email',   label: '세금계산서 이메일', type: 'text', required: true },
@@ -297,6 +299,7 @@ var CONTRACTS_DATA = [
     { section: '서비스 신청내역 — 부가서비스' },
     { name: 'use_support',  label: 'Support 선택',   type: 'checkbox' },
     { name: 'support_fee',  label: 'Support 금액 (원)', type: 'number', format: 'currency', hint: '숫자만 기재하세요' },
+    { name: 'use_discount', label: '할인적용', type: 'checkbox' },  
     { name: 'discount_per', label: '할인율 (%)',     type: 'text', hint: '숫자만 기재하세요.' },
     { name: 'discount_fee', label: '할인 금액 (원)', type: 'number', format: 'currency', hint: '숫자만 기재하세요' },
 
