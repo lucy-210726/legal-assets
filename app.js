@@ -1601,13 +1601,13 @@ function renderField(f){
     inp='<textarea id="f_'+f.name+'" placeholder="'+(f.placeholder||f.label)+'" oninput="onFieldChange()">'+(f.defaultValue||'')+'</textarea>'
       +'<div class="ai-btn-row"><button type="button" class="btn-ai" onclick="aiAssist(\''+f.name+'\')">✨ AI 추천</button></div>';
 
-  else if(f.type==='checkbox') {
-    inp='<div class="checkbox-list">'+f.options.map(function(o,idx){
-      var num=idx+1;
-      return '<label class="checkbox-item"><input type="checkbox" value="'+o+'" data-field="'+f.name+'" onchange="this.closest(\'.checkbox-item\').classList.toggle(\'checked\',this.checked);onFieldChange();toggleLinkedFields()"><span>'+o+'</span></label>'
-        +'<div class="linked-fields-inline" data-linked-to="'+o+'" style="display:none;padding:8px 0 12px 28px;"><div class="form-grid" style="gap:12px;"><div class="form-group"><label>금액 (KRW)</label><input type="text" id="f_fee_'+num+'" placeholder="금액" oninput="formatNumberInput(this);onFieldChange()"></div><div class="form-group"><label>비고</label><input type="text" id="f_etc_'+num+'" placeholder="비고" oninput="onFieldChange()"></div></div></div>';
-    }).join('')+'</div>';
+    else if(f.type==='checkbox') {
+  if (f.options) {
+    inp='<div class="checkbox-list">'+f.options.map(function(o,idx){var num=idx+1;return '<label class="checkbox-item"><input type="checkbox" value="'+o+'" data-field="'+f.name+'" onchange="this.closest(\'.checkbox-item\').classList.toggle(\'checked\',this.checked);onFieldChange();toggleLinkedFields()"><span>'+o+'</span></label>'+'<div class="linked-fields-inline" data-linked-to="'+o+'" style="display:none;padding:8px 0 12px 28px;"><div class="form-grid" style="gap:12px;"><div class="form-group"><label>금액 (KRW)</label><input type="text" id="f_fee_'+num+'" placeholder="금액" oninput="formatNumberInput(this);onFieldChange()"></div><div class="form-group"><label>비고</label><input type="text" id="f_etc_'+num+'" placeholder="비고" oninput="onFieldChange()"></div></div></div>';}).join('')+'</div>';
+  } else {
+    inp='<label class="checkbox-item"><input type="checkbox" data-field="'+f.name+'" value="true" onchange="this.closest(\'.checkbox-item\').classList.toggle(\'checked\',this.checked);onFieldChange()"><span>'+f.label+'</span></label>';
   }
+}
 
   else if(f.type==='radio')
     inp='<div class="radio-row">'+f.options.map(function(o){
