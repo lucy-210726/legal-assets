@@ -25,8 +25,8 @@ var CONTRACTS_DATA = [
     fields: [
     { section: '고객사 정보' },
     { name: 'client_name',    label: '고객사명',       type: 'text', required: true },
+    { name: 'client_ceo',     label: '고객사 대표이사', type: 'text', required: true },  
     { name: 'client_address', label: '고객사 주소',    type: 'text', required: true, span: 2 },
-    { name: 'client_ceo',     label: '고객사 대표이사', type: 'text', required: true },
     { section: '원계약 정보' },
     { name: 'original_contract_name', label: '원계약 계약명', type: 'text', required: true, span: 2, hint: '실제 체결된 계약명과 동일하게 기재하세요.' },
     { name: 'original_contract_date', label: '원계약 체결일', type: 'date', required: true },
@@ -245,9 +245,9 @@ var CONTRACTS_DATA = [
     fields: [  
       { section: '고객사 정보' },
       { name: 'client_name',      label: '고객사 법인명',     type: 'text', required: true },
-      { name: 'client_address',   label: '고객사 주소',       type: 'text', required: true, span: 2 },
       { name: 'client_ceo',       label: '고객사 대표이사',   type: 'text', required: true },
-  
+      { name: 'client_address',   label: '고객사 주소',       type: 'text', required: true, span: 2 },
+      
       { section: '원계약 정보' },
       { name: 'original_contract_name', label: '원계약 계약명', type: 'text', required: true, span: 2, hint: '실제 체결된 계약명과 동일하게 기재하세요.' },
       { name: 'original_contract_date', label: '원계약 체결일', type: 'date', required: true },
@@ -283,29 +283,30 @@ var CONTRACTS_DATA = [
     { name: 'agreement_end',   label: '이용기간 종료일', type: 'date', required: true },
     { name: 'renewal_agree',   label: '이용기간 자동연장', type: 'radio', required: true, span: 2,
       options: ['자동연장에 동의함', '자동연장에 동의하지 않음'] },
-    { name: 'total_fee',       label: '총 이용료 (원)',       type: 'number', required: true, format: 'currency', hint: '숫자만 기재하세요' },
-    { name: 'total_month_fee', label: '월 기본 이용료 (원)',  type: 'number', required: true, format: 'currency', hint: '숫자만 기재하세요' },
-    { name: 'payment_method',  label: '지급조건', type: 'radio', required: true, span: 2,
-      options: ['일시납', '월분납', '기타'] },
-    { name: 'payment_detail', label: '지급조건 상세', type: 'textarea', required: false, span: 2, hint: '지급방식 선택 시 기본 내용이 채워지며 수정 가능합니다.' },
-    { name: 'payer',           label: '결제 주체', type: 'radio', required: true,
-      options: ['회원사', '대행사'] },
-
 
     { section: '서비스 신청내역 — Adbrix MAU' },
     { name: 'use_mau', label: 'Adbrix MAU 선택', type: 'checkbox', span: 2 },
     { name: 'mau_text', label: '제공 기능', type: 'textarea', span: 2, linkedTo: 'Adbrix MAU 선택',
       hint: '필요시 수정하여 사용하세요.',
       defaultValue: '- 웹/앱 플랫폼 광고성과 측정 및 기본 행동 분석\n- 트래킹 링크로 웹/앱 플랫폼 분기 및 랜딩 (ALL Link)\n- 딥링크 및 디퍼드 딥링크\n- 광고 미디어 포스트백 실시간 전송\n- 코호트 분석\n- 유저 행동기반 오디언스\n- 로우 데이터 직접 추출 (*CSV)\n- 기본 보안 기능 (2FA)' },
-    { name: 'mau_quarter',     label: 'MAU 제공량',      type: 'text', required: true },
-    { name: 'traffic_quarter', label: 'Traffic 제공량',  type: 'text', required: true },
-    { name: 'mau_fee',         label: 'MAU 금액 (원)',   type: 'number', required: true, format: 'currency', hint: '숫자만 기재하세요' },
+    { name: 'mau_quarter',     label: 'MAU 제공량',      type: 'text', required: true, linkedTo: 'Adbrix MAU 선택' },
+    { name: 'traffic_quarter', label: 'Traffic 제공량',  type: 'text', required: true, linkedTo: 'Adbrix MAU 선택' },
+    { name: 'mau_fee',         label: 'MAU 금액 (원)',   type: 'number', required: true, format: 'currency', hint: '숫자만 기재하세요', linkedTo: 'Adbrix MAU 선택' },
 
-    { name: 'use_support',  label: 'Support 선택',   type: 'checkbox', span: 2 },
-    { name: 'support_fee',  label: 'Support 금액 (원)', type: 'number', format: 'currency', hint: '숫자만 기재하세요' },
-    { name: 'use_discount', label: '할인적용', type: 'checkbox', span: 2 },  
-    { name: 'discount_per', label: '할인율 (%)',     type: 'text', hint: '숫자만 기재하세요.' },
-    { name: 'discount_fee', label: '할인 금액 (원)', type: 'number', format: 'currency', hint: '숫자만 기재하세요' },
+    { name: 'use_support',  label: 'Support 선택',      type: 'checkbox', span: 2 },
+    { name: 'support_fee',  label: 'Support 금액 (원)', type: 'number', format: 'currency', hint: '숫자만 기재하세요', linkedTo: 'Support 선택' },
+    { name: 'use_discount', label: '할인적용', type: 'checkbox', span: 2 },
+    { name: 'discount_per', label: '할인율 (%)',     type: 'text', hint: '숫자만 기재하세요.', linkedTo: '할인적용' },
+    { name: 'discount_fee', label: '할인 금액 (원)', type: 'number', format: 'currency', hint: '숫자만 기재하세요', linkedTo: '할인적용' },
+
+    { section: '서비스 신청금액' },
+    { name: 'total_fee',       label: '총 이용료 (원)',       type: 'number', required: true, format: 'currency', hint: '숫자만 기재하세요' },
+    { name: 'total_month_fee', label: '월 기본 이용료 (원)',  type: 'number', required: true, format: 'currency', hint: '숫자만 기재하세요' },
+    { name: 'payer',           label: '결제 주체', type: 'radio', required: true,
+      options: ['회원사', '대행사'] },
+    { name: 'payment_method',  label: '지급조건', type: 'radio', required: true, span: 2,
+      options: ['일시납', '월분납', '기타'] },
+    { name: 'payment_detail', label: '지급조건 상세', type: 'textarea', required: false, span: 2, hint: '지급방식 선택 시 기본 내용이 채워지며 수정 가능합니다.' },
 
     { section: '추가요금 단가' },
     { name: 'traffic_ad_fee', label: 'Traffic 추가 단가 (원)', type: 'number', required: true, format: 'currency', hint: '숫자만 기재하세요' },
@@ -561,8 +562,8 @@ var CONTRACTS_DATA = [
     fields: [
     { section: '고객사 정보' },
     { name: 'client_name',    label: '고객사명',       type: 'text', required: true },
+    { name: 'client_ceo',     label: '고객사 대표이사', type: 'text', required: true },  
     { name: 'client_address', label: '고객사 주소',    type: 'text', required: true, span: 2 },
-    { name: 'client_ceo',     label: '고객사 대표이사', type: 'text', required: true },
     { section: '원계약 정보' },
     { name: 'original_contract_name', label: '원계약 계약명', type: 'text', required: true, span: 2, hint: '실제 체결된 계약명과 동일하게 기재하세요.' },
     { name: 'original_contract_date', label: '원계약 체결일', type: 'date', required: true },
@@ -585,8 +586,8 @@ var CONTRACTS_DATA = [
     fields: [
     { section: '고객사 정보' },
     { name: 'client_name',       label: '고객사 법인명',   type: 'text', required: true },
+    { name: 'client_ceo',        label: '고객사 대표이사', type: 'text', required: true },  
     { name: 'client_address',    label: '고객사 주소',     type: 'text', required: true, span: 2 },
-    { name: 'client_ceo',        label: '고객사 대표이사', type: 'text', required: true },
     { name: 'client_BIZ_NUMBER', label: '사업자등록번호',  type: 'text', required: true },
     { name: 'client_contact',    label: '고객사 담당자',   type: 'text', required: true },
     { name: 'client_mail',       label: '고객사 이메일',   type: 'text', required: true },
@@ -625,8 +626,8 @@ var CONTRACTS_DATA = [
     fields: [
     { section: '제휴사 정보' },
     { name: 'client_name',    label: '제휴사 법인명',   type: 'text', required: true },
-    { name: 'client_address', label: '제휴사 주소',     type: 'text', required: true, span: 2 },
     { name: 'client_ceo',     label: '제휴사 대표이사', type: 'text', required: true },
+    { name: 'client_address', label: '제휴사 주소',     type: 'text', required: true, span: 2 },
     { section: '합의서 정보' },
     { name: 'sign_date', label: '체결일', type: 'date', required: true }
   ]
@@ -642,8 +643,8 @@ var CONTRACTS_DATA = [
   fields: [
     { section: '고객사 정보' },
     { name: 'client_name',       label: '고객사 법인명',      type: 'text',  required: true },
-    { name: 'client_address',    label: '고객사 주소',        type: 'text',  required: true, span: 2 },
     { name: 'client_ceo',        label: '고객사 대표이사',    type: 'text',  required: true },
+    { name: 'client_address',    label: '고객사 주소',        type: 'text',  required: true, span: 2 },
     { name: 'client_BIZ_NUMBER', label: '사업자등록번호',     type: 'text',  required: true },
     { name: 'client_contact',    label: '고객사 담당자',      type: 'text',  required: true },
     { name: 'client_email',      label: '고객사 이메일',      type: 'text',  required: true },
@@ -686,8 +687,8 @@ var CONTRACTS_DATA = [
     fields: [
     { section: '제휴사 정보' },
     { name: 'client_name',    label: '제휴사 법인명',   type: 'text', required: true },
-    { name: 'client_address', label: '제휴사 주소',     type: 'text', required: true, span: 2 },
     { name: 'client_ceo',     label: '제휴사 대표이사', type: 'text', required: true },
+    { name: 'client_address', label: '제휴사 주소',     type: 'text', required: true, span: 2 },
     { section: '합의서 정보' },
     { name: 'sign_date', label: '체결일', type: 'date', required: true }
   ]
@@ -703,8 +704,8 @@ var CONTRACTS_DATA = [
     fields: [
     { section: '고객사 정보' },
     { name: 'client_name',    label: '고객사 법인명',   type: 'text', required: true },
-    { name: 'client_address', label: '고객사 주소',     type: 'text', required: true, span: 2 },
     { name: 'client_ceo',     label: '고객사 대표이사', type: 'text', required: true },
+    { name: 'client_address', label: '고객사 주소',     type: 'text', required: true, span: 2 },
     { section: '원계약 정보' },
     { name: 'original_contract_name', label: '원계약 계약명', type: 'text', required: true, span: 2, hint: '실제 체결된 계약명과 동일하게 기재하세요.' },
     { name: 'original_contract_date', label: '원계약 체결일', type: 'date', required: true },
@@ -724,8 +725,8 @@ var CONTRACTS_DATA = [
     fields: [
     { section: '제휴사 정보' },
     { name: 'client_name',    label: '제휴사 법인명',   type: 'text', required: true },
+    { name: 'client_ceo',     label: '제휴사 대표이사', type: 'text', required: true },  
     { name: 'client_address', label: '제휴사 주소',     type: 'text', required: true, span: 2 },
-    { name: 'client_ceo',     label: '제휴사 대표이사', type: 'text', required: true },
     { section: '합의서 정보' },
     { name: 'sign_date', label: '체결일', type: 'date', required: true }
   ]
@@ -741,12 +742,12 @@ var CONTRACTS_DATA = [
     fields: [
     { section: '수탁자 정보' },
     { name: 'trustee_name',    label: '수탁자 법인명',   type: 'text', required: true },
+    { name: 'trustee_ceo',     label: '수탁자 대표이사', type: 'text', required: true },  
     { name: 'trustee_address', label: '수탁자 주소',     type: 'text', required: true, span: 2 },
-    { name: 'trustee_ceo',     label: '수탁자 대표이사', type: 'text', required: true },
     { section: '계약 조건' },
     { name: 'contract_date', label: '계약 체결일',            type: 'date', required: true },
     { name: 'contractName',  label: '계약명',                 type: 'text', required: true, span: 2 },
-    { name: 'service_cost',  label: '용역대금 (부가세 별도)', type: 'text', required: true, format: 'currency', hint: '숫자만 기재하세요.' },
+    { name: 'service_cost',  label: '용역대금 (부가세 별도)', type: 'text', required: true, span: 2 , format: 'currency', hint: '숫자만 기재하세요.' },
     { name: 'service_start', label: '용역 시작일',            type: 'date', required: true },
     { name: 'service_end',   label: '용역 종료일',            type: 'date', required: true },
     { section: '대금 지급' },
@@ -758,7 +759,7 @@ var CONTRACTS_DATA = [
     { section: '수행 업무' },
     { name: 'work_scope',      label: '수행 업무 범위', type: 'textarea', required: true, span: 2 },
     { name: 'deliverables',    label: '결과물',         type: 'textarea', required: true, span: 2 },
-    { name: 'submit_deadline', label: '제출 기한',      type: 'text',     required: false, hint: '예: 용역 종료일까지, 별도 협의한 기한 특정(20**. **. **)' },
+    { name: 'submit_deadline', label: '제출 기한',      type: 'text',     required: true, hint: '예: 용역 종료일까지, 별도 협의한 기한 특정(20**. **. **)' },
     { section: '기타' },
     { name: 'remarks', label: '기타사항', type: 'textarea', required: false, span: 2 }
   ]
