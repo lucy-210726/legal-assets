@@ -289,7 +289,7 @@ var CONTRACTS_DATA = [
     { name: 'mau_text', label: '제공 기능', type: 'textarea', span: 2, linkedTo: 'Adbrix MAU 선택',
       hint: '필요시 수정하여 사용하세요.',
       defaultValue: '- 웹/앱 플랫폼 광고성과 측정 및 기본 행동 분석\n- 트래킹 링크로 웹/앱 플랫폼 분기 및 랜딩 (ALL Link)\n- 딥링크 및 디퍼드 딥링크\n- 광고 미디어 포스트백 실시간 전송\n- 코호트 분석\n- 유저 행동기반 오디언스\n- 로우 데이터 직접 추출 (*CSV)\n- 기본 보안 기능 (2FA)' },
-    { name: 'mau_quarter',     label: 'MAU 제공량',      type: 'text', required: true, format: 'currency' linkedTo: 'Adbrix MAU 선택' },
+    { name: 'mau_quarter',     label: 'MAU 제공량',      type: 'text', required: true, format: 'currency', linkedTo: 'Adbrix MAU 선택' },
     { name: 'traffic_quarter', label: 'Traffic 제공량',  type: 'text', required: true, format: 'currency', linkedTo: 'Adbrix MAU 선택' },
     { name: 'mau_fee',         label: 'MAU 금액 (원)',   type: 'text', required: true, format: 'currency', hint: '숫자만 기재하세요', linkedTo: 'Adbrix MAU 선택' },
 
