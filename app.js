@@ -1415,6 +1415,14 @@ selectedInqCategory='';
 ['inq-name','inq-dept','inq-title','inq-content'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
 document.querySelectorAll('.category-card').forEach(function(c){c.classList.remove('selected');});
 var btn=document.getElementById('inquiry-btn'); if(btn) btn.disabled=true;
+// 로그인 사용자 정보 자동 채우기
+if (USER_NAME) { var nameEl = document.getElementById('inq-name'); if (nameEl) { nameEl.value = USER_NAME; nameEl.readOnly = true; nameEl.style.background = '#f5f5f5'; } }
+loadMemberList(function(members) {
+  if (!USER_NAME) return;
+  var me = members.find(function(m) { return m.name === USER_NAME || m.email === (USER_EMAIL||'').toLowerCase(); });
+  if (me && me.dept) { var deptEl = document.getElementById('inq-dept'); if (deptEl) { deptEl.value = me.dept; deptEl.readOnly = true; deptEl.style.background = '#f5f5f5'; } }
+  checkInquiryReady();
+});
 }
 if(p==='home'){
 var homeEl = document.getElementById('page-home');
