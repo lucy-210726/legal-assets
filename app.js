@@ -1558,7 +1558,24 @@ a.download = name + '.docx';
 a.target = '_blank';
 a.click();
 }
-function showContractList(){document.getElementById('contract-type-select-view').style.display='none';document.getElementById('contract-list-view').style.display='block';document.getElementById('contract-form-view').style.display='none';document.getElementById('contract-nonstandard-view').style.display='none';document.getElementById('contract-modified-review-view').style.display='none';currentContract=null;renderContractGrid();}
+function showContractList() {
+  var formView = document.getElementById('contract-form-view');
+  if (formView && formView.style.display !== 'none' && currentContract && hasFormInput_()) {
+    showConfirm(
+      '작성 중인 내용이 저장되지 않고 삭제됩니다.\n정말 나가시겠습니까?',
+      {
+        title: '작성 중단',
+        icon: '⚠️',
+        type: 'danger',
+        okLabel: '나가기',
+        cancelLabel: '계속 작성',
+        onOk: function() { doShowContractList_(); }
+      }
+    );
+    return;
+  }
+  doShowContractList_();
+}
 function selectContractMode(mode){if(mode==='standard'){showContractList();} else {document.getElementById('contract-type-select-view').style.display='none';document.getElementById('contract-nonstandard-view').style.display='block';document.getElementById('nonstandard-form-wrap').style.display='block';resetNsForm();}}
 var _nsAttachFiles=[];
 window._nsToList=[]; window._nsCcList=[];
@@ -1573,7 +1590,33 @@ function selectNsParty(value, btn) {document.getElementById('ns-contract-party')
 function resetNsForm(){_nsAttachFiles.length=0; renderNsAttachList();window._nsToList=[]; window._nsCcList=[];['ns-contract-name','ns-counter-party','ns-opinion','ns-to-input','ns-cc-input'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });var party=document.getElementById('ns-contract-party'); document.querySelectorAll('.form-body .company-tabs .company-tab').forEach(function(t){ t.classList.remove('active'); }); if(party) party.value='';['ns-to-tags','ns-cc-tags'].forEach(function(id){ var el=document.getElementById(id); if(el) el.innerHTML=''; });['ns-to-ac','ns-cc-ac'].forEach(function(id){ var el=document.getElementById(id); if(el) el.style.display='none'; });var btn=document.getElementById('ns-submit-btn'); if(btn) btn.disabled=true;}
 function resetNonStandard(){document.getElementById('nonstandard-form-wrap').style.display='block';resetNsForm();}
 async function submitNonStandard(){var contractName=document.getElementById('ns-contract-name')?document.getElementById('ns-contract-name').value.trim():'';var counterParty=document.getElementById('ns-counter-party')?document.getElementById('ns-counter-party').value.trim():'';var contractParty=document.getElementById('ns-contract-party')?document.getElementById('ns-contract-party').value:'';var opinion=document.getElementById('ns-opinion')?document.getElementById('ns-opinion').value.trim():'';if(!contractName||!counterParty||!contractParty||!_nsAttachFiles.length){showAlert('필수 항목을 모두 입력하고 파일을 첨부해주세요.',{title:'입력 필요',icon:'⚠️'}); return;}var btn=document.getElementById('ns-submit-btn');btn.disabled=true; btn.textContent='파일 업로드 중...';try{var freshToken=await new Promise(function(resolve){ google.script.run.withSuccessHandler(resolve).withFailureHandler(function(){resolve(OAUTH_TOKEN);}).getFreshToken(); });var activeToken=freshToken||OAUTH_TOKEN;var uploadedFiles=[];for(var i=0;i<_nsAttachFiles.length;i++){var a=_nsAttachFiles[i];btn.textContent='파일 업로드 중... ('+(i+1)+'/'+_nsAttachFiles.length+')';var initRes=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable',{method:'POST',headers:{'Authorization':'Bearer '+activeToken,'Content-Type':'application/json','X-Upload-Content-Type':a.mimeType,'X-Upload-Content-Length':a.file.size},body:JSON.stringify({name:a.name})});if(!initRes.ok) throw new Error('Drive 세션 시작 실패: '+initRes.status);var uploadUrl=initRes.headers.get('Location');var uploadRes=await fetch(uploadUrl,{method:'PUT',body:a.file});if(!uploadRes.ok&&uploadRes.status!==200) throw new Error('업로드 실패: '+uploadRes.status);var fileId=(await uploadRes.json()).id;uploadedFiles.push({name:a.name,fileId:fileId,url:'https://drive.google.com/file/d/'+fileId+'/view'});}btn.textContent='검토 요청 중...';await new Promise(function(resolve,reject){google.script.run.withSuccessHandler(function(result){ if(result&&result.ok) resolve(result); else reject(new Error((result&&result.error)||'검토 요청 실패')); }).withFailureHandler(function(err){reject(new Error(err.message||'검토 요청 실패'));}).submitNonStandardReview({contractName:contractName, counterParty:counterParty, contractParty:contractParty, opinion:opinion,files:JSON.stringify(uploadedFiles),toList:JSON.stringify(window._nsToList||[]),ccList:JSON.stringify(window._nsCcList||[]),userEmail:USER_EMAIL||'',userName:USER_NAME||''});});showAlert('법무실에 검토 요청이 전달되었습니다.', {title: '검토 요청이 완료되었습니다!',icon: '\u2705',onClose: function() { resetNonStandard(); }});btn.disabled=false; btn.textContent='검토 요청 →';}catch(e){showAlert(e.message,{title:'오류가 발생했습니다',icon:'❌'});btn.disabled=false; btn.textContent='검토 요청 →';}}
-function selectContractType(id){ currentContract=CONTRACTS.find(function(c){return c.id===id;}); if(!currentContract) return; if(!currentContract.autoWrite){ showNoAutoWriteAlert(); return; } renderForm(); document.getElementById('contract-list-view').style.display='none'; document.getElementById('contract-form-view').style.display='block'; document.getElementById('contract-modified-review-view').style.display='none'; window.scrollTo({top:0,behavior:'smooth'}); }
+var _autoWriteNoticeShown = false;
+function selectContractType(id) {
+  currentContract = CONTRACTS.find(function(c) { return c.id === id; });
+  if (!currentContract) return;
+  if (!currentContract.autoWrite) { showNoAutoWriteAlert(); return; }
+
+  if (!_autoWriteNoticeShown) {
+    _autoWriteNoticeShown = true;
+    showAlert(
+      '자동작성 중 뒤로가기·취소·새로고침 시\n입력한 내용이 저장되지 않고 삭제됩니다.\n\n작성 전 필요한 정보를 미리 준비해 주세요.',
+      { title: '📝 자동작성 안내', icon: '📝', onClose: function() {
+        renderForm();
+        document.getElementById('contract-list-view').style.display = 'none';
+        document.getElementById('contract-form-view').style.display = 'block';
+        document.getElementById('contract-modified-review-view').style.display = 'none';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }}
+    );
+    return;
+  }
+
+  renderForm();
+  document.getElementById('contract-list-view').style.display = 'none';
+  document.getElementById('contract-form-view').style.display = 'block';
+  document.getElementById('contract-modified-review-view').style.display = 'none';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 function renderForm(){
 var c=currentContract; var html='', grid=[];
 var flush=function(){ if(grid.length){html+='<div class="form-grid">'+grid.join('')+'</div>';grid=[];} };
@@ -1714,7 +1757,7 @@ document.querySelectorAll('#contract-form-container textarea').forEach(function(
 function validateCurrentForm(){if(!currentContract) return false;for(var i=0;i<currentContract.fields.length;i++){var f=currentContract.fields[i];if(!f.required||f.section) continue;if(f.type==='checkbox'){if(!document.querySelectorAll('input[data-field="'+f.name+'"]:checked').length) return false;}else if(f.type==='radio'){if(!document.querySelector('input[name="f_'+f.name+'"]:checked')) return false;}else{var el=document.getElementById('f_'+f.name);if(!el||!el.value.trim()) return false;}}return true;}
 function collectFormData(){var d={};currentContract.fields.forEach(function(f){if(f.section) return;if(f.type==='checkbox') d[f.name]=Array.from(document.querySelectorAll('input[data-field="'+f.name+'"]:checked')).map(function(c){return c.value;});else if(f.type==='radio'){var el=document.querySelector('input[name="f_'+f.name+'"]:checked');d[f.name]=el?el.value:'';}else{var el=document.getElementById('f_'+f.name);d[f.name]=el?el.value:'';}});return d;}
 async function generateContract(){if(!validateCurrentForm()) return;var container=document.getElementById('contract-form-container');var raw=collectFormData();var toKo=function(d){if(!d) return '';var p=d.split('-');return p.length===3?p[0]+'\ub144 '+p[1]+'\uc6d4 '+p[2]+'\uc77c':d;};var fmtN=function(n){var s=String(n).replace(/[^0-9]/g,'');return s?Number(s).toLocaleString('ko-KR'):'';};var dateF=['contract_date','service_start','service_end','ad_start','ad_end','media_start','media_end','reward_start','reward_end','original_contract_date','SIGN_DATE','sign_date','agreement_start','agreement_end','start_date','end_date'];
-var numF=['service_cost','total_amount','monthly_fee','contract_amount','ad_budget','cpa_rate'];var payload={contractType:currentContract.id,contractName:currentContract.name};Object.keys(raw).forEach(function(k){if(dateF.includes(k)) payload[k]=toKo(raw[k]);else if(numF.includes(k)) payload[k]=fmtN(raw[k]);else payload[k]=Array.isArray(raw[k])?raw[k].join(', '):raw[k];});payload.remarks=(payload.remarks&&payload.remarks.trim())||'\uc5c6\uc74c';payload.invoice_date=payload.invoice_date||'\uc6a9\uc5ed \uc644\ub8cc \uc6d4\uc758 \ub9d0\uc77c';payload.payment_date=payload.payment_date||'\uc138\uae08\uacc4\uc0b0\uc11c \ubc1c\ud589\uc77c \uae30\uc900 \uc775\uc6d4 \ub9d0\uc77c \uc774\ub0b4';payload.userId=SLACK_USER_ID; payload.userEmail=USER_EMAIL||'';var reviewCheck=document.getElementById('review-check');payload.isReviewRequested=reviewCheck?reviewCheck.checked===true:false;payload.reviewOpinion=(document.getElementById('review-opinion')?document.getElementById('review-opinion').value.trim():'')||'';payload.reviewToList=JSON.stringify(window._reviewToList||[]);payload.reviewCcList=JSON.stringify(window._reviewCcList||[]);container.innerHTML='<div class="state-panel"><div class="spinner"></div><h3>계약서를 생성하고 있습니다...</h3><p>잠시만 기다려주세요.</p></div>';try{var genResult=await new Promise(function(resolve,reject){google.script.run.withSuccessHandler(resolve).withFailureHandler(function(err){reject(new Error(err.message||'계약서 생성 실패'));}).handleGenerateContract(JSON.stringify(payload));});window._generatedFileId=genResult&&genResult.fileId?genResult.fileId:'';window._generatedFileName=genResult&&genResult.fileName?genResult.fileName:payload.contractName+'.docx';container.innerHTML='<div class="state-panel"><div class="success-panel"><div class="success-badge">\u2705</div><h3>계약서 생성 완료!</h3><p style="margin:12px 0 20px;">아래 버튼으로 파일을 다운로드하거나 Slack/이메일로 전송하세요.</p><div style="display:flex;flex-direction:column;gap:10px;align-items:center;max-width:360px;margin:0 auto 24px;"><button class="btn btn-gold" onclick="downloadGeneratedContract()" style="width:100%;">\u2b07 계약서 다운로드 (.docx)</button><button class="btn btn-ghost" onclick="sendGeneratedContract(\'slack\')" style="width:100%;">💬 Slack DM으로 전송</button><button class="btn btn-ghost" onclick="sendGeneratedContract(\'email\')" style="width:100%;">📧 이메일로 전송</button></div><div style="display:flex;gap:12px;justify-content:center;"><button class="btn btn-ghost" onclick="showPage(\'home\')">홈으로</button><button class="btn btn-dark" onclick="showContractList()">다른 계약서 작성</button></div></div></div>';}catch(e){ container.innerHTML='<div class="state-panel"><h3>\u26a0\ufe0f 오류</h3><p>'+e.message+'</p><button class="btn btn-ghost" onclick="showContractList()">돌아가기</button></div>'; }}
+var numF=['service_cost','total_amount','monthly_fee','contract_amount','ad_budget','cpa_rate'];var payload={contractType:currentContract.id,contractName:currentContract.name};Object.keys(raw).forEach(function(k){if(dateF.includes(k)) payload[k]=toKo(raw[k]);else if(numF.includes(k)) payload[k]=fmtN(raw[k]);else payload[k]=Array.isArray(raw[k])?raw[k].join(', '):raw[k];});payload.remarks=(payload.remarks&&payload.remarks.trim())||'\uc5c6\uc74c';payload.invoice_date=payload.invoice_date||'\uc6a9\uc5ed \uc644\ub8cc \uc6d4\uc758 \ub9d0\uc77c';payload.payment_date=payload.payment_date||'\uc138\uae08\uacc4\uc0b0\uc11c \ubc1c\ud589\uc77c \uae30\uc900 \uc775\uc6d4 \ub9d0\uc77c \uc774\ub0b4';payload.userId=SLACK_USER_ID; payload.userEmail=USER_EMAIL||'';var reviewCheck=document.getElementById('review-check');payload.isReviewRequested=reviewCheck?reviewCheck.checked===true:false;payload.reviewOpinion=(document.getElementById('review-opinion')?document.getElementById('review-opinion').value.trim():'')||'';payload.reviewToList=JSON.stringify(window._reviewToList||[]);payload.reviewCcList=JSON.stringify(window._reviewCcList||[]);saveFormToSession_();container.innerHTML='<div class="state-panel"><div class="spinner"></div><h3>계약서를 생성하고 있습니다...</h3><p>잠시만 기다려주세요.</p></div>';try{var genResult=await new Promise(function(resolve,reject){google.script.run.withSuccessHandler(resolve).withFailureHandler(function(err){reject(new Error(err.message||'계약서 생성 실패'));}).handleGenerateContract(JSON.stringify(payload));});window._generatedFileId=genResult&&genResult.fileId?genResult.fileId:'';window._generatedFileName=genResult&&genResult.fileName?genResult.fileName:payload.contractName+'.docx';container.innerHTML='<div class="state-panel"><div class="success-panel"><div class="success-badge">\u2705</div><h3>계약서 생성 완료!</h3><p style="margin:12px 0 20px;">아래 버튼으로 파일을 다운로드하거나 Slack/이메일로 전송하세요.</p><div style="display:flex;flex-direction:column;gap:10px;align-items:center;max-width:360px;margin:0 auto 24px;"><button class="btn btn-gold" onclick="downloadGeneratedContract()" style="width:100%;">\u2b07 계약서 다운로드 (.docx)</button><button class="btn btn-ghost" onclick="sendGeneratedContract(\'slack\')" style="width:100%;">💬 Slack DM으로 전송</button><button class="btn btn-ghost" onclick="sendGeneratedContract(\'email\')" style="width:100%;">📧 이메일로 전송</button></div><div style="display:flex;gap:12px;justify-content:center;"><button class="btn btn-ghost" onclick="showPage(\'home\')">홈으로</button>'<button class="btn btn-ghost" onclick="restoreLastForm()">✏️ 수정하기</button><button class="btn btn-dark" onclick="showContractList()">다른 계약서 작성</button></div></div></div>';}catch(e){ container.innerHTML='<div class="state-panel"><h3>\u26a0\ufe0f 오류</h3><p>'+e.message+'</p><button class="btn btn-ghost" onclick="showContractList()">돌아가기</button></div>'; }}
 function goToInquiryWithCategory(category) {
   showPage('inquiry');
   setTimeout(function() {
@@ -2864,5 +2907,85 @@ function closeAiModal(){
 document.addEventListener('keydown', function(e){
   if(e.key !== 'Escape') return;
   var ov = document.getElementById('ai-modal-overlay');
+
   if(ov && ov.style.display === 'flex'){ e.stopPropagation(); closeAiModal(); }
 }, true);
+
+// ════════════════════════════════════════════════════════════
+//  자동작성 폼 보호 (뒤로가기/새로고침 차단 + 복원)
+// ════════════════════════════════════════════════════════════
+function doShowContractList_() {
+  document.getElementById('contract-type-select-view').style.display = 'none';
+  document.getElementById('contract-list-view').style.display = 'block';
+  document.getElementById('contract-form-view').style.display = 'none';
+  document.getElementById('contract-nonstandard-view').style.display = 'none';
+  document.getElementById('contract-modified-review-view').style.display = 'none';
+  currentContract = null;
+  renderContractGrid();
+}
+
+function hasFormInput_() {
+  if (!currentContract || !currentContract.fields) return false;
+  for (var i = 0; i < currentContract.fields.length; i++) {
+    var f = currentContract.fields[i];
+    if (f.section) continue;
+    if (f.type === 'checkbox') {
+      if (document.querySelectorAll('input[data-field="' + f.name + '"]:checked').length) return true;
+    } else if (f.type === 'radio') {
+      if (document.querySelector('input[name="f_' + f.name + '"]:checked')) return true;
+    } else {
+      var el = document.getElementById('f_' + f.name);
+      if (el && el.value.trim() && el.value.trim() !== (f.defaultValue || '').trim()) return true;
+    }
+  }
+  return false;
+}
+
+function saveFormToSession_() {
+  if (!currentContract) return;
+  var data = collectFormData();
+  data.__contractId = currentContract.id;
+  sessionStorage.setItem('lastContractForm', JSON.stringify(data));
+}
+
+function restoreLastForm() {
+  var saved = sessionStorage.getItem('lastContractForm');
+  if (!saved) { showAlert('복원할 데이터가 없습니다.', { title: '복원 불가', icon: 'ℹ️' }); return; }
+  var data = JSON.parse(saved);
+  var contract = CONTRACTS.find(function(c) { return c.id === data.__contractId; });
+  if (!contract) { showAlert('계약서 유형을 찾을 수 없습니다.', { title: '복원 불가', icon: 'ℹ️' }); return; }
+
+  currentContract = contract;
+  renderForm();
+  document.getElementById('contract-list-view').style.display = 'none';
+  document.getElementById('contract-form-view').style.display = 'block';
+
+  contract.fields.forEach(function(f) {
+    if (f.section || !data[f.name]) return;
+    if (f.type === 'checkbox') {
+      var vals = Array.isArray(data[f.name]) ? data[f.name] : [data[f.name]];
+      vals.forEach(function(v) {
+        var cb = document.querySelector('input[data-field="' + f.name + '"][value="' + v + '"]');
+        if (cb) { cb.checked = true; var item = cb.closest('.checkbox-item'); if (item) item.classList.add('checked'); }
+      });
+    } else if (f.type === 'radio') {
+      var rb = document.querySelector('input[name="f_' + f.name + '"][value="' + data[f.name] + '"]');
+      if (rb) rb.checked = true;
+    } else {
+      var el = document.getElementById('f_' + f.name);
+      if (el) el.value = data[f.name];
+    }
+  });
+
+  toggleLinkedFields();
+  onFieldChange();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+window.addEventListener('beforeunload', function(e) {
+  var formView = document.getElementById('contract-form-view');
+  if (formView && formView.style.display !== 'none' && currentContract && hasFormInput_()) {
+    e.preventDefault();
+    e.returnValue = '';
+  }
+});
