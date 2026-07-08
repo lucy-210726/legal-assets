@@ -1989,6 +1989,8 @@ title.textContent = '계약서 작성 가이드';
 tabs.style.display = 'none';
 loadRefPdf('guide');
 }
+var notice = document.getElementById('preview-page-notice');
+if (notice) notice.style.display = 'none';
 document.getElementById('ref-modal-overlay').style.display = 'flex';
 }
 function downloadRef(key) {
@@ -2012,11 +2014,13 @@ function openRefSingle(key) {
   document.getElementById('ref-modal-title').textContent = titles[key] || '참고 자료';
   document.getElementById('ref-modal-tabs').style.display = 'none';
   document.getElementById('ref-modal-iframe').src = 'https://drive.google.com/file/d/' + fileId + '/preview';
+  var notice = document.getElementById('preview-page-notice');
+  if (notice) notice.style.display = 'none';
   document.getElementById('ref-modal-overlay').style.display = 'flex';
 }
 function switchRefTab(key, btn) {var tabs = document.getElementById('ref-modal-tabs');tabs.querySelectorAll('.company-tab').forEach(function(t){ t.classList.remove('active'); });btn.classList.add('active');loadRefPdf(key);}
 function loadRefPdf(key) {var fileId = REF_FILES[key];if (!fileId) return;document.getElementById('ref-modal-iframe').src = 'https://drive.google.com/file/d/' + fileId + '/preview';}
-function closeRefModal() {document.getElementById('ref-modal-overlay').style.display = 'none';document.getElementById('ref-modal-iframe').src = '';}
+function closeRefModal() {document.getElementById('ref-modal-overlay').style.display = 'none';document.getElementById('ref-modal-iframe').src = '';  var notice = document.getElementById('preview-page-notice'); if (notice) notice.style.display = 'none';}
 // ════════════════════════════════════════════════════════════
 //  홈 대시보드
 // ════════════════════════════════════════════════════════════
