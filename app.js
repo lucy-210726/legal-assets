@@ -1556,17 +1556,9 @@ function previewTemplate(templateId, name) {
   document.getElementById('ref-modal-tabs').style.display = 'none';
   document.getElementById('ref-modal-iframe').src = 'https://docs.google.com/document/d/' + templateId + '/preview';
   
-  // 안내 문구 표시
+  // notice 숨기기
   var notice = document.getElementById('preview-page-notice');
-  if (!notice) {
-    notice = document.createElement('div');
-    notice.id = 'preview-page-notice';
-    notice.style.cssText = 'background:#FFF8E1;border:1px solid #FFE082;border-radius:6px;padding:8px 14px;margin:0 16px 12px;font-size:0.78rem;color:#5D4037;display:flex;align-items:center;gap:6px;';
-    notice.innerHTML = '<span>ℹ️</span><span>미리보기는 페이지 구분 없이 표시됩니다. 실제 다운로드 시 정상 페이지 분리됩니다.</span>';
-    var iframe = document.getElementById('ref-modal-iframe');
-    iframe.parentNode.insertBefore(notice, iframe);
-  }
-  notice.style.display = 'flex';
+  if (notice) notice.style.display = 'none';
   
   document.getElementById('ref-modal-overlay').style.display = 'flex';
 }
@@ -2214,6 +2206,17 @@ if (!result || !result.ok) throw new Error((result && result.error) || '\uBBF8\u
 document.getElementById('ref-modal-title').textContent = currentContract.name + ' \uBBF8\uB9AC\uBCF4\uAE30';
 document.getElementById('ref-modal-tabs').style.display = 'none';
 document.getElementById('ref-modal-iframe').src = 'https://docs.google.com/document/d/' + result.fileId + '/preview';
+// ↓ 이 블록 추가 ↓
+var notice = document.getElementById('preview-page-notice');
+if (!notice) {
+  notice = document.createElement('div');
+  notice.id = 'preview-page-notice';
+  notice.style.cssText = 'background:#FFF8E1;border:1px solid #FFE082;border-radius:6px;padding:8px 14px;margin:0 16px 12px;font-size:0.78rem;color:#5D4037;display:flex;align-items:center;gap:6px;';
+  notice.innerHTML = '<span>ℹ️</span><span>미리보기는 페이지 구분 없이 표시됩니다. 실제 다운로드 시 정상 페이지 분리됩니다.</span>';
+  var iframe = document.getElementById('ref-modal-iframe');
+  iframe.parentNode.insertBefore(notice, iframe);
+}
+notice.style.display = 'flex';  
 document.getElementById('ref-modal-overlay').style.display = 'flex';
 } catch(e) {
 showAlert(e.message, { title: '\uBBF8\uB9AC\uBCF4\uAE30 \uC624\uB958', icon: '\u274C' });
