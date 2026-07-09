@@ -2257,7 +2257,9 @@ renderModAttachList();
 var btn = document.getElementById('mod-submit-btn');
 if (btn) { btn.disabled = true; btn.textContent = '\uAC80\uD1A0 \uC694\uCCAD \u2192'; }
 }
-
+function showModifiedReviewBack() {
+  doShowContractList_();
+}
 function handleModFileSelect(e) {
 var files = Array.from(e.target.files || []);
 e.target.value = '';
