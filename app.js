@@ -2212,7 +2212,7 @@ if (!notice) {
   notice = document.createElement('div');
   notice.id = 'preview-page-notice';
   notice.style.cssText = 'background:#FFF8E1;border:1px solid #FFE082;border-radius:6px;padding:8px 14px;margin:0 16px 12px;font-size:0.78rem;color:#5D4037;display:flex;align-items:center;gap:6px;';
-  notice.innerHTML = '<span>ℹ️</span><span>미리보기는 페이지 구분 없이 표시됩니다. 실제 다운로드 시 정상 페이지 분리됩니다.</span>';
+  notice.innerHTML = '<span>ℹ️</span><span>미리보기는 실제 생성되는 계약서와 일부 상이할 수 있습니다.</span>';
   var iframe = document.getElementById('ref-modal-iframe');
   iframe.parentNode.insertBefore(notice, iframe);
 }
