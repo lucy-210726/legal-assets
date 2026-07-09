@@ -1573,7 +1573,7 @@ a.click();
 }
 function showContractList() {
   var formView = document.getElementById('contract-form-view');
-  if (formView && formView.style.display !== 'none' && currentContract && hasFormInput_()) {
+  if (formView && formView.style.display === 'block' && currentContract && hasFormInput_()) {
     showConfirm(
       '작성 중인 내용이 저장되지 않고 삭제됩니다.\n정말 나가시겠습니까?',
       {
