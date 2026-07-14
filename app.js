@@ -799,6 +799,34 @@ function renderRevDetailPanel() {
   } else { confirmBtn.style.display = 'none'; }
 
   var panel = document.getElementById('rev-detail-panel');
+
+  // ── 후속조치 표시 (검토완료 상태) ──
+var revNextActionWrap = document.getElementById('rev-next-action-wrap');
+if (!revNextActionWrap) {
+  revNextActionWrap = document.createElement('div');
+  revNextActionWrap.id = 'rev-next-action-wrap';
+  var revDetailBody = document.querySelector('#rev-detail-panel .rev-detail-body');
+  if (revDetailBody) revDetailBody.appendChild(revNextActionWrap);
+}
+if (r.status === '검토완료' && r.nextAction) {
+  var actionUrl = '';
+  if (r.nextAction === '일반품의서' || r.nextAction === '전자계약품의') {
+    actionUrl = 'https://wf.tigrison.com/eNovator/GSWF/WebPage/ApprovalForms/ApprovalFormCtrl.aspx';
+  } else if (r.nextAction === 'ERP 등록 및 계약등록/변경품의') {
+    var party = (r.contractParty || '').toUpperCase();
+    actionUrl = party === 'ADP'
+      ? 'https://igaworks.operations.dynamics.com/?cmp=adp&mi=defaultdashboard'
+      : 'https://igaworks.operations.dynamics.com/?cmp=IGA&mi=DefaultDashboard';
+  }
+  revNextActionWrap.style.display = 'block';
+  revNextActionWrap.innerHTML =
+    '<div style="margin-top:16px;padding:16px;border:1.5px solid var(--gold);border-radius:12px;background:var(--gold-dim);">' +
+    '<div style="font-family:var(--font);font-size:0.78rem;font-weight:700;color:var(--gold);margin-bottom:8px;">📋 후속 조치</div>' +
+    '<div style="font-size:0.85rem;color:var(--ink);">' + esc(r.nextAction) + '</div>' +
+    '</div>';
+} else {
+  revNextActionWrap.style.display = 'none';
+}
   panel.style.display = 'block';
   setTimeout(function() { panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 50);
 }
