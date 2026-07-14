@@ -2580,16 +2580,19 @@ function renderMyRevDetailPanel() {
   reReviewWrap.style.display = 'none';
   _myRevReReviewFiles = [];
 
-  var isMyRequest = r.requesterEmail && r.requesterEmail.toLowerCase() === (USER_EMAIL || '').toLowerCase();
-
-  if (isReplied && isMyRequest) {
-    actionWrap.style.display = 'block';
-    actionBtns.innerHTML =
-      '<button class="btn btn-gold" onclick="doMyAgreeReview()" style="font-size:0.84rem;padding:9px 20px;">✅ 합의완료</button>' +
-      '<button class="btn btn-ghost" onclick="showMyReReviewForm()" style="font-size:0.84rem;padding:9px 20px;">🔄 재검토 요청</button>';
-  } else {
-    actionWrap.style.display = 'none';
-  }
+var isMyRequest = r.requesterEmail && r.requesterEmail.toLowerCase() === (USER_EMAIL || '').toLowerCase();
+var isToRecipient = false, isCcRecipient = false;
+try { var _toArr = JSON.parse(r.toList || '[]'); isToRecipient = _toArr.some(function(e){ return e.trim().toLowerCase() === (USER_EMAIL||'').toLowerCase(); }); } catch(e){}
+try { var _ccArr = JSON.parse(r.ccList || '[]'); isCcRecipient = _ccArr.some(function(e){ return e.trim().toLowerCase() === (USER_EMAIL||'').toLowerCase(); }); } catch(e){}
+var canReReview = isMyRequest || isToRecipient || isCcRecipient;
+if (isReplied && canReReview) {
+  actionWrap.style.display = 'block';
+  actionBtns.innerHTML =
+    '<button class="btn btn-gold" onclick="doMyAgreeReview()" style="font-size:0.84rem;padding:9px 20px;">✅ 합의완료</button>' +
+    '<button class="btn btn-ghost" onclick="showMyReReviewForm()" style="font-size:0.84rem;padding:9px 20px;">🔄 재검토 요청</button>';
+} else {
+  actionWrap.style.display = 'none';
+}
 
   // 후속조치 표시
   var nextActionWrap = document.getElementById('myrev-next-action-wrap');
