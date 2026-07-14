@@ -811,7 +811,7 @@ if (!revNextActionWrap) {
 if (r.status === '검토완료' && r.nextAction) {
   var actionUrl = '';
   if (r.nextAction === '일반품의서' || r.nextAction === '전자계약품의') {
-    actionUrl = 'https://wf.tigrison.com/eNovator/GSWF/WebPage/ApprovalForms/ApprovalFormCtrl.aspx';
+    actionUrl = 'https://wf.tigrison.com/enovator/gswf/webpage/approvalmain/mainform.aspx';
   } else if (r.nextAction === 'ERP 등록 및 계약등록/변경품의') {
     var party = (r.contractParty || '').toUpperCase();
     actionUrl = party === 'ADP'
@@ -2602,7 +2602,7 @@ function renderMyRevDetailPanel() {
   if (r.status === '검토완료' && r.nextAction) {
     var actionUrl = '';
     if (r.nextAction === '일반품의서' || r.nextAction === '전자계약품의') {
-      actionUrl = 'https://wf.tigrison.com/eNovator/GSWF/WebPage/ApprovalForms/ApprovalFormCtrl.aspx';
+      actionUrl = 'https://wf.tigrison.com/enovator/gswf/webpage/approvalmain/mainform.aspx';
     } else if (r.nextAction === 'ERP 등록 및 계약등록/변경품의') {
       var party = (r.contractParty || '').toUpperCase();
       actionUrl = party === 'ADP'
