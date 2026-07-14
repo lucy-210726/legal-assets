@@ -2659,6 +2659,21 @@ function showMyReReviewForm() {
   document.getElementById('myrev-rereview-wrap').style.display = 'block';
   _myRevReReviewFiles = [];
   renderMyRevReReviewAttachList();
+  // 의견 textarea가 없으면 동적 생성
+  var wrap = document.getElementById('myrev-rereview-wrap');
+  if (!document.getElementById('myrev-rereview-opinion')) {
+    var attachInput = wrap.querySelector('input[type="file"]');
+    var opinionHtml =
+      '<textarea id="myrev-rereview-opinion" placeholder="재검토 요청 의견을 입력하세요 (선택)" ' +
+      'style="width:100%;min-height:80px;margin-bottom:12px;padding:12px;border:1.5px solid var(--border);border-radius:10px;font-family:var(--font);font-size:0.85rem;resize:vertical;"></textarea>';
+    if (attachInput) {
+      attachInput.insertAdjacentHTML('beforebegin', opinionHtml);
+    } else {
+      wrap.insertAdjacentHTML('afterbegin', opinionHtml);
+    }
+  } else {
+    document.getElementById('myrev-rereview-opinion').value = '';
+  }
 }
 
 function cancelMyReReview() {
@@ -2729,7 +2744,9 @@ async function doMyRequestReReview() {
           else reject(new Error((result && result.error) || '재검토 요청 실패'));
         })
         .withFailureHandler(function(err) { reject(new Error(err.message || '재검토 요청 실패')); })
-        .requestReReview(_mySelectedRev.id, { files: JSON.stringify(uploadedFiles) });
+        .requestReReview(_mySelectedRev.id, {
+          uploadedFileIds: JSON.stringify(uploadedFiles.map(function(f) { return f.fileId; })),
+          opinion: (document.getElementById('myrev-rereview-opinion') ? document.getElementById('myrev-rereview-opinion').value : '')});
     });
 
     // 성공
