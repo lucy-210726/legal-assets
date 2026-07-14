@@ -1984,8 +1984,8 @@ function handleDeepLink() {
   if (INIT_PAGE === 'submit') {
     showPage('submit');
   }
-  if (INIT_PAGE === 'review-mgmt') {
-    showPage('review-mgmt');
+  if (INIT_PAGE === 'reviewmgmt') {
+    showPage('reviewmgmt');
     if (typeof INIT_REVIEW_ID !== 'undefined' && INIT_REVIEW_ID) {
       var waitForLoad = setInterval(function() {
         if (_revAll.length > 0 || document.getElementById('rev-tbody').textContent.indexOf('내역이 없습니다') >= 0) {
