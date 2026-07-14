@@ -1980,7 +1980,22 @@ function selectAutocomplete(inputId,listId,email){document.getElementById(inputI
 function handleAcKeydown(e,inputId,listId,type){ if(e.key==='Enter'){e.preventDefault();var list=document.getElementById(listId);var first=list.querySelector('.autocomplete-item');if(first&&list.style.display!=='none')first.click();else{ if(type==='ns-to') addNsRecipient('to'); else if(type==='ns-cc') addNsRecipient('cc'); else addRecipient(type); }list.style.display='none';}else if(e.key==='Escape') document.getElementById(listId).style.display='none'; }
 document.addEventListener('click',function(e){ ['to-ac','cc-ac','ns-to-ac','ns-cc-ac','inq-name-ac'].forEach(function(id){var el=document.getElementById(id);if(el&&!el.contains(e.target)) el.style.display='none';}); });
 function showContractTypeSelect(){document.getElementById('contract-type-select-view').style.display='block';document.getElementById('contract-list-view').style.display='none';document.getElementById('contract-form-view').style.display='none';document.getElementById('contract-nonstandard-view').style.display='none';document.getElementById('contract-modified-review-view').style.display='none';}
-function handleDeepLink() {if (INIT_PAGE === 'submit') {showPage('submit');}}
+function handleDeepLink() {
+  if (INIT_PAGE === 'submit') {
+    showPage('submit');
+  }
+  if (INIT_PAGE === 'review-mgmt') {
+    showPage('review-mgmt');
+    if (typeof INIT_REVIEW_ID !== 'undefined' && INIT_REVIEW_ID) {
+      var waitForLoad = setInterval(function() {
+        if (_revAll.length > 0 || document.getElementById('rev-tbody').textContent.indexOf('내역이 없습니다') >= 0) {
+          clearInterval(waitForLoad);
+          selectRev(INIT_REVIEW_ID);
+        }
+      }, 500);
+    }
+  }
+}
 function autoSelectSubmitRowFromUrl() {if (!INIT_ROWNUM) return;var num = Number(INIT_ROWNUM);if (!num) return;var exists = allRows.find(function(r) { return r.rowNum === num; });if (exists) {selectRow(num);}INIT_ROWNUM = '';}
 
 // ════════════════════════════════════════════════════════════
