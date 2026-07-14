@@ -2662,12 +2662,13 @@ function showMyReReviewForm() {
   // 의견 textarea가 없으면 동적 생성
   var wrap = document.getElementById('myrev-rereview-wrap');
   if (!document.getElementById('myrev-rereview-opinion')) {
-    var attachInput = wrap.querySelector('input[type="file"]');
+    // wrap의 첫 번째 자식 앞에 삽입 (label/input 바깥)
+    var firstChild = wrap.firstElementChild;
     var opinionHtml =
       '<textarea id="myrev-rereview-opinion" placeholder="재검토 요청 의견을 입력하세요 (선택)" ' +
-      'style="width:100%;min-height:80px;margin-bottom:12px;padding:12px;border:1.5px solid var(--border);border-radius:10px;font-family:var(--font);font-size:0.85rem;resize:vertical;"></textarea>';
-    if (attachInput) {
-      attachInput.insertAdjacentHTML('beforebegin', opinionHtml);
+      'style="width:100%;min-height:80px;margin-bottom:12px;padding:12px;border:1.5px solid var(--border);border-radius:10px;font-family:var(--font);font-size:0.85rem;resize:vertical;box-sizing:border-box;"></textarea>';
+    if (firstChild) {
+      firstChild.insertAdjacentHTML('beforebegin', opinionHtml);
     } else {
       wrap.insertAdjacentHTML('afterbegin', opinionHtml);
     }
