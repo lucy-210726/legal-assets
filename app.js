@@ -2793,7 +2793,8 @@ function renderReplyHistoryCards(historyText) {
   if (!historyText) return '';
   var entries = historyText.split(/\n\n(?=\[)/);
   if (!entries.length) return '<span style="color:var(--text-muted);font-style:italic;">아직 회신 이력이 없습니다.</span>';
-  return entries.map(function(entry, idx) {
+  var legalCount = 0, requestCount = 0;
+  return entries.map(function(entry) {
     entry = entry.trim();
     if (!entry) return '';
     var headerMatch = entry.match(/^\[([^\]]+)\]/);
@@ -2804,12 +2805,24 @@ function renderReplyHistoryCards(historyText) {
     var headerParts = header.split('·').map(function(s){ return s.trim(); });
     var dateStr = headerParts[0] || '';
     var nameStr = headerParts[1] || '';
-    var displayName = nameStr;
-    var num = entries.length - idx;
+    var rolePart = headerParts[1] || '';
+    var isRequest = rolePart.trim() === '요청';
+    var displayName = (headerParts[2] || '').trim();
+    var label, badgeBg;
+    if (isRequest) {
+      requestCount++;
+      label = '요청 #' + requestCount;
+      badgeBg = 'var(--gold)';
+    } else {
+      legalCount++;
+      label = '법무 #' + legalCount;
+      badgeBg = 'var(--ink)';
+    }
+    var displayName = nameStr.replace(' (재검토 요청)', '').replace(' (재검토)', '');
     return '<div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:8px;">' +
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">' +
         '<div style="display:flex;align-items:center;gap:8px;">' +
-          '<span style="font-size:0.68rem;font-weight:700;color:var(--white);background:var(--ink);padding:2px 8px;border-radius:10px;">#' + num + '</span>' +
+          '<span style="font-size:0.68rem;font-weight:700;color:var(--white);background:' + badgeBg + ';padding:2px 8px;border-radius:10px;">' + label + '</span>' +
           '<span style="font-size:0.82rem;font-weight:700;color:var(--ink);">' + esc(displayName) + '</span>' +
         '</div>' +
         '<span style="font-size:0.72rem;color:var(--text-muted);">' + esc(dateStr) + '</span>' +
