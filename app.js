@@ -2821,7 +2821,6 @@ function renderReplyHistoryCards(historyText) {
       label = '법무 #' + legalCount;
       badgeBg = 'var(--ink)';
     }
-    var displayName = nameStr.replace(' (재검토 요청)', '').replace(' (재검토)', '');
     return '<div style="background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:8px;">' +
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">' +
         '<div style="display:flex;align-items:center;gap:8px;">' +
