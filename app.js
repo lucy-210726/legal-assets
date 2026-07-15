@@ -904,16 +904,16 @@ function renderFileList(files) {
     return '📄';
   }
 
-  // 최신 버전 표시
-  var maxVersion = 0;
-  var maxVersionIdx = -1;
-  files.forEach(function(f, idx) {
-    var match = f.name.match(/_v(\d+)_/);
-    if (match) {
-      var v = parseInt(match[1], 10);
-      if (v > maxVersion) { maxVersion = v; maxVersionIdx = idx; }
-    }
-  });
+  // 최신 파일 표시 (가장 최근 생성된 파일 기준)
+var maxVersionIdx = -1;
+var latestDate = '';
+files.forEach(function(f, idx) {
+  var created = f.createdDate || '';
+  if (created > latestDate) {
+    latestDate = created;
+    maxVersionIdx = idx;
+  }
+});
 
   var html = files.map(function(f, idx) {
     var icon = getFileIcon(f.name);
