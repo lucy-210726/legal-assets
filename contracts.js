@@ -32,7 +32,7 @@ var CONTRACTS_DATA = [
     { name: 'original_contract_date', label: '원계약 체결일', type: 'date', required: true },
     { section: '변경사항' },
     { name: 'change_category', label: '변경 구분',  type: 'text',     required: true, span: 2, hint: '※ 변경 사항이 1개일 때만 자동작성 가능합니다. 항목이 여러 개인 경우 양식 다운로드 후 직접 작성해주세요.' },
-    { name: 'change_before',   label: '변경 전(원 계약 내용과 동일하게 기재하세요.)',    type: 'textarea', required: true, span: 2},
+    { name: 'change_before',   label: '변경 전(원계약 내용과 동일하게 기재하세요.)',    type: 'textarea', required: true, span: 2},
     { name: 'change_after',    label: '변경 후',    type: 'textarea', required: true, span: 2 },
     { section: '합의서 정보' },
     { name: 'sign_date', label: '합의서 체결일', type: 'date', required: true }
