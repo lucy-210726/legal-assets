@@ -249,7 +249,7 @@ var CONTRACTS_DATA = [
       { name: 'client_address',   label: '고객사 주소',       type: 'text', required: true, span: 2 },
       
       { section: '원계약 정보' },
-      { name: 'original_contract_name', label: '원계약 계약명(실제 체결된 계약명과 동일하게 기재하세요.)', type: 'text', required: true },
+      { name: 'original_contract_name', label: '원계약 계약명(실제 체결된 계약명과 동일하게 기재하세요.)', type: 'text', required: true, span: 2 },
       { name: 'original_contract_date', label: '원계약 체결일', type: 'date', required: true },
   
       { section: '합의 내용' },
