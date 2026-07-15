@@ -254,7 +254,7 @@ var CONTRACTS_DATA = [
   
       { section: '합의 내용' },
       { name: 'sign_date',         label: '합의서 체결일',    type: 'date',     required: true },
-      { name: 'agreement_detail',  label: '합의사항',         type: 'textarea', required: true, span: 2, hint: '제2조에 들어갈 합의 내용을 기재해 주세요.' }
+      { name: 'agreement_detail',  label: '합의사항(합의서 제2조에 들어갈 합의 내용을 기재해 주세요.)',         type: 'textarea', required: true, span: 2}
   ]
   },
   {
@@ -711,7 +711,7 @@ var CONTRACTS_DATA = [
     { name: 'original_contract_date', label: '원계약 체결일', type: 'date', required: true },
     { section: '합의 내용' },
     { name: 'sign_date',        label: '합의서 체결일', type: 'date',     required: true },
-    { name: 'agreement_detail', label: '합의사항',      type: 'textarea', required: true, span: 2, hint: '제2조에 들어갈 합의 내용을 기재해 주세요.' }
+    { name: 'agreement_detail', label: '합의사항(합의서 제2조에 들어갈 합의 내용을 기재해 주세요.)',      type: 'textarea', required: true, span: 2}
   ]
   },
   {
