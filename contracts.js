@@ -402,7 +402,7 @@ var CONTRACTS_DATA = [
       { name: 'start_date',  label: '이용기간 시작일', type: 'date', required: true },
       { name: 'end_date',    label: '이용기간 종료일', type: 'date', required: true },
       { section: 'TV INDEX 서비스' },
-      { name: 'tvindex_fee',     label: 'TV INDEX LITE 금액',  type: 'text', required: true, format: 'currency', hint: '숫자만 기재하세요.'  },
+      { name: 'tvindex_fee',     label: 'TV INDEX LITE 금액(원, 부가세 별도)',  type: 'text', required: true, format: 'currency', hint: '숫자만 기재하세요.'  },
       { name: 'etc_1',           label: 'TV INDEX 비고',       type: 'text', required: false },
       { name: 'account_fee',    label: '계정 추가 금액(원, 부가세 별도)',       type: 'text', required: false, format: 'currency', hint: '숫자만 기재하세요.'  },
       { name: 'etc_2',           label: '계정 추가 비고',      type: 'text', required: false },
