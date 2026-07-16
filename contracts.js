@@ -176,7 +176,7 @@ var CONTRACTS_DATA = [
     { name: 'total_month_fee', label: '월 기본 이용료(원, 부가세 별도)',  type: 'text', required: true, format: 'currency', hint: '숫자만 기재하세요'  },
     { name: 'payer',           label: '결제 주체', type: 'radio', required: true,
     options: ['회원사', '대행사'] },
-    { name: 'payment_method',  label: '지급조건(지급방식 선택 시 기본 내용이 채워지며 수정 가능합니다.)', type: 'radio', required: true, span: 2,
+    { name: 'payment_method',  label: '지급조건(지급조건 선택 시 기본 내용이 채워지며 수정 가능합니다.)', type: 'radio', required: true, span: 2,
       options: ['일시납', '월분납', '기타'] },
     { name: 'payment_detail', label: '지급조건 상세', type: 'textarea', required: false, span: 2},
 
@@ -240,7 +240,7 @@ var CONTRACTS_DATA = [
       { name: 'etc_9',   label: '접속 디바이스 비고', type: 'text' },
       
       { section: '지급 조건' },
-      { name: 'payment_method', label: '정산방식(지급방식 선택 시 기본 내용이 채워지며 수정 가능합니다.)', type: 'radio', required: true, options: ['일시납', '분기납', '월분납'] },
+      { name: 'payment_method', label: '정산방식(정산방식 선택 시 기본 내용이 채워지며 수정 가능합니다.)', type: 'radio', required: true, options: ['일시납', '분기납', '월분납'] },
       { name: 'payment_detail', label: '지급조건 상세', type: 'textarea', required: false, span: 2},
       { name: 'invoice_email',  label: '세금계산서 이메일', type: 'text', required: true },
       
@@ -318,7 +318,7 @@ var CONTRACTS_DATA = [
     { name: 'total_month_fee', label: '월 기본 이용료(원, 부가세 별도)',  type: 'text', required: true, format: 'currency', hint: '숫자만 기재하세요' },
     { name: 'payer',           label: '결제 주체', type: 'radio', required: true,
       options: ['회원사', '대행사'] },
-    { name: 'payment_method',  label: '지급조건(지급방식 선택 시 기본 내용이 채워지며 수정 가능합니다.)', type: 'radio', required: true, span: 2,
+    { name: 'payment_method',  label: '지급조건(지급조건 선택 시 기본 내용이 채워지며 수정 가능합니다.)', type: 'radio', required: true, span: 2,
       options: ['일시납', '월분납', '기타'] },
     { name: 'payment_detail', label: '지급조건 상세', type: 'textarea', required: false, span: 2},
 
