@@ -1785,7 +1785,33 @@ document.querySelectorAll('#contract-form-container textarea').forEach(function(
 });
 }
 function validateCurrentForm(){if(!currentContract) return false;for(var i=0;i<currentContract.fields.length;i++){var f=currentContract.fields[i];if(!f.required||f.section) continue;if(f.type==='checkbox'){if(!document.querySelectorAll('input[data-field="'+f.name+'"]:checked').length) return false;}else if(f.type==='radio'){if(!document.querySelector('input[name="f_'+f.name+'"]:checked')) return false;}else{var el=document.getElementById('f_'+f.name);if(!el||!el.value.trim()) return false;}}return true;}
-function collectFormData(){var d={};currentContract.fields.forEach(function(f){if(f.section) return;if(f.type==='checkbox') d[f.name]=Array.from(document.querySelectorAll('input[data-field="'+f.name+'"]:checked')).map(function(c){return c.value;});else if(f.type==='radio'){var el=document.querySelector('input[name="f_'+f.name+'"]:checked');d[f.name]=el?el.value:'';}else{var el=document.getElementById('f_'+f.name);d[f.name]=el?el.value:'';}});return d;}
+function collectFormData(){
+  var d={};
+  currentContract.fields.forEach(function(f){
+    if(f.section) return;
+    if(f.type==='checkbox'){
+      d[f.name]=Array.from(document.querySelectorAll('input[data-field="'+f.name+'"]:checked')).map(function(c){return c.value;});
+      if (f.options) {
+        f.options.forEach(function(o, idx){
+          var num = idx + 1;
+          var feeEl = document.getElementById('f_fee_'+num);
+          var etcEl = document.getElementById('f_etc_'+num);
+          if (feeEl) d['fee_'+num] = feeEl.value;
+          if (etcEl) d['etc_'+num] = etcEl.value;
+        });
+      }
+    }
+    else if(f.type==='radio'){
+      var el=document.querySelector('input[name="f_'+f.name+'"]:checked');
+      d[f.name]=el?el.value:'';
+    }
+    else{
+      var el=document.getElementById('f_'+f.name);
+      d[f.name]=el?el.value:'';
+    }
+  });
+  return d;
+}
 async function generateContract(){if(!validateCurrentForm()) return;var container=document.getElementById('contract-form-container');var raw=collectFormData();var toKo=function(d){if(!d) return '';var p=d.split('-');return p.length===3?p[0]+'\ub144 '+p[1]+'\uc6d4 '+p[2]+'\uc77c':d;};var fmtN=function(n){var s=String(n).replace(/[^0-9]/g,'');return s?Number(s).toLocaleString('ko-KR'):'';};var dateF=['contract_date','service_start','service_end','ad_start','ad_end','media_start','media_end','reward_start','reward_end','original_contract_date','SIGN_DATE','sign_date','agreement_start','agreement_end','start_date','end_date'];
 var numF=['service_cost','total_amount','monthly_fee','contract_amount','ad_budget','cpa_rate'];var payload={contractType:currentContract.id,contractName:currentContract.name};Object.keys(raw).forEach(function(k){if(dateF.includes(k)) payload[k]=toKo(raw[k]);else if(numF.includes(k)) payload[k]=fmtN(raw[k]);else payload[k]=Array.isArray(raw[k])?raw[k].join(', '):raw[k];});payload.remarks=(payload.remarks&&payload.remarks.trim())||'\uc5c6\uc74c';payload.invoice_date=payload.invoice_date||'\uc6a9\uc5ed \uc644\ub8cc \uc6d4\uc758 \ub9d0\uc77c';payload.payment_date=payload.payment_date||'\uc138\uae08\uacc4\uc0b0\uc11c \ubc1c\ud589\uc77c \uae30\uc900 \uc775\uc6d4 \ub9d0\uc77c \uc774\ub0b4';payload.userId=SLACK_USER_ID; payload.userEmail=USER_EMAIL||'';var reviewCheck=document.getElementById('review-check');payload.isReviewRequested=reviewCheck?reviewCheck.checked===true:false;payload.reviewOpinion=(document.getElementById('review-opinion')?document.getElementById('review-opinion').value.trim():'')||'';payload.reviewToList=JSON.stringify(window._reviewToList||[]);payload.reviewCcList=JSON.stringify(window._reviewCcList||[]);saveFormToSession_();container.innerHTML='<div class="state-panel"><div class="spinner"></div><h3>계약서를 생성하고 있습니다...</h3><p>잠시만 기다려주세요.</p></div>';try{var genResult=await new Promise(function(resolve,reject){google.script.run.withSuccessHandler(resolve).withFailureHandler(function(err){reject(new Error(err.message||'계약서 생성 실패'));}).handleGenerateContract(JSON.stringify(payload));});window._generatedFileId=genResult&&genResult.fileId?genResult.fileId:'';window._generatedFileName=genResult&&genResult.fileName?genResult.fileName:payload.contractName+'.docx';container.innerHTML='<div class="state-panel"><div class="success-panel"><div class="success-badge">\u2705</div><h3>계약서 생성 완료!</h3><p style="margin:12px 0 20px;">아래 버튼으로 파일을 다운로드하거나 Slack/이메일로 전송하세요.</p><div style="display:flex;flex-direction:column;gap:10px;align-items:center;max-width:360px;margin:0 auto 24px;"><button class="btn btn-gold" onclick="downloadGeneratedContract()" style="width:100%;">\u2b07 계약서 다운로드 (.docx)</button><button class="btn btn-ghost" onclick="sendGeneratedContract(\'slack\')" style="width:100%;">💬 Slack DM으로 전송</button><button class="btn btn-ghost" onclick="sendGeneratedContract(\'email\')" style="width:100%;">📧 이메일로 전송</button></div><div style="display:flex;gap:12px;justify-content:center;"><button class="btn btn-ghost" onclick="showPage(\'home\')">홈으로</button><button class="btn btn-ghost" onclick="restoreLastForm()">✏️ 수정하기</button><button class="btn btn-dark" onclick="showContractList()">다른 계약서 작성</button></div></div></div>';}catch(e){ container.innerHTML='<div class="state-panel"><h3>\u26a0\ufe0f 오류</h3><p>'+e.message+'</p><button class="btn btn-ghost" onclick="showContractList()">돌아가기</button></div>'; }}
 function goToInquiryWithCategory(category) {
