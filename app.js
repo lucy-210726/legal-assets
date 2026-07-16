@@ -1742,13 +1742,17 @@ function toggleLinkedFields() {
     var linkedTo = el.getAttribute('data-linked-to');
     el.style.display = checkedValues.indexOf(linkedTo) >= 0 ? 'block' : 'none';
   });
+  // ★ 추가: 멀티 체크박스로 연동되는 일반 form-group(예: game_group)도 함께 토글
+  document.querySelectorAll('.form-group[data-linked-to]').forEach(function(el) {
+    var linkedTo = el.getAttribute('data-linked-to');
+    if (checkedValues.indexOf(linkedTo) >= 0) el.style.display = '';
+  });
 
   // 2. 단독 체크박스 연동 (use_lite, use_standard, use_pro, use_mau, use_support, use_discount 등)
   var soloCheckboxes = document.querySelectorAll('input[type="checkbox"][data-field][value="true"]');
   soloCheckboxes.forEach(function(cb) {
     var fieldName = cb.getAttribute('data-field');
     var isChecked = cb.checked;
-    // 해당 체크박스의 label 텍스트를 linkedTo 값으로 사용
     var label = cb.closest('.checkbox-item') ? cb.closest('.checkbox-item').querySelector('span').textContent : '';
     if (label) {
       document.querySelectorAll('.form-group[data-linked-to="' + label + '"]').forEach(function(el) {
@@ -1761,13 +1765,14 @@ function toggleLinkedFields() {
   var allLinkedGroups = document.querySelectorAll('.form-group[data-linked-to]');
   allLinkedGroups.forEach(function(el) {
     var linkedTo = el.getAttribute('data-linked-to');
-    // 단독 체크박스에서 이미 처리된 것은 건너뛰기
     var handledBySolo = false;
     soloCheckboxes.forEach(function(cb) {
       var lbl = cb.closest('.checkbox-item') ? cb.closest('.checkbox-item').querySelector('span').textContent : '';
       if (lbl === linkedTo) handledBySolo = true;
     });
-    if (!handledBySolo) el.style.display = 'none';
+    // ★ 수정: services 멀티체크박스로 이미 처리된 것도 건너뛰기
+    var handledByMulti = checkedValues.indexOf(linkedTo) >= 0;
+    if (!handledBySolo && !handledByMulti) el.style.display = 'none';
   });
   var radios = document.querySelectorAll('input[type="radio"]:checked');
   radios.forEach(function(r) {
@@ -1776,13 +1781,13 @@ function toggleLinkedFields() {
       el.style.display = '';
     });
   });
-// toggleLinkedFields 함수 맨 끝에 추가
-document.querySelectorAll('#contract-form-container textarea').forEach(function(ta) {
-  if (ta.value && ta.offsetParent !== null) {
-    ta.style.height = 'auto';
-    ta.style.height = Math.max(96, ta.scrollHeight) + 'px';
-  }
-});
+
+  document.querySelectorAll('#contract-form-container textarea').forEach(function(ta) {
+    if (ta.value && ta.offsetParent !== null) {
+      ta.style.height = 'auto';
+      ta.style.height = Math.max(96, ta.scrollHeight) + 'px';
+    }
+  });
 }
 function validateCurrentForm(){if(!currentContract) return false;for(var i=0;i<currentContract.fields.length;i++){var f=currentContract.fields[i];if(!f.required||f.section) continue;if(f.type==='checkbox'){if(!document.querySelectorAll('input[data-field="'+f.name+'"]:checked').length) return false;}else if(f.type==='radio'){if(!document.querySelector('input[name="f_'+f.name+'"]:checked')) return false;}else{var el=document.getElementById('f_'+f.name);if(!el||!el.value.trim()) return false;}}return true;}
 function collectFormData(){
