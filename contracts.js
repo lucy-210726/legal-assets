@@ -218,18 +218,30 @@ var CONTRACTS_DATA = [
       { name: 'start_date',  label: '이용기간 시작일', type: 'date', required: true },
       { name: 'end_date',    label: '이용기간 종료일', type: 'date', required: true },
       { name: 'renewal_agree', label: '갱신조건', type: 'radio', required: true, options: ['자동연장에 동의함 (이용기간은 계약종료일 익일부터 1년씩 갱신됨)', '자동연장에 동의하지 않음'] },
+      
       { section: '서비스 선택 및 금액' },
       { name: 'services', label: '서비스 선택', type: 'checkbox', required: true, span: 2,
         options: ['사용량 인덱스', '앱 마켓 인덱스', '소비 인덱스', 'TV 애드 인덱스', '모바일인덱스 GAME'] },
+      
       { section: '할인 및 합계' },
       { name: 'fee_6',           label: '최종 할인적용 금액(원, 부가세 별도)', type: 'text',   required: false, format: 'currency', hint: '숫자만 기재하세요' },
       { name: 'etc_6',           label: '할인 비고',         type: 'text',   required: false },
       { name: 'total_fee',      label: '총 이용료(원, 부가세 별도)',    type: 'text', required: true, format: 'currency', hint: '숫자만 기재하세요' },
       { name: 'total_month_fee', label: '월 구독료(원, 부가세 별도)',   type: 'text', required: true, format: 'currency', hint: '숫자만 기재하세요' }, 
+      
+      { section: '이용권한' },
+      { name: 'account', label: '계정 수량',       type: 'text', required: true },
+      { name: 'etc_7',   label: '계정 비고',       type: 'text' },
+      { name: 'project', label: '프로젝트 수량',   type: 'text', required: true },
+      { name: 'etc_8',   label: '프로젝트 비고',   type: 'text' },
+      { name: 'device',  label: '접속 디바이스 수량', type: 'text', required: true },
+      { name: 'etc_9',   label: '접속 디바이스 비고', type: 'text' },
+      
       { section: '지급 조건' },
       { name: 'payment_method', label: '정산방식(지급방식 선택 시 기본 내용이 채워지며 수정 가능합니다.)', type: 'radio', required: true, options: ['일시납', '분기납', '월분납'] },
       { name: 'payment_detail', label: '지급조건 상세', type: 'textarea', required: false, span: 2},
       { name: 'invoice_email',  label: '세금계산서 이메일', type: 'text', required: true },
+      
       { section: '기타' },
       { name: 'special_terms', label: '기타사항', type: 'textarea', required: false, span: 2 }
   ]
