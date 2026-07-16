@@ -217,7 +217,7 @@ var CONTRACTS_DATA = [
       { name: 'sign_date',   label: '계약 체결일',     type: 'date', required: true, span: 2 },
       { name: 'start_date',  label: '이용기간 시작일', type: 'date', required: true },
       { name: 'end_date',    label: '이용기간 종료일', type: 'date', required: true },
-      { name: 'renewal_agree', label: '갱신조건', type: 'radio', required: true, options: ['자동연장 동의', '자동연장 미동의'] },
+      { name: 'renewal_agree', label: '갱신조건', type: 'radio', required: true, options: ['자동연장에 동의함 (이용기간은 계약종료일 익일부터 1년씩 갱신됨)', '자동연장에 동의하지 않음'] },
       { section: '서비스 선택 및 금액' },
       { name: 'services', label: '서비스 선택', type: 'checkbox', required: true, span: 2,
         options: ['사용량 인덱스', '앱 마켓 인덱스', '소비 인덱스', 'TV 애드 인덱스', '모바일인덱스 GAME'] },
