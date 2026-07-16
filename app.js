@@ -37,15 +37,27 @@ if (isOk  && cb && typeof cb.onOk     === 'function') cb.onOk();
 if (!isOk && cb && typeof cb.onCancel === 'function') cb.onCancel();
 }
 document.addEventListener('keydown', function(e) {
-if (e.key !== 'Escape') return;
-if (document.getElementById('ref-modal-overlay').style.display === 'flex') { closeRefModal(); return; }
-if (document.getElementById('alert-modal-overlay').style.display === 'flex') { closeAlertModal(); return; }
-if (document.getElementById('confirm-modal-overlay').style.display === 'flex') { closeConfirmModal(false); return; }
-if (document.getElementById('confirm-popup-overlay').style.display === 'flex') { closeConfirmPopup(); return; }
-var activePage = document.querySelector('.page.active');
-if (!activePage) return;
-var pageId = activePage.id.replace('page-','');
-if (pageId !== 'home') goBack(pageId);
+  // ── ESC 처리 ──
+  if (e.key === 'Escape') {
+    if (document.getElementById('ref-modal-overlay').style.display === 'flex') { closeRefModal(); return; }
+    if (document.getElementById('alert-modal-overlay').style.display === 'flex') { closeAlertModal(); return; }
+    if (document.getElementById('confirm-modal-overlay').style.display === 'flex') { closeConfirmModal(false); return; }
+    if (document.getElementById('confirm-popup-overlay').style.display === 'flex') { closeConfirmPopup(); return; }
+    var activePage = document.querySelector('.page.active');
+    if (!activePage) return;
+    var pageId = activePage.id.replace('page-','');
+    if (pageId !== 'home') goBack(pageId);
+    return;
+  }
+  // ── Enter 처리 ──
+  if (e.key === 'Enter') {
+    if (e.target && e.target.tagName === 'TEXTAREA') return;
+    if (document.getElementById('alert-modal-overlay').style.display === 'flex') {
+      e.preventDefault();
+      closeAlertModal();
+      return;
+    }
+  }
 });
 function formatNumberInput(el) {
   var pos = el.selectionStart;
@@ -3056,6 +3068,7 @@ function doShowContractList_() {
   document.getElementById('contract-modified-review-view').style.display = 'none';
   currentContract = null;
   renderContractGrid();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function hasFormInput_() {
