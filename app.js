@@ -2047,6 +2047,7 @@ function handleDeepLink() {
     }
   }
 }
+
 // ════════════════════════════════════════════════════════════
 //  사용자 인증 게이트
 // ════════════════════════════════════════════════════════════
@@ -2159,9 +2160,6 @@ function requestRegistration() {
     })
     .requestMemberRegistration(email);
 }
-
-// 페이지 로드 시 실행
-initAuth();
 
 function autoSelectSubmitRowFromUrl() {if (!INIT_ROWNUM) return;var num = Number(INIT_ROWNUM);if (!num) return;var exists = allRows.find(function(r) { return r.rowNum === num; });if (exists) {selectRow(num);}INIT_ROWNUM = '';}
 
@@ -2384,7 +2382,7 @@ initSnapNav();
 loadDashboard();
 _dashInterval = setInterval(loadDashboard, 3 * 60 * 1000);
 handleDeepLink();
-
+initAuth();
 // ── 미리보기 ──
 async function previewCurrentContract() {
 if (!currentContract || !validateCurrentForm()) {
