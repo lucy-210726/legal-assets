@@ -2047,6 +2047,122 @@ function handleDeepLink() {
     }
   }
 }
+// ════════════════════════════════════════════════════════════
+//  사용자 인증 게이트
+// ════════════════════════════════════════════════════════════
+function initAuth() {
+  // 1. 서버에서 이메일 잡힌 경우 → 바로 통과
+  if (USER_EMAIL) return;
+
+  // 2. localStorage에서 복원
+  var savedEmail = localStorage.getItem('loc_userEmail') || '';
+  var savedName  = localStorage.getItem('loc_userName') || '';
+  var savedId    = localStorage.getItem('loc_userId') || '';
+
+  if (savedEmail && savedName) {
+    USER_EMAIL = savedEmail;
+    USER_NAME  = savedName;
+    SLACK_USER_ID = savedId;
+    return;
+  }
+
+  // 3. 이메일 입력 모달 표시
+  showLoginGate();
+}
+
+function showLoginGate() {
+  document.getElementById('login-gate-overlay').style.display = 'flex';
+}
+
+function submitLoginEmail() {
+  var input = document.getElementById('login-email-input');
+  var email = input.value.trim();
+
+  if (!email || !email.includes('@')) {
+    input.style.borderColor = '#e74c3c';
+    setTimeout(function() { input.style.borderColor = '#ddd'; }, 1500);
+    return;
+  }
+
+  input.disabled = true;
+
+  google.script.run
+    .withSuccessHandler(function(info) {
+      input.disabled = false;
+
+      if (info) {
+        // ✅ 등록된 사용자
+        USER_EMAIL    = email;
+        USER_NAME     = info.name || '';
+        SLACK_USER_ID = info.slackId || '';
+
+        localStorage.setItem('loc_userEmail', USER_EMAIL);
+        localStorage.setItem('loc_userName', USER_NAME);
+        localStorage.setItem('loc_userId', SLACK_USER_ID);
+
+        document.getElementById('login-gate-overlay').style.display = 'none';
+
+        // 문의하기 이름/부서 자동채우기 갱신
+        var nameEl = document.getElementById('inq-name');
+        if (nameEl && USER_NAME) { nameEl.value = USER_NAME; nameEl.readOnly = true; }
+      } else {
+        // ❌ 미등록
+        showUnregisteredModal(email);
+      }
+    })
+    .withFailureHandler(function() {
+      input.disabled = false;
+      showAlert('서버 연결에 실패했습니다. 다시 시도해주세요.', { title: '오류', icon: '❌' });
+    })
+    .getUserInfoByEmail_(email);
+}
+
+function showUnregisteredModal(email) {
+  document.getElementById('login-gate-overlay').style.display = 'none';
+  document.getElementById('unregistered-overlay').style.display = 'flex';
+  document.getElementById('unregistered-email-display').textContent = email;
+  document.getElementById('unregistered-overlay').dataset.email = email;
+}
+
+function retryLoginEmail() {
+  document.getElementById('unregistered-overlay').style.display = 'none';
+  document.getElementById('login-email-input').value = '';
+  document.getElementById('login-gate-overlay').style.display = 'flex';
+}
+
+function requestRegistration() {
+  var email = document.getElementById('unregistered-overlay').dataset.email;
+  var btn = document.querySelector('#unregistered-overlay button');
+  btn.disabled = true;
+  btn.textContent = '요청 중...';
+
+  google.script.run
+    .withSuccessHandler(function(result) {
+      btn.disabled = false;
+      btn.textContent = '📩 법무실로 등록 요청하기';
+
+      if (result && result.ok) {
+        document.getElementById('unregistered-overlay').innerHTML =
+          '<div style="padding:36px 28px; text-align:center;">' +
+          '<div style="font-size:2rem; margin-bottom:12px;">✅</div>' +
+          '<h3 style="font-family:var(--font); font-size:1.05rem; font-weight:700; color:#1c2333; margin-bottom:10px;">등록 요청 완료</h3>' +
+          '<p style="font-size:0.85rem; color:#666;">법무실에 등록 요청이 전달되었습니다.<br>등록 완료 후 Slack 또는 이메일로 안내드리겠습니다.</p>' +
+          '</div>';
+      } else {
+        showAlert('요청 전송에 실패했습니다. 법무실에 직접 문의해주세요.', { title: '전송 실패', icon: '❌' });
+      }
+    })
+    .withFailureHandler(function() {
+      btn.disabled = false;
+      btn.textContent = '📩 법무실로 등록 요청하기';
+      showAlert('서버 연결에 실패했습니다.', { title: '오류', icon: '❌' });
+    })
+    .requestMemberRegistration(email);
+}
+
+// 페이지 로드 시 실행
+initAuth();
+
 function autoSelectSubmitRowFromUrl() {if (!INIT_ROWNUM) return;var num = Number(INIT_ROWNUM);if (!num) return;var exists = allRows.find(function(r) { return r.rowNum === num; });if (exists) {selectRow(num);}INIT_ROWNUM = '';}
 
 // ════════════════════════════════════════════════════════════
