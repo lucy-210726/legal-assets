@@ -57,7 +57,14 @@ document.addEventListener('keydown', function(e) {
       closeAlertModal();
       return;
     }
+  // ✅ 추가: 등록 완료 화면에서 Enter → 새로고침
+  var unregOverlay = document.getElementById('unregistered-overlay');
+  if (unregOverlay && unregOverlay.style.display === 'flex' && unregOverlay.querySelector('h3') && unregOverlay.querySelector('h3').textContent === '등록 요청 완료') {
+    e.preventDefault();
+    location.reload();
+    return;
   }
+}
 });
 function formatNumberInput(el) {
   var pos = el.selectionStart;
@@ -2144,11 +2151,12 @@ function requestRegistration() {
 
       if (result && result.ok) {
         document.getElementById('unregistered-overlay').innerHTML =
-          '<div style="padding:36px 28px; text-align:center;">' +
-          '<div style="font-size:2rem; margin-bottom:12px;">✅</div>' +
-          '<h3 style="font-family:var(--font); font-size:1.05rem; font-weight:700; color:#1c2333; margin-bottom:10px;">등록 요청 완료</h3>' +
-          '<p style="font-size:0.85rem; color:#666;">법무실에 등록 요청이 전달되었습니다.<br>등록 완료 후 Slack 또는 이메일로 안내드리겠습니다.</p>' +
-          '</div>';
+        '<div style="background:white; border-radius:12px; padding:36px 28px; max-width:400px; width:90%; text-align:center;">' +
+        '<div style="font-size:2rem; margin-bottom:12px;">✅</div>' +
+        '<h3 style="font-family:var(--font); font-size:1.05rem; font-weight:700; color:#1c2333; margin-bottom:10px;">등록 요청 완료</h3>' +
+        '<p style="font-size:0.85rem; color:#666;">법무실에 등록 요청이 전달되었습니다.<br>등록 완료 후 Slack 또는 이메일로 안내드리겠습니다.</p>' +
+        '<button onclick="location.reload()" style="margin-top:20px; padding:10px 24px; background:#1c2333; color:white; border:none; border-radius:8px; font-size:0.85rem; cursor:pointer;">확인</button>' +
+        '</div>';
       } else {
         showAlert('요청 전송에 실패했습니다. 법무실에 직접 문의해주세요.', { title: '전송 실패', icon: '❌' });
       }
