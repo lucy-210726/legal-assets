@@ -362,7 +362,7 @@ PAGE_TEMPLATES.reference = `<div class="contract-page">
 <div class="ref-page-card-icon">📋</div>
 <div class="ref-page-card-body">
 <h4>IGAW 전결규정</h4>
-<p>IGAW 전결규정 2025. 05. 12. 시행</p>
+<p>IGAW 전결규정 2026. 07. 16. 시행</p>
 </div>
 <div class="ref-page-card-actions">
 <button class="btn btn-ghost" onclick="openRefSingle('approval_igaw')">미리보기</button>
@@ -373,7 +373,7 @@ PAGE_TEMPLATES.reference = `<div class="contract-page">
 <div class="ref-page-card-icon">📋</div>
 <div class="ref-page-card-body">
 <h4>ADP 전결규정</h4>
-<p>ADP 전결규정 2025. 05. 12. 시행</p>
+<p>ADP 전결규정 2026. 07. 16. 시행</p>
 </div>
 <div class="ref-page-card-actions">
 <button class="btn btn-ghost" onclick="openRefSingle('approval_adp')">미리보기</button>
