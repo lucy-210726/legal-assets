@@ -2175,8 +2175,8 @@ function autoSelectSubmitRowFromUrl() {if (!INIT_ROWNUM) return;var num = Number
 //  참고 자료 PDF 뷰어
 // ════════════════════════════════════════════════════════════
 var REF_FILES = {
-'approval_igaw': '1TtRUJRCE9mpz7q40WZT35jI8tr2sI-qG',
-'approval_adp':  '1_aIEtHc73BzSY4-664pYcDDJMa5WMhZV',
+'approval_igaw': '1CaV7TZakwmEG0Yhc8wWxvGuK7hyMvm_O',
+'approval_adp':  '1D8RR2W4W88bE0yEIac13d1WbOSRT4vny',
 'manual':        '1Mv_ziZo-v5F49tYBCqmtC92yeg2F2Ji_',
 'guide':         '1TChR3HSecQX6ZSJsUiVu--O7lW-rUmZ2'
 };
