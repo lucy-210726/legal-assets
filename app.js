@@ -2115,7 +2115,7 @@ function submitLoginEmail() {
       input.disabled = false;
       showAlert('서버 연결에 실패했습니다. 다시 시도해주세요.', { title: '오류', icon: '❌' });
     })
-    .getUserInfoByEmail_(email);
+    .getUserInfoByEmail(email);
 }
 
 function showUnregisteredModal(email) {
