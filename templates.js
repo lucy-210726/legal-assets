@@ -402,40 +402,70 @@ PAGE_TEMPLATES.reference = `<div class="contract-page">
 <button class="btn btn-ghost" onclick="downloadRef('guide')">다운로드</button>
 </div>
 </div>
-<div class="ref-card" onclick="window.open('https://www.igaworks.com/term', '_blank')">
-  <div class="ref-icon">📋</div>
-  <div class="ref-title">IGAW 서비스 이용약관</div>
-  <div class="ref-desc">디파이너리, 애드브릭스, 모바일인덱스, TV INDEX</div>
+<div class="ref-page-card" style="cursor:pointer;" onclick="window.open('https://www.igaworks.com/term', '_blank')">
+  <div class="ref-page-card-icon">🔗</div>
+  <div class="ref-page-card-body">
+    <h4>IGAW 서비스 이용약관</h4>
+    <p>디파이너리, 애드브릭스, 모바일인덱스, TV INDEX</p>
+  </div>
+  <div class="ref-page-card-actions">
+    <button class="btn btn-ghost" onclick="event.stopPropagation();">열기 ↗</button>
+  </div>
 </div>
-<div class="ref-card" onclick="window.open('https://www.igaworks.com/privacy', '_blank')">
-  <div class="ref-icon">📋</div>
-  <div class="ref-title">IGAW 개인정보처리방침</div>
-  <div class="ref-desc">2026. 06. 01. 시행</div>
+
+<div class="ref-page-card" style="cursor:pointer;" onclick="window.open('https://www.igaworks.com/privacy', '_blank')">
+  <div class="ref-page-card-icon">🔗</div>
+  <div class="ref-page-card-body">
+    <h4>IGAW 개인정보처리방침</h4>
+    <p>2026. 06. 01. 시행</p>
+  </div>
+  <div class="ref-page-card-actions">
+    <button class="btn btn-ghost" onclick="event.stopPropagation();">열기 ↗</button>
+  </div>
 </div>
-<div class="ref-card" onclick="window.open('https://www.igaworks.com/copyright', '_blank')">
-  <div class="ref-icon">📋</div>
-  <div class="ref-title">IGAW 저작권 정책</div>
-  <div class="ref-desc">데이터 활용 가이드 라인</div>
+
+<div class="ref-page-card" style="cursor:pointer;" onclick="window.open('https://www.igaworks.com/copyright', '_blank')">
+  <div class="ref-page-card-icon">🔗</div>
+  <div class="ref-page-card-body">
+    <h4>IGAW 저작권 정책</h4>
+    <p>데이터 활용 가이드 라인</p>
+  </div>
+  <div class="ref-page-card-actions">
+    <button class="btn btn-ghost" onclick="event.stopPropagation();">열기 ↗</button>
+  </div>
 </div>
-<div class="ref-card" onclick="window.open('https://www.adpopcorn.com/policy/media', '_blank')">
-  <div class="ref-icon">📋</div>
-  <div class="ref-title">ADP 서비스 이용약관</div>
-  <div class="ref-desc">매체 제휴, 리워드 광고 매체 제휴</div>
+
+<div class="ref-page-card" style="cursor:pointer;" onclick="window.open('https://www.adpopcorn.com/policy/media', '_blank')">
+  <div class="ref-page-card-icon">🔗</div>
+  <div class="ref-page-card-body">
+    <h4>ADP 서비스 이용약관</h4>
+    <p>매체 제휴, 리워드 광고 매체 제휴</p>
+  </div>
+  <div class="ref-page-card-actions">
+    <button class="btn btn-ghost" onclick="event.stopPropagation();">열기 ↗</button>
+  </div>
 </div>
-<div class="ref-card" onclick="window.open('https://www.adpopcorn.com/policy/privacy', '_blank')">
-  <div class="ref-icon">📋</div>
-  <div class="ref-title">ADP 개인정보처리방침</div>
-  <div class="ref-desc">2023. 09. 01. 시행</div>
+
+<div class="ref-page-card" style="cursor:pointer;" onclick="window.open('https://www.adpopcorn.com/policy/privacy', '_blank')">
+  <div class="ref-page-card-icon">🔗</div>
+  <div class="ref-page-card-body">
+    <h4>ADP 개인정보처리방침</h4>
+    <p>2023. 09. 01. 시행</p>
+  </div>
+  <div class="ref-page-card-actions">
+    <button class="btn btn-ghost" onclick="event.stopPropagation();">열기 ↗</button>
+  </div>
 </div>
-<div class="ref-card" onclick="window.open('https://www.adpopcorn.com/policy/privacy-optional', '_blank')">
-  <div class="ref-icon">📋</div>
-  <div class="ref-title">ADP 개인정보보호 약정서</div>
-  <div class="ref-desc">개인정보 처리업무 위탁에 관한 사항</div>
-</div>
-<div class="ref-page-card-actions">
-<button class="btn btn-ghost" onclick="openRefSingle('guide')">미리보기</button>
-<button class="btn btn-ghost" onclick="downloadRef('guide')">다운로드</button>
-</div>
+
+<div class="ref-page-card" style="cursor:pointer;" onclick="window.open('https://www.adpopcorn.com/policy/privacy-optional', '_blank')">
+  <div class="ref-page-card-icon">🔗</div>
+  <div class="ref-page-card-body">
+    <h4>ADP 개인정보보호 약정서</h4>
+    <p>개인정보 처리업무 위탁에 관한 사항</p>
+  </div>
+  <div class="ref-page-card-actions">
+    <button class="btn btn-ghost" onclick="event.stopPropagation();">열기 ↗</button>
+  </div>
 </div>
 </div>
 </div>`;
