@@ -909,48 +909,35 @@ function loadReviewFiles(reviewId) {
     .getReviewFiles(reviewId);
 }
 
-
-// ── 파일 목록 렌더링 (버전 순서) ──
 function renderFileList(files) {
   if (!files || !files.length) return '';
 
-  // 파일 타입별 아이콘
-  function getFileIcon(name) {
-    if (name.startsWith('원본_')) return '📄';
-    if (name.startsWith('클린본_')) return '📋';
-    if (name.startsWith('최종본_')) return '📑';
-    if (/_v\d+_/.test(name)) return '📝';
-    return '📄';
+  function getFileIcon(f) {
+    switch (f.uploaderRole) {
+      case 'legal':     return '⚖️';
+      case 'clean':     return '📋';
+      case 'final':     return '📑';
+      case 'requester': return '👤';
+      default:          return '📄';
+    }
   }
 
-  // 최신 파일 표시 (가장 최근 생성된 파일 기준)
-var maxVersionIdx = -1;
-var latestDate = '';
-files.forEach(function(f, idx) {
-  var created = f.createdDate || '';
-  if (created > latestDate) {
-    latestDate = created;
-    maxVersionIdx = idx;
-  }
-});
-
-  var html = files.map(function(f, idx) {
-    var icon = getFileIcon(f.name);
-    var isLatest = (idx === maxVersionIdx);
-    var latestBadge = isLatest ? ' <span style="font-size:0.7rem;background:var(--gold);color:var(--white);padding:1px 6px;border-radius:8px;font-weight:600;">최신</span>' : '';
-    var link = f.url || (f.fileId ? 'https://docs.google.com/document/d/' + f.fileId + '/edit' : '#');
-    var isOriginal = f.name.startsWith('원본_');
-    var readonlyBadge = isOriginal ? ' <span style="font-size:0.68rem;color:var(--text-muted);">(읽기 전용)</span>' : '';
-    var sizeStr = f.size ? ' <span style="font-size:0.68rem;color:var(--text-muted);">' + esc(f.size) + '</span>' : '';
+  var html = files.map(function(f) {
+    var icon = getFileIcon(f);
+    var latestBadge = f.isLatest ? ' <span style="font-size:0.7rem;background:var(--gold);color:var(--white);padding:1px 6px;border-radius:8px;font-weight:600;">최신</span>' : '';
+    var link = f.downloadUrl || (f.fileId ? 'https://drive.google.com/uc?export=download&id=' + f.fileId : '#');
+    var roleBadge = f.uploaderRole === 'requester' ? ' <span style="font-size:0.68rem;color:var(--text-muted);">👤 요청자</span>'
+                   : f.uploaderRole === 'legal'     ? ' <span style="font-size:0.68rem;color:var(--text-muted);">⚖️ 법무실</span>'
+                   : '';
+    var dateStr = f.uploadDateLabel ? ' <span style="font-size:0.68rem;color:var(--text-muted);">' + esc(f.uploadDateLabel) + '</span>' : '';
 
     return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);">' +
       '<span style="font-size:1rem;">' + icon + '</span>' +
       '<a href="' + esc(link) + '" target="_blank" style="font-family:var(--font);font-size:0.82rem;color:var(--ink);text-decoration:none;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(f.name) + '</a>' +
-      latestBadge + readonlyBadge + sizeStr +
+      latestBadge + roleBadge + dateStr +
       '</div>';
   }).join('');
 
-  // 다운로드 버튼 추가
   html += '<div style="margin-top:10px;display:flex;gap:8px;align-items:center;">' +
     '<button class="btn btn-ghost" onclick="downloadReviewFiles()" style="font-size:0.78rem;padding:6px 14px;border-radius:8px;">📥 파일 목록 다운로드</button>' +
     '<button class="btn btn-ghost" onclick="openReviewFolder()" style="font-size:0.78rem;padding:6px 14px;border-radius:8px;">📂 폴더 열기</button>' +
@@ -958,7 +945,6 @@ files.forEach(function(f, idx) {
 
   return html;
 }
-
 
 // ── 파일 목록 다운로드 (파일별 다운로드 링크 목록 표시) ──
 function downloadReviewFiles() {
@@ -1121,17 +1107,34 @@ function doFinalizeReview() {
     showAlert('합의완료 상태에서만 검토완료 처리가 가능합니다.', { title: '처리 불가', icon: '⚠️' });
     return;
   }
-    // 후속조치 선택 팝업
+
   var overlay = document.getElementById('next-action-overlay');
   if (!overlay) {
     overlay = document.createElement('div');
     overlay.id = 'next-action-overlay';
     overlay.style.cssText = 'display:flex;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:600;align-items:center;justify-content:center;';
     overlay.innerHTML =
-      '<div style="background:var(--white);border-radius:20px;padding:36px 32px;max-width:440px;width:92%;box-shadow:var(--shadow-lg);font-family:var(--font);text-align:center;">' +
+      '<div style="background:var(--white);border-radius:20px;padding:36px 32px;max-width:440px;width:92%;box-shadow:var(--shadow-lg);font-family:var(--font);text-align:center;max-height:90vh;overflow-y:auto;">' +
       '<div style="font-size:1.5rem;margin-bottom:14px;">📋</div>' +
       '<div style="font-size:1rem;font-weight:700;color:var(--ink);margin-bottom:8px;">후속 조치 선택</div>' +
-      '<div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:24px;">요청자가 진행할 후속 조치를 선택해 주세요.</div>' +
+      '<div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:20px;">요청자가 진행할 후속 조치를 선택해 주세요.</div>' +
+
+      '<div style="text-align:left;margin-bottom:20px;padding:14px;background:var(--surface);border-radius:12px;">' +
+        '<div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:10px;">클린본·최종본은 선택 사항입니다. 첨부 없이 진행해도 됩니다.</div>' +
+
+        '<div style="margin-bottom:10px;">' +
+          '<label style="display:block;font-size:0.8rem;font-weight:600;color:var(--ink);margin-bottom:4px;">📋 클린본</label>' +
+          '<input type="file" id="closeCleanFileInput" style="width:100%;font-size:0.78rem;" onchange="onCloseFileSelect(\'clean\', this)" />' +
+          '<div id="closeCleanFileName" style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">첨부된 파일 없음</div>' +
+        '</div>' +
+
+        '<div>' +
+          '<label style="display:block;font-size:0.8rem;font-weight:600;color:var(--ink);margin-bottom:4px;">📑 최종본</label>' +
+          '<input type="file" id="closeFinalFileInput" style="width:100%;font-size:0.78rem;" onchange="onCloseFileSelect(\'final\', this)" />' +
+          '<div id="closeFinalFileName" style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">첨부된 파일 없음</div>' +
+        '</div>' +
+      '</div>' +
+
       '<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;">' +
         '<button class="btn btn-ghost" onclick="submitFinalizeWithAction(\'일반품의서\')" style="width:100%;text-align:left;padding:14px 18px;font-size:0.88rem;">📝 일반품의서</button>' +
         '<button class="btn btn-ghost" onclick="submitFinalizeWithAction(\'ERP 등록 및 계약등록/변경품의\')" style="width:100%;text-align:left;padding:14px 18px;font-size:0.88rem;">💼 ERP 등록 및 계약등록/변경품의</button>' +
@@ -1143,25 +1146,88 @@ function doFinalizeReview() {
   } else {
     overlay.style.display = 'flex';
   }
+
+  // 매번 열 때마다 선택 상태 초기화
+  __closeSelectedFiles = { clean: null, final: null };
+  ['closeCleanFileName', 'closeFinalFileName'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = '첨부된 파일 없음';
+  });
+  ['closeCleanFileInput', 'closeFinalFileInput'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.value = '';
+  });
 }
 
-function submitFinalizeWithAction(nextAction) {
-  document.getElementById('next-action-overlay').style.display = 'none';
-  google.script.run
-    .withSuccessHandler(function(result) {
-      if (result && result.ok) {
-        var row = _revAll.find(function(r) { return r.id === _selectedRev.id; });
-        if (row) { row.status = '검토완료'; row.nextAction = nextAction; row.confirmedAt = fmtDateTimeKo(new Date()); _selectedRev = row; }
-        renderRevTable(_revFiltered.length ? _revFiltered : _revAll);
-        renderRevDetailPanel();
-      } else {
-        showAlert((result && result.error) || '알 수 없는 오류', { title: '처리 실패', icon: '❌' });
-      }
-    })
-    .withFailureHandler(function(err) {
-      showAlert(err.message || String(err), { title: '오류', icon: '❌' });
-    })
-    .finalizeReview(_selectedRev.id, nextAction);
+// ── 클린본/최종본 선택 상태 저장용 ──
+var __closeSelectedFiles = { clean: null, final: null };
+
+// ── 파일 선택 시 이름 표시 갱신 ──
+function onCloseFileSelect(kind, inputEl) {
+  var file = (inputEl.files && inputEl.files[0]) || null;
+  __closeSelectedFiles[kind] = file;
+  var labelEl = document.getElementById(kind === 'clean' ? 'closeCleanFileName' : 'closeFinalFileName');
+  if (labelEl) labelEl.textContent = file ? file.name : '첨부된 파일 없음';
+}
+
+// ── 클린본/최종본 파일을 Drive에 업로드 (기존 재검토 첨부와 동일한 방식) ──
+async function uploadCloseFileToDrive_(file) {
+  var freshToken = await new Promise(function(resolve) {
+    google.script.run.withSuccessHandler(resolve).withFailureHandler(function() { resolve(OAUTH_TOKEN); }).getFreshToken();
+  });
+  var activeToken = freshToken || OAUTH_TOKEN;
+
+  var initRes = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + activeToken,
+      'Content-Type': 'application/json',
+      'X-Upload-Content-Type': file.type || 'application/octet-stream',
+      'X-Upload-Content-Length': file.size
+    },
+    body: JSON.stringify({ name: file.name })
+  });
+  if (!initRes.ok) throw new Error('Drive 세션 시작 실패: ' + initRes.status);
+
+  var uploadUrl = initRes.headers.get('Location');
+  var uploadRes = await fetch(uploadUrl, { method: 'PUT', body: file });
+  if (!uploadRes.ok && uploadRes.status !== 200) throw new Error('업로드 실패: ' + uploadRes.status);
+
+  return (await uploadRes.json()).id;
+}
+
+// ── 후속조치 선택 + 클린본/최종본 첨부 최종 제출 ──
+async function submitFinalizeWithAction(nextAction) {
+  var overlay = document.getElementById('next-action-overlay');
+  var buttons = overlay.querySelectorAll('button');
+  buttons.forEach(function(b) { b.disabled = true; });
+
+  try {
+    var cleanFileId = __closeSelectedFiles.clean ? await uploadCloseFileToDrive_(__closeSelectedFiles.clean) : null;
+    var finalFileId = __closeSelectedFiles.final ? await uploadCloseFileToDrive_(__closeSelectedFiles.final) : null;
+
+    await new Promise(function(resolve, reject) {
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result && result.ok) resolve(result);
+          else reject(new Error((result && result.error) || '알 수 없는 오류'));
+        })
+        .withFailureHandler(function(err) { reject(new Error(err.message || String(err))); })
+        .finalizeReview(_selectedRev.id, nextAction, { cleanFileId: cleanFileId, finalFileId: finalFileId });
+    });
+
+    overlay.style.display = 'none';
+    __closeSelectedFiles = { clean: null, final: null };
+
+    var row = _revAll.find(function(r) { return r.id === _selectedRev.id; });
+    if (row) { row.status = '검토완료'; row.nextAction = nextAction; row.confirmedAt = fmtDateTimeKo(new Date()); _selectedRev = row; }
+    renderRevTable(_revFiltered.length ? _revFiltered : _revAll);
+    renderRevDetailPanel();
+  } catch (e) {
+    showAlert(e.message || String(e), { title: '처리 실패', icon: '❌' });
+  } finally {
+    buttons.forEach(function(b) { b.disabled = false; });
+  }
 }
 
 function handleRevReplyAttach(e) {
