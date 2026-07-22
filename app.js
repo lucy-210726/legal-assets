@@ -2121,6 +2121,32 @@ function handleDeepLink() {
       }, 500);
     }
   }
+  if (INIT_PAGE === 'myreview') {
+    showPage('myreview');
+    if (typeof INIT_REVIEW_ID !== 'undefined' && INIT_REVIEW_ID) {
+      var waitForLoadMy = setInterval(function() {
+        if (_myRevAll.length > 0 || document.getElementById('myrev-tbody').textContent.indexOf('내역이 없습니다') >= 0) {
+          clearInterval(waitForLoadMy);
+          selectMyRev(INIT_REVIEW_ID);
+        }
+      }, 500);
+    }
+  }
+} {
+  if (INIT_PAGE === 'submit') {
+    showPage('submit');
+  }
+  if (INIT_PAGE === 'reviewmgmt') {
+    showPage('reviewmgmt');
+    if (typeof INIT_REVIEW_ID !== 'undefined' && INIT_REVIEW_ID) {
+      var waitForLoad = setInterval(function() {
+        if (_revAll.length > 0 || document.getElementById('rev-tbody').textContent.indexOf('내역이 없습니다') >= 0) {
+          clearInterval(waitForLoad);
+          selectRev(INIT_REVIEW_ID);
+        }
+      }, 500);
+    }
+  }
 }
 
 // ════════════════════════════════════════════════════════════
