@@ -283,7 +283,7 @@ footer{background:var(--ink);color:rgba(255,255,255,0.4);text-align:center;paddi
 .sticky-head {
   position:sticky;
   top:var(--header-h, 98px);
-  z-index:50;
+  z-index:200;
   background:var(--white);
   padding-top:24px;
   padding-bottom:8px;
