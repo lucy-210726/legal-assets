@@ -26,7 +26,7 @@ PAGE_TEMPLATES.home = `
 
 PAGE_TEMPLATES.contract = `
 <div class="contract-page">
-<button class="page-back" onclick="goBack('contract')">← 뒤로가기</button>
+<button class="page-back" onclick="goBack('contract')">← 뒤로가기(Esc)</button>
 <div id="contract-type-select-view"><div class="section-label">Contract</div><div class="page-title">계약서 작성 및 검토</div><div class="page-subtitle">계약서 유형을 선택합니다</div><div style="display:grid;grid-template-columns:1fr;gap:16px;max-width:100%;"><div class="menu-card" onclick="selectContractMode('standard')"><div class="menu-icon">📝</div><div class="menu-arrow">→</div><h3>표준계약서</h3><p>IGAW · ADP 표준 양식을 자동으로 생성하고 다운로드, Slack 또는 메일로 전달받으세요.</p><div style="margin-top:14px;display:flex;gap:6px;flex-wrap:wrap;"><span class="tag igaw" style="margin-bottom:0;">IGAW</span><span class="tag adp" style="margin-bottom:0;">ADP</span></div></div><div class="menu-card" onclick="selectContractMode('nonstandard')"><div class="menu-icon">📋</div><div class="menu-arrow">→</div><h3>비표준계약서</h3><p>고객사 양식 계약서 및 부속서류를 첨부하여 검토를 요청해주세요.</p><div style="margin-top:14px;"><span class="tag" style="background:#f0fdf4;color:#166534;margin-bottom:0;">고객사 양식</span><span class="tag" style="background:#f0fdf4;color:#166534;margin-bottom:0;">비딩제안참가서</span><span class="tag" style="background:#f0fdf4;color:#166534;margin-bottom:0;">비밀유지서약서</span><span class="tag" style="background:#f0fdf4;color:#166534;margin-bottom:0;">청렴이행서약서</span><span class="tag" style="background:#f0fdf4;color:#166534;margin-bottom:0;">공문</span></div></div><div style="margin-top:24px;text-align:center;">
 <button class="btn btn-ghost" onclick="goToInquiryWithCategory('표준계약서 변경 요청')" style="font-size:0.85rem;">📄 표준계약서 변경 요청</button></div></div></div>
 <div id="contract-list-view" style="display:none;"><button class="page-back" onclick="showContractTypeSelect()" style="margin-bottom:24px;">← 유형 선택으로</button><div class="section-label">Contract Generator</div><div class="page-title">표준계약서 작성</div><div class="page-subtitle">계약서 유형을 선택하면 작성폼으로 이동합니다</div><div class="company-tabs"><button class="company-tab active" onclick="filterCompany('IGAW',event)">IGAW</button><button class="company-tab" onclick="filterCompany('ADP',event)">ADP</button></div><div class="search-bar" style="margin-bottom:20px;"><input type="text" id="contract-search" placeholder="계약서명 검색" oninput="filterContractGrid()">
@@ -41,7 +41,7 @@ PAGE_TEMPLATES.contract = `
 
 PAGE_TEMPLATES.submit = `
 <div class="contract-page wide">
-<button class="page-back" onclick="goBack('submit')">← 뒤로가기</button>
+<button class="page-back" onclick="goBack('submit')">← 뒤로가기(Esc)</button>
 <div class="section-label">Document Submission</div>
 <div class="page-title">계약서 원본 제출</div>
 <div class="page-subtitle">미제출 계약 목록에서 제출할 계약을 선택하면 모든 정보가 자동으로 입력됩니다.</div>
@@ -55,7 +55,7 @@ PAGE_TEMPLATES.submit = `
 
 PAGE_TEMPLATES.inquiry = `
 <div class="contract-page">
-<button class="page-back" onclick="goBack('inquiry')">← 뒤로가기</button>
+<button class="page-back" onclick="goBack('inquiry')">← 뒤로가기(Esc)</button>
 <div class="section-label">Legal Inquiry</div>
 <div class="page-title">문의하기</div>
 <div class="page-subtitle">ERP 등록, 티그리스 품의, 체결된 계약서 확인 등 법무 관련 문의를 남겨주세요.</div>
@@ -92,7 +92,7 @@ PAGE_TEMPLATES.inquiry = `
 
 PAGE_TEMPLATES.myinquiry = '' +
 '<div class="contract-page wide">' +
-'<button class="page-back" onclick="goBack(\'myinquiry\')">← 뒤로가기</button>' +
+'<button class="page-back" onclick="goBack(\'myinquiry\')">← 뒤로가기(Esc)</button>' +
 '<div class="section-label">MY INQUIRIES</div>' +
 '<div class="page-title">내 문의 현황</div>' +
 '<div class="page-subtitle">내가 접수한 문의 내역과 답변을 확인하세요.<br>💡매월 1일, <b>답변완료</b>된 문의 내역은 삭제됩니다.</div>' + 
@@ -145,7 +145,7 @@ PAGE_TEMPLATES.myinquiry = '' +
 
 PAGE_TEMPLATES.inqmgmt = `
 <div class="contract-page wide">
-<button class="page-back" onclick="goBack('inqmgmt')">← 뒤로가기</button>
+<button class="page-back" onclick="goBack('inqmgmt')">← 뒤로가기(Esc)</button>
 <div class="section-label">Inquiry Management</div>
 <div class="page-title">문의 관리</div>
 <div class="page-subtitle">접수된 문의 목록을 확인하고 답변을 전송하세요.</div>
@@ -161,7 +161,7 @@ PAGE_TEMPLATES.inqmgmt = `
 
 PAGE_TEMPLATES.reviewmgmt = `
 <div class="contract-page wide">
-<button class="page-back" onclick="goBack('reviewmgmt')">← 뒤로가기</button>
+<button class="page-back" onclick="goBack('reviewmgmt')">← 뒤로가기(Esc)</button>
 <div class="section-label">Review Dashboard</div>
 <div class="page-title">검토 요청 현황</div>
 <div class="page-subtitle">법무실로 요청된 계약 검토 사항을 확인하고 처리하세요.</div>
@@ -243,7 +243,7 @@ PAGE_TEMPLATES.reviewmgmt = `
 
 PAGE_TEMPLATES.myreview = `
 <div class="contract-page wide">
-<button class="page-back" onclick="goBack('myreview')">← 뒤로가기</button>
+<button class="page-back" onclick="goBack('myreview')">← 뒤로가기(Esc)</button>
 <div class="section-label">My Reviews</div>
 <div class="page-title">내 검토 현황</div>
 <div class="page-subtitle">내가 직접 검토 요청한 계약 건은 물론, 제3자가 나를 수신 또는 참조로 지정하여 진행한 계약 건의 검토 진행 상황을 확인할 수 있습니다.<br>수신, 참조로 지정된 계약 검토 건은 계약명 앞에 "CC" 표시가 되어 있습니다.</div>
@@ -353,7 +353,7 @@ PAGE_TEMPLATES.modals = `
 
 PAGE_TEMPLATES.reference = `
 <div class="contract-page">
-<button class="page-back" onclick="goBack('reference')">← 뒤로가기</button>
+<button class="page-back" onclick="goBack('reference')">← 뒤로가기(Esc)</button>
 <div class="section-label">Reference</div>
 <div class="page-title">참고 자료</div>
 <div class="page-subtitle">전결규정, 법무 매뉴얼 등 업무에 필요한 참고 자료를 확인하고 다운로드하세요.</div>
