@@ -2412,9 +2412,8 @@ else                { _dashRevPage += dir; renderDashRevPage(); }
 function scrollToSnap(idx) {var s = document.querySelectorAll('#page-home .snap-section');if (s[idx]) s[idx].scrollIntoView({ behavior: 'smooth' });}
 function setSnapHeight() {var tb = document.querySelector('.topbar');var hd = document.querySelector('header');var h  = window.innerHeight - (tb ? tb.offsetHeight : 0) - (hd ? hd.offsetHeight : 0);document.documentElement.style.setProperty('--snap-h', h + 'px');}
 function setStickyHeaderHeight() {
-  var tb = document.querySelector('.topbar');
   var hd = document.querySelector('header');
-  var h  = (tb ? tb.offsetHeight : 0) + (hd ? hd.offsetHeight : 0);
+  var h  = hd ? hd.offsetHeight : 68;
   document.documentElement.style.setProperty('--header-h', h + 'px');
 }
 function initSnapNav() {
