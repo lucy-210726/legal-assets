@@ -409,7 +409,7 @@ PAGE_TEMPLATES.reference = `
     <p>디파이너리, 애드브릭스, 모바일인덱스, TV INDEX</p>
   </div>
   <div class="ref-page-card-actions">
-    <button class="btn btn-ghost" onclick="event.stopPropagation();">열기 ↗</button>
+    <button class="btn btn-ghost" onclick="event.stopPropagation();window.open('https://www.igaworks.com/term', '_blank')">열기 ↗</button>
   </div>
 </div>
 
@@ -420,7 +420,7 @@ PAGE_TEMPLATES.reference = `
     <p>2026. 06. 01. 시행</p>
   </div>
   <div class="ref-page-card-actions">
-    <button class="btn btn-ghost" onclick="event.stopPropagation();">열기 ↗</button>
+    <button class="btn btn-ghost" onclick="event.stopPropagation();window.open('https://www.igaworks.com/privacy', '_blank')">열기 ↗</button>
   </div>
 </div>
 
@@ -431,7 +431,7 @@ PAGE_TEMPLATES.reference = `
     <p>데이터 활용 가이드 라인</p>
   </div>
   <div class="ref-page-card-actions">
-    <button class="btn btn-ghost" onclick="event.stopPropagation();">열기 ↗</button>
+    <button class="btn btn-ghost" onclick="event.stopPropagation();window.open('https://www.igaworks.com/copyright', '_blank')">열기 ↗</button>
   </div>
 </div>
 
@@ -442,7 +442,7 @@ PAGE_TEMPLATES.reference = `
     <p>매체 제휴, 리워드 광고 매체 제휴</p>
   </div>
   <div class="ref-page-card-actions">
-    <button class="btn btn-ghost" onclick="event.stopPropagation();">열기 ↗</button>
+    <button class="btn btn-ghost" onclick="event.stopPropagation();window.open('https://www.adpopcorn.com/policy/media', '_blank')">열기 ↗</button>
   </div>
 </div>
 
@@ -453,7 +453,7 @@ PAGE_TEMPLATES.reference = `
     <p>2023. 09. 01. 시행</p>
   </div>
   <div class="ref-page-card-actions">
-    <button class="btn btn-ghost" onclick="event.stopPropagation();">열기 ↗</button>
+    <button class="btn btn-ghost" onclick="event.stopPropagation();window.open('https://www.adpopcorn.com/policy/privacy', '_blank')">열기 ↗</button>
   </div>
 </div>
 
@@ -464,7 +464,7 @@ PAGE_TEMPLATES.reference = `
     <p>개인정보 처리업무 위탁에 관한 사항</p>
   </div>
   <div class="ref-page-card-actions">
-    <button class="btn btn-ghost" onclick="event.stopPropagation();">열기 ↗</button>
+    <button class="btn btn-ghost" onclick="event.stopPropagation();window.open('https://www.adpopcorn.com/policy/privacy-optional', '_blank')">열기 ↗</button>
   </div>
 </div>
 </div>
