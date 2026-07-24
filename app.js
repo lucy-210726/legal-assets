@@ -1496,6 +1496,24 @@ window._inqLegalCcList = [];
 var currentCompany='IGAW', currentContract=null, selectedInqCategory='';
 var _dashInterval = null;
 function showPage(p) {
+  var formView = document.getElementById('contract-form-view');
+  if (formView && formView.style.display === 'block' && currentContract && hasFormInput_()) {
+    showConfirm(
+      '작성 중인 내용이 저장되지 않고 삭제됩니다.\n정말 나가시겠습니까?',
+      {
+        title: '작성 중단',
+        icon: '⚠️',
+        type: 'danger',
+        okLabel: '나가기',
+        cancelLabel: '계속 작성',
+        onOk: function() { doShowPage_(p); }
+      }
+    );
+    return;
+  }
+  doShowPage_(p);
+}
+function doShowPage_(p) {
 var heroEl  = document.querySelector('.hero');
 var snapNav = document.getElementById('snap-nav');
 var footer  = document.querySelector('footer');
