@@ -455,7 +455,7 @@ var CONTRACTS_DATA = [
     desc: '디파이너리 이용에 관한 표준 계약서',
     autoWrite: false,
     templateId: '',
-    downloadId: '1dr-uZt55U849X50UlbY2_ZRNVyBFpmMJ09dn39lvsfE',
+    downloadId: '1nnIlWVrl1IxZT7kx-eYLrckd3Qp3K7t2aXTDI1AwFo4',
     fields: []
   },
   {
