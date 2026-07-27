@@ -402,7 +402,7 @@ PAGE_TEMPLATES.reference = `
 <button class="btn btn-ghost" onclick="downloadRef('guide')">다운로드</button>
 </div>
 </div>
-<div class="ref-page-card" style="cursor:pointer;" onclick="window.open('https://www.igaworks.com/term', '_blank')">
+<div class="ref-page-card">
   <div class="ref-page-card-icon">🔗</div>
   <div class="ref-page-card-body">
     <h4>IGAW 서비스 이용약관</h4>
@@ -413,7 +413,7 @@ PAGE_TEMPLATES.reference = `
   </div>
 </div>
 
-<div class="ref-page-card" style="cursor:pointer;" onclick="window.open('https://www.igaworks.com/privacy', '_blank')">
+<div class="ref-page-card">
   <div class="ref-page-card-icon">🔗</div>
   <div class="ref-page-card-body">
     <h4>IGAW 개인정보처리방침</h4>
@@ -424,7 +424,7 @@ PAGE_TEMPLATES.reference = `
   </div>
 </div>
 
-<div class="ref-page-card" style="cursor:pointer;" onclick="window.open('https://www.igaworks.com/copyright', '_blank')">
+<div class="ref-page-card">
   <div class="ref-page-card-icon">🔗</div>
   <div class="ref-page-card-body">
     <h4>IGAW 저작권 정책</h4>
@@ -435,7 +435,7 @@ PAGE_TEMPLATES.reference = `
   </div>
 </div>
 
-<div class="ref-page-card" style="cursor:pointer;" onclick="window.open('https://www.adpopcorn.com/policy/media', '_blank')">
+<div class="ref-page-card">
   <div class="ref-page-card-icon">🔗</div>
   <div class="ref-page-card-body">
     <h4>ADP 서비스 이용약관</h4>
@@ -446,7 +446,7 @@ PAGE_TEMPLATES.reference = `
   </div>
 </div>
 
-<div class="ref-page-card" style="cursor:pointer;" onclick="window.open('https://www.adpopcorn.com/policy/privacy', '_blank')">
+<div class="ref-page-card">
   <div class="ref-page-card-icon">🔗</div>
   <div class="ref-page-card-body">
     <h4>ADP 개인정보처리방침</h4>
@@ -457,7 +457,7 @@ PAGE_TEMPLATES.reference = `
   </div>
 </div>
 
-<div class="ref-page-card" style="cursor:pointer;" onclick="window.open('https://www.adpopcorn.com/policy/privacy-optional', '_blank')">
+<div class="ref-page-card">
   <div class="ref-page-card-icon">🔗</div>
   <div class="ref-page-card-body">
     <h4>ADP 개인정보보호 약정서</h4>
