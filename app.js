@@ -1902,6 +1902,7 @@ function toggleLinkedFields() {
     }
   });
 }
+
 function validateCurrentForm(){if(!currentContract) return false;for(var i=0;i<currentContract.fields.length;i++){var f=currentContract.fields[i];if(!f.required||f.section) continue;if(f.type==='checkbox'){if(!document.querySelectorAll('input[data-field="'+f.name+'"]:checked').length) return false;}else if(f.type==='radio'){if(!document.querySelector('input[name="f_'+f.name+'"]:checked')) return false;}else{var el=document.getElementById('f_'+f.name);if(!el||!el.value.trim()) return false;}}return true;}
 function collectFormData(){
   var d={};
@@ -3347,6 +3348,20 @@ function restoreLastForm() {
   });
 
   toggleLinkedFields();
+  
+    // ── ★ 여기에 추가 ──
+  contract.fields.forEach(function(f) {
+    if (f.type === 'checkbox' && f.options) {
+      f.options.forEach(function(o, idx) {
+        var num = idx + 1;
+        var feeEl = document.getElementById('f_fee_' + num);
+        var etcEl = document.getElementById('f_etc_' + num);
+        if (feeEl && data['fee_' + num]) feeEl.value = data['fee_' + num];
+        if (etcEl && data['etc_' + num]) etcEl.value = data['etc_' + num];
+      });
+    }
+  });
+  
   onFieldChange();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
