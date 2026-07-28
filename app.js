@@ -1514,6 +1514,9 @@ function showPage(p) {
   doShowPage_(p);
 }
 function doShowPage_(p) {
+var formView = document.getElementById('contract-form-view');
+if (formView) formView.style.display = 'none';
+currentContract = null;  
 var heroEl  = document.querySelector('.hero');
 var snapNav = document.getElementById('snap-nav');
 var footer  = document.querySelector('footer');
