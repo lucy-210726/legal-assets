@@ -198,9 +198,10 @@ PAGE_TEMPLATES.reviewmgmt = `
 </div>
 
 <!-- ═══ 검토 의견 작성 + 자주하는 답변 라벨 + 메일 발송 ═══ -->
-<div id="rev-reply-section" style="display:none;padding:0 28px 20px;">
-<div style="border:1px solid var(--border);border-radius:12px;background:var(--white);padding:20px;">
-<label style="font-family:var(--font);font-size:0.88rem;font-weight:700;color:var(--ink);display:block;margin-bottom:10px;">✏️ 검토 의견 작성</label>
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+  <label style="font-family:var(--font);font-size:0.88rem;font-weight:700;color:var(--ink);">✏️ 검토 의견 작성</label>
+  <button type="button" class="btn-ai" onclick="openCompareModal()">✨ AI 파일 비교</button>
+</div>
 
 <!-- 자주하는 답변 라벨 -->
 <div style="margin-bottom:12px;">
