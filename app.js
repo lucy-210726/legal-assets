@@ -3439,3 +3439,224 @@ window.addEventListener('beforeunload', function(e) {
     e.returnValue = '';
   }
 });
+
+// ════════════════════════════════════════════════════════════
+//  AI 파일 비교 (검토 의견 작성 지원)
+// ════════════════════════════════════════════════════════════
+var _compareFileA = { source: null, fileId: null, name: '', file: null };
+var _compareFileB = { source: null, fileId: null, name: '', file: null };
+
+function ensureCompareModal_() {
+  if (document.getElementById('compare-modal-overlay')) return;
+  var html =
+    '<div id="compare-modal-overlay" class="ai-modal-overlay" style="display:none;">' +
+      '<div class="ai-modal">' +
+        '<div class="ai-modal-head">' +
+          '<h4>✨ AI 파일 비교</h4>' +
+          '<button type="button" class="ai-modal-close" onclick="closeCompareModal()">✕</button>' +
+        '</div>' +
+        '<div class="ai-modal-body" id="compare-modal-body"></div>' +
+        '<div class="ai-modal-foot" id="compare-modal-foot"></div>' +
+      '</div>' +
+    '</div>';
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function openCompareModal() {
+  if (!_selectedRev) return;
+  ensureCompareModal_();
+  _compareFileA = { source: null, fileId: null, name: '', file: null };
+  _compareFileB = { source: null, fileId: null, name: '', file: null };
+  document.getElementById('compare-modal-overlay').style.display = 'flex';
+  document.getElementById('compare-modal-body').innerHTML = '<div class="ai-modal-loading"><div class="spinner"></div><p>파일 목록을 불러오는 중...</p></div>';
+  document.getElementById('compare-modal-foot').innerHTML = '';
+  google.script.run
+    .withSuccessHandler(function(result) {
+      window._revCompareFileOptions = (result && result.ok && result.files) ? result.files.map(function(f){ return { fileId: f.fileId, name: f.name }; }) : [];
+      renderCompareSelectStep_();
+    })
+    .withFailureHandler(function() {
+      window._revCompareFileOptions = [];
+      renderCompareSelectStep_();
+    })
+    .getReviewFiles(_selectedRev.id);
+}
+
+function closeCompareModal() {
+  var ov = document.getElementById('compare-modal-overlay');
+  if (ov) ov.style.display = 'none';
+}
+
+function renderCompareSelectStep_() {
+  var body =
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">' +
+      compareFileBlockHtml_('A') + compareFileBlockHtml_('B') +
+    '</div>' +
+    '<div id="compare-error" style="color:var(--red);font-size:0.82rem;margin-top:12px;display:none;"></div>';
+  document.getElementById('compare-modal-body').innerHTML = body;
+  document.getElementById('compare-modal-foot').innerHTML =
+    '<button type="button" class="btn btn-ghost" onclick="closeCompareModal()">취소</button>' +
+    '<button type="button" class="btn btn-gold" onclick="runCompareFiles()">비교 분석 시작</button>';
+}
+
+function compareFileBlockHtml_(label) {
+  return '<div style="border:1.5px solid var(--border);border-radius:10px;padding:14px;">' +
+    '<div style="font-weight:700;margin-bottom:10px;">버전 ' + label + '</div>' +
+    '<div style="display:flex;gap:8px;margin-bottom:10px;">' +
+      '<button type="button" class="btn btn-ghost" onclick="setCompareMode(\'' + label + '\',\'existing\')" style="flex:1;font-size:0.78rem;padding:6px;">📁 목록에서 선택</button>' +
+      '<button type="button" class="btn btn-ghost" onclick="setCompareMode(\'' + label + '\',\'upload\')" style="flex:1;font-size:0.78rem;padding:6px;">📎 파일 첨부</button>' +
+    '</div>' +
+    '<div id="cmp-' + label.toLowerCase() + '-area"></div>' +
+  '</div>';
+}
+
+function setCompareMode(target, mode) {
+  var area = document.getElementById('cmp-' + target.toLowerCase() + '-area');
+  if (!area) return;
+  if (mode === 'existing') {
+    var opts = window._revCompareFileOptions || [];
+    area.innerHTML = '<select onchange="onCompareExistingSelect(\'' + target + '\',this)" style="width:100%;padding:8px;border:1.5px solid var(--border);border-radius:8px;">' +
+      '<option value="">파일 선택...</option>' +
+      opts.map(function(f){ return '<option value="' + esc(f.fileId) + '" data-name="' + esc(f.name) + '">' + esc(f.name) + '</option>'; }).join('') +
+      '</select>';
+    (target === 'A' ? (_compareFileA = { source:'existing', fileId:null, name:'', file:null }) : (_compareFileB = { source:'existing', fileId:null, name:'', file:null }));
+  } else {
+    area.innerHTML =
+      '<label class="btn btn-ghost" for="cmp-' + target.toLowerCase() + '-input" style="display:inline-flex;align-items:center;gap:6px;font-size:0.78rem;padding:7px 16px;cursor:pointer;margin:0;">📎 파일 선택</label>' +
+      '<input type="file" id="cmp-' + target.toLowerCase() + '-input" accept=".docx,.pdf" style="display:none;" onchange="onCompareFileAttach(\'' + target + '\',this)">' +
+      '<div id="cmp-' + target.toLowerCase() + '-filename" style="font-size:0.75rem;color:var(--text-muted);margin-top:6px;">선택된 파일 없음</div>';
+    (target === 'A' ? (_compareFileA = { source:'upload', fileId:null, name:'', file:null }) : (_compareFileB = { source:'upload', fileId:null, name:'', file:null }));
+  }
+}
+
+function onCompareExistingSelect(target, sel) {
+  var opt = sel.options[sel.selectedIndex];
+  var data = { source:'existing', fileId: opt.value, name: opt.getAttribute('data-name') || '', file: null };
+  if (target === 'A') _compareFileA = data; else _compareFileB = data;
+}
+
+function onCompareFileAttach(target, input) {
+  var file = (input.files && input.files[0]) || null;
+  var labelEl = document.getElementById('cmp-' + target.toLowerCase() + '-filename');
+  if (labelEl) labelEl.textContent = file ? file.name : '선택된 파일 없음';
+  var data = { source:'upload', fileId:null, name: file ? file.name : '', file: file };
+  if (target === 'A') _compareFileA = data; else _compareFileB = data;
+}
+
+async function uploadCompareFile_(fileObj) {
+  var freshToken = await new Promise(function(resolve) {
+    google.script.run.withSuccessHandler(resolve).withFailureHandler(function() { resolve(OAUTH_TOKEN); }).getFreshToken();
+  });
+  var activeToken = freshToken || OAUTH_TOKEN;
+  var initRes = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable', {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + activeToken, 'Content-Type': 'application/json', 'X-Upload-Content-Type': fileObj.type || 'application/octet-stream', 'X-Upload-Content-Length': fileObj.size },
+    body: JSON.stringify({ name: fileObj.name })
+  });
+  if (!initRes.ok) throw new Error('Drive 세션 시작 실패: ' + initRes.status);
+  var uploadUrl = initRes.headers.get('Location');
+  var uploadRes = await fetch(uploadUrl, { method: 'PUT', body: fileObj });
+  if (!uploadRes.ok && uploadRes.status !== 200) throw new Error('업로드 실패: ' + uploadRes.status);
+  return (await uploadRes.json()).id;
+}
+
+async function runCompareFiles() {
+  var errEl = document.getElementById('compare-error');
+  errEl.style.display = 'none';
+
+  function invalid(f) { return !f.source || (f.source === 'existing' && !f.fileId) || (f.source === 'upload' && !f.file); }
+  if (invalid(_compareFileA) || invalid(_compareFileB)) {
+    errEl.textContent = '버전 A, B 모두 파일을 선택하거나 첨부해주세요.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  document.getElementById('compare-modal-body').innerHTML = '<div class="ai-modal-loading"><div class="spinner"></div><p>파일을 분석하고 있습니다...</p></div>';
+  document.getElementById('compare-modal-foot').innerHTML = '';
+
+  try {
+    var fileIdA = _compareFileA.fileId, nameA = _compareFileA.name;
+    var fileIdB = _compareFileB.fileId, nameB = _compareFileB.name;
+    if (_compareFileA.source === 'upload') { fileIdA = await uploadCompareFile_(_compareFileA.file); nameA = _compareFileA.file.name; }
+    if (_compareFileB.source === 'upload') { fileIdB = await uploadCompareFile_(_compareFileB.file); nameB = _compareFileB.file.name; }
+
+    var result = await new Promise(function(resolve, reject) {
+      google.script.run.withSuccessHandler(resolve).withFailureHandler(function(err) { reject(new Error(err.message || '비교 분석 실패')); }).compareReviewFiles(fileIdA, nameA, fileIdB, nameB);
+    });
+
+    if (!result || !result.ok) throw new Error((result && result.error) || '비교 분석 실패');
+    renderCompareResult_(result);
+  } catch (e) {
+    document.getElementById('compare-modal-body').innerHTML = '<div class="ai-modal-error">❌ ' + esc(e.message) + '</div>';
+    document.getElementById('compare-modal-foot').innerHTML = '<button type="button" class="btn btn-ghost" onclick="closeCompareModal()">닫기</button>';
+  }
+}
+
+function renderMarkdownSimple_(md) {
+  var lines = (md || '').split('\n');
+  var html = '';
+  var tableRows = [];
+  var inTable = false;
+
+  function inlineBold(s) { return esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>'); }
+
+  function flushTable() {
+    if (!tableRows.length) return;
+    var header = tableRows[0];
+    var body = tableRows.slice(2);
+    html += '<table style="width:100%;border-collapse:collapse;margin:10px 0;font-size:0.8rem;">';
+    html += '<tr>' + header.map(function(c){ return '<th style="text-align:left;padding:6px 8px;border-bottom:2px solid var(--border);background:var(--surface);">' + esc(c.trim()) + '</th>'; }).join('') + '</tr>';
+    body.forEach(function(row){
+      html += '<tr>' + row.map(function(c){ return '<td style="padding:6px 8px;border-bottom:1px solid var(--border);vertical-align:top;">' + esc(c.trim()) + '</td>'; }).join('') + '</tr>';
+    });
+    html += '</table>';
+    tableRows = [];
+    inTable = false;
+  }
+
+  lines.forEach(function(raw) {
+    var line = raw.trim();
+    if (line.indexOf('|') === 0) {
+      var parts = line.split('|');
+      parts.shift(); parts.pop();
+      tableRows.push(parts);
+      inTable = true;
+      return;
+    } else if (inTable) {
+      flushTable();
+    }
+
+    if (line.indexOf('### ') === 0) {
+      html += '<div style="font-weight:700;font-size:0.92rem;margin:18px 0 8px;color:var(--gold);">' + esc(line.slice(4)) + '</div>';
+    } else if (line.indexOf('**[') === 0) {
+      html += '<div style="font-weight:700;font-size:0.85rem;margin:14px 0 4px;">' + inlineBold(line) + '</div>';
+    } else if (line === '---') {
+      html += '<hr style="border:none;border-top:1px solid var(--border);margin:14px 0;">';
+    } else if (line.indexOf('- ') === 0) {
+      html += '<div style="font-size:0.82rem;margin:2px 0 2px 12px;">• ' + inlineBold(line.slice(2)) + '</div>';
+    } else if (line !== '') {
+      html += '<div style="font-size:0.84rem;line-height:1.65;margin:3px 0;">' + inlineBold(line) + '</div>';
+    }
+  });
+  if (inTable) flushTable();
+  return html;
+}
+
+function renderCompareResult_(result) {
+  window._compareReportRaw = result.report || '';
+  document.getElementById('compare-modal-body').innerHTML = renderMarkdownSimple_(result.report || '');
+  document.getElementById('compare-modal-foot').innerHTML =
+    '<button type="button" class="btn btn-ghost" onclick="closeCompareModal()">닫기</button>' +
+    '<button type="button" class="btn btn-gold" onclick="insertCompareToOpinion()">✅ 검토의견에 삽입</button>';
+}
+
+function insertCompareToOpinion() {
+  var report = window._compareReportRaw;
+  if (!report) return;
+  var textarea = document.getElementById('rev-reply-textarea');
+  if (!textarea) { closeCompareModal(); return; }
+  var cur = textarea.value;
+  textarea.value = cur + (cur && !cur.endsWith('\n') ? '\n\n' : '') + '[AI 파일 비교 리포트]\n' + report;
+  closeCompareModal();
+  textarea.focus();
+}
