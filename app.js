@@ -2172,6 +2172,12 @@ function initAuth() {
     USER_EMAIL = savedEmail;
     USER_NAME  = savedName;
     SLACK_USER_ID = savedId;
+    var legalEmails = ['lucy.kim@igaworks.com', 'ben.yang@igaworks.com'];
+    if (legalEmails.indexOf(USER_EMAIL.toLowerCase()) >= 0) {
+      IS_LEGAL_TEAM = 'true';
+      document.getElementById('nav-inqmgmt').style.display = 'block';
+      document.getElementById('nav-reviewmgmt').style.display = 'block';
+    }
     return;
   }
 
@@ -2210,7 +2216,13 @@ function submitLoginEmail() {
         localStorage.setItem('loc_userId', SLACK_USER_ID);
 
         document.getElementById('login-gate-overlay').style.display = 'none';
-
+        
+        var legalEmails = ['lucy.kim@igaworks.com', 'ben.yang@igaworks.com'];
+        if (legalEmails.indexOf(USER_EMAIL.toLowerCase()) >= 0) {
+        IS_LEGAL_TEAM = 'true';
+        document.getElementById('nav-inqmgmt').style.display = 'block';
+        document.getElementById('nav-reviewmgmt').style.display = 'block';
+      }
         // 문의하기 이름/부서 자동채우기 갱신
         var nameEl = document.getElementById('inq-name');
         if (nameEl && USER_NAME) { nameEl.value = USER_NAME; nameEl.readOnly = true; }
