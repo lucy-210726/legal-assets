@@ -198,7 +198,7 @@ PAGE_TEMPLATES.reviewmgmt = `
 </div>
 
 <!-- ═══ 검토 의견 작성 + 자주하는 답변 라벨 + 메일 발송 ═══ -->
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
   <label style="font-family:var(--font);font-size:0.88rem;font-weight:700;color:var(--ink);">✏️ 검토 의견 작성</label>
   <button type="button" class="btn-ai" onclick="openCompareModal()">✨ AI 파일 비교</button>
 </div>
