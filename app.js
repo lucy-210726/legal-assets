@@ -1117,39 +1117,61 @@ function doFinalizeReview() {
     overlay.style.cssText = 'display:flex;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:600;align-items:center;justify-content:center;';
     overlay.innerHTML =
       '<div style="background:var(--white);border-radius:20px;padding:36px 32px;max-width:440px;width:92%;box-shadow:var(--shadow-lg);font-family:var(--font);text-align:center;max-height:90vh;overflow-y:auto;">' +
-      '<div style="font-size:1.5rem;margin-bottom:14px;">📋</div>' +
-      '<div style="font-size:1rem;font-weight:700;color:var(--ink);margin-bottom:8px;">후속 조치 선택</div>' +
-      '<div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:20px;">요청자가 진행할 후속 조치를 선택해 주세요.</div>' +
 
-      '<div style="text-align:left;margin-bottom:20px;padding:14px;background:var(--surface);border-radius:12px;">' +
-        '<div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:10px;">클린본·최종본은 선택 사항입니다. 첨부 없이 진행해도 됩니다.</div>' +
+      // ── 선택 화면 (기존 내용 전체를 이 div로 감쌈) ──
+      '<div id="finalize-choice-panel">' +
+        '<div style="font-size:1.5rem;margin-bottom:14px;">📋</div>' +
+        '<div style="font-size:1rem;font-weight:700;color:var(--ink);margin-bottom:8px;">후속 조치 선택</div>' +
+        '<div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:20px;">요청자가 진행할 후속 조치를 선택해 주세요.</div>' +
 
-        '<div style="margin-bottom:10px;">' +
-          '<label style="display:block;font-size:0.8rem;font-weight:600;color:var(--ink);margin-bottom:4px;">📋 클린본</label>' +
-          '<input type="file" id="closeCleanFileInput" style="width:100%;font-size:0.78rem;" onchange="onCloseFileSelect(\'clean\', this)" />' +
-          '<div id="closeCleanFileName" style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">첨부된 파일 없음</div>' +
+        '<div style="text-align:left;margin-bottom:20px;padding:14px;background:var(--surface);border-radius:12px;">' +
+          '<div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:10px;">클린본·최종본은 선택 사항입니다. 첨부 없이 진행해도 됩니다.</div>' +
+
+          '<div style="margin-bottom:10px;">' +
+          '<div style="font-size:0.8rem;font-weight:600;color:var(--ink);margin-bottom:6px;">📋 클린본</div>' +
+          '<label class="btn btn-ghost" for="closeCleanFileInput" style="display:inline-flex;align-items:center;gap:6px;font-size:0.78rem;padding:7px 16px;cursor:pointer;margin:0;">📎 파일 선택</label>' +
+          '<input type="file" id="closeCleanFileInput" style="display:none;" onchange="onCloseFileSelect(\'clean\', this)" />' +
+          '<div id="closeCleanFileName" style="font-size:0.75rem;color:var(--text-muted);margin-top:6px;">첨부된 파일 없음</div>' +
         '</div>' +
-
         '<div>' +
-          '<label style="display:block;font-size:0.8rem;font-weight:600;color:var(--ink);margin-bottom:4px;">📑 최종본</label>' +
-          '<input type="file" id="closeFinalFileInput" style="width:100%;font-size:0.78rem;" onchange="onCloseFileSelect(\'final\', this)" />' +
-          '<div id="closeFinalFileName" style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">첨부된 파일 없음</div>' +
+          '<div style="font-size:0.8rem;font-weight:600;color:var(--ink);margin-bottom:6px;">📑 최종본</div>' +
+          '<label class="btn btn-ghost" for="closeFinalFileInput" style="display:inline-flex;align-items:center;gap:6px;font-size:0.78rem;padding:7px 16px;cursor:pointer;margin:0;">📎 파일 선택</label>' +
+          '<input type="file" id="closeFinalFileInput" style="display:none;" onchange="onCloseFileSelect(\'final\', this)" />' +
+          '<div id="closeFinalFileName" style="font-size:0.75rem;color:var(--text-muted);margin-top:6px;">첨부된 파일 없음</div>' +
         '</div>' +
+        '</div>' +
+
+        '<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;">' +
+          '<button class="btn btn-ghost" onclick="submitFinalizeWithAction(\'일반품의서\')" style="width:100%;text-align:left;padding:14px 18px;font-size:0.88rem;">📝 일반품의서</button>' +
+          '<button class="btn btn-ghost" onclick="submitFinalizeWithAction(\'ERP 등록 및 계약등록/변경품의\')" style="width:100%;text-align:left;padding:14px 18px;font-size:0.88rem;">💼 ERP 등록 및 계약등록/변경품의</button>' +
+          '<button class="btn btn-ghost" onclick="submitFinalizeWithAction(\'전자계약품의\')" style="width:100%;text-align:left;padding:14px 18px;font-size:0.88rem;">📄 전자계약품의</button>' +
+        '</div>' +
+        '<button onclick="document.getElementById(\'next-action-overlay\').style.display=\'none\'" style="padding:9px 24px;border-radius:10px;border:1.5px solid var(--border);background:var(--white);font-family:var(--font);font-size:0.85rem;font-weight:600;cursor:pointer;color:var(--text-muted);">취소</button>' +
       '</div>' +
 
-      '<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;">' +
-        '<button class="btn btn-ghost" onclick="submitFinalizeWithAction(\'일반품의서\')" style="width:100%;text-align:left;padding:14px 18px;font-size:0.88rem;">📝 일반품의서</button>' +
-        '<button class="btn btn-ghost" onclick="submitFinalizeWithAction(\'ERP 등록 및 계약등록/변경품의\')" style="width:100%;text-align:left;padding:14px 18px;font-size:0.88rem;">💼 ERP 등록 및 계약등록/변경품의</button>' +
-        '<button class="btn btn-ghost" onclick="submitFinalizeWithAction(\'전자계약품의\')" style="width:100%;text-align:left;padding:14px 18px;font-size:0.88rem;">📄 전자계약품의</button>' +
+      // ── 진행 상태 화면 (새로 추가, 기본 숨김) ──
+      '<div id="finalize-progress-panel" style="display:none;padding:20px 0 8px;">' +
+        '<div class="spinner" style="margin:0 auto 18px;"></div>' +
+        '<div id="finalize-progress-text" style="font-size:0.92rem;font-weight:700;color:var(--ink);margin-bottom:6px;">처리 중...</div>' +
+        '<div id="finalize-progress-sub" style="font-size:0.78rem;color:var(--text-muted);margin-bottom:16px;">잠시만 기다려 주세요.</div>' +
+        '<div style="background:var(--surface);border-radius:8px;height:8px;overflow:hidden;">' +
+          '<div id="finalize-progress-bar" style="height:100%;width:0%;background:var(--gold);transition:width 0.3s ease;"></div>' +
+        '</div>' +
+        '<div id="finalize-progress-pct" style="font-size:0.72rem;color:var(--text-muted);margin-top:6px;">0%</div>' +
       '</div>' +
-      '<button onclick="document.getElementById(\'next-action-overlay\').style.display=\'none\'" style="padding:9px 24px;border-radius:10px;border:1.5px solid var(--border);background:var(--white);font-family:var(--font);font-size:0.85rem;font-weight:600;cursor:pointer;color:var(--text-muted);">취소</button>' +
+
       '</div>';
     document.body.appendChild(overlay);
   } else {
     overlay.style.display = 'flex';
   }
 
-  // 매번 열 때마다 선택 상태 초기화
+  // 매번 열 때마다 선택 화면으로 리셋
+  var choicePanel = document.getElementById('finalize-choice-panel');
+  var progressPanel = document.getElementById('finalize-progress-panel');
+  if (choicePanel) choicePanel.style.display = 'block';
+  if (progressPanel) progressPanel.style.display = 'none';
+
   __closeSelectedFiles = { clean: null, final: null };
   ['closeCleanFileName', 'closeFinalFileName'].forEach(function(id) {
     var el = document.getElementById(id);
@@ -1197,16 +1219,41 @@ async function uploadCloseFileToDrive_(file) {
 
   return (await uploadRes.json()).id;
 }
-
+function setFinalizeProgress_(pct, text, sub) {
+  var bar = document.getElementById('finalize-progress-bar');
+  var pctEl = document.getElementById('finalize-progress-pct');
+  var textEl = document.getElementById('finalize-progress-text');
+  var subEl = document.getElementById('finalize-progress-sub');
+  if (bar) bar.style.width = pct + '%';
+  if (pctEl) pctEl.textContent = pct + '%';
+  if (textEl && text) textEl.textContent = text;
+  if (subEl && sub !== undefined) subEl.textContent = sub;
+}
 // ── 후속조치 선택 + 클린본/최종본 첨부 최종 제출 ──
 async function submitFinalizeWithAction(nextAction) {
   var overlay = document.getElementById('next-action-overlay');
-  var buttons = overlay.querySelectorAll('button');
-  buttons.forEach(function(b) { b.disabled = true; });
+  var choicePanel = document.getElementById('finalize-choice-panel');
+  var progressPanel = document.getElementById('finalize-progress-panel');
+
+  // ── 선택 화면 → 진행 화면 전환 ──
+  choicePanel.style.display = 'none';
+  progressPanel.style.display = 'block';
+  setFinalizeProgress_(5, '처리를 시작합니다...', '잠시만 기다려 주세요.');
 
   try {
-    var cleanFileId = __closeSelectedFiles.clean ? await uploadCloseFileToDrive_(__closeSelectedFiles.clean) : null;
-    var finalFileId = __closeSelectedFiles.final ? await uploadCloseFileToDrive_(__closeSelectedFiles.final) : null;
+    var cleanFileId = null, finalFileId = null;
+
+    if (__closeSelectedFiles.clean) {
+      setFinalizeProgress_(20, '클린본 업로드 중...', __closeSelectedFiles.clean.name);
+      cleanFileId = await uploadCloseFileToDrive_(__closeSelectedFiles.clean);
+    }
+
+    if (__closeSelectedFiles.final) {
+      setFinalizeProgress_(50, '최종본 업로드 중...', __closeSelectedFiles.final.name);
+      finalFileId = await uploadCloseFileToDrive_(__closeSelectedFiles.final);
+    }
+
+    setFinalizeProgress_(75, '검토완료 처리 중...', nextAction + ' 등록 중입니다.');
 
     await new Promise(function(resolve, reject) {
       google.script.run
@@ -1218,6 +1265,9 @@ async function submitFinalizeWithAction(nextAction) {
         .finalizeReview(_selectedRev.id, nextAction, { cleanFileId: cleanFileId, finalFileId: finalFileId });
     });
 
+    setFinalizeProgress_(100, '완료!', '검토가 완료 처리되었습니다.');
+    await new Promise(function(res) { setTimeout(res, 500); });
+
     overlay.style.display = 'none';
     __closeSelectedFiles = { clean: null, final: null };
 
@@ -1226,9 +1276,10 @@ async function submitFinalizeWithAction(nextAction) {
     renderRevTable(_revFiltered.length ? _revFiltered : _revAll);
     renderRevDetailPanel();
   } catch (e) {
+    // 실패 시 선택 화면으로 복귀 (재시도 가능하도록)
+    progressPanel.style.display = 'none';
+    choicePanel.style.display = 'block';
     showAlert(e.message || String(e), { title: '처리 실패', icon: '❌' });
-  } finally {
-    buttons.forEach(function(b) { b.disabled = false; });
   }
 }
 
