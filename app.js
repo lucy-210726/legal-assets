@@ -3464,6 +3464,12 @@ function ensureCompareModal_() {
 
 function openCompareModal() {
   if (!_selectedRev) return;
+  var replyTa = document.getElementById('rev-reply-textarea');
+  if (replyTa) {
+    window._revReplyCursorPos = { start: replyTa.selectionStart, end: replyTa.selectionEnd };
+  } else {
+    window._revReplyCursorPos = null;
+  }
   ensureCompareModal_();
   _compareFileA = { source: null, fileId: null, name: '', file: null };
   _compareFileB = { source: null, fileId: null, name: '', file: null };
@@ -3499,14 +3505,15 @@ function renderCompareSelectStep_() {
     '<button type="button" class="btn btn-gold" onclick="runCompareFiles()">비교 분석 시작</button>';
 }
 
-function compareFileBlockHtml_(label) {
+function compareFileBlockHtml_(target) {
+  var displayLabel = target === 'A' ? '📄 원본 문서' : '📝 비교 문서';
   return '<div style="border:1.5px solid var(--border);border-radius:10px;padding:14px;">' +
-    '<div style="font-weight:700;margin-bottom:10px;">버전 ' + label + '</div>' +
+    '<div style="font-weight:700;margin-bottom:10px;">' + displayLabel + '</div>' +
     '<div style="display:flex;gap:8px;margin-bottom:10px;">' +
-      '<button type="button" class="btn btn-ghost" onclick="setCompareMode(\'' + label + '\',\'existing\')" style="flex:1;font-size:0.78rem;padding:6px;">📁 목록에서 선택</button>' +
-      '<button type="button" class="btn btn-ghost" onclick="setCompareMode(\'' + label + '\',\'upload\')" style="flex:1;font-size:0.78rem;padding:6px;">📎 파일 첨부</button>' +
+      '<button type="button" class="btn btn-ghost" onclick="setCompareMode(\'' + target + '\',\'existing\')" style="flex:1;font-size:0.78rem;padding:6px;">📁 목록에서 선택</button>' +
+      '<button type="button" class="btn btn-ghost" onclick="setCompareMode(\'' + target + '\',\'upload\')" style="flex:1;font-size:0.78rem;padding:6px;">📎 파일 첨부</button>' +
     '</div>' +
-    '<div id="cmp-' + label.toLowerCase() + '-area"></div>' +
+    '<div id="cmp-' + target.toLowerCase() + '-area"></div>' +
   '</div>';
 }
 
@@ -3566,7 +3573,7 @@ async function runCompareFiles() {
 
   function invalid(f) { return !f.source || (f.source === 'existing' && !f.fileId) || (f.source === 'upload' && !f.file); }
   if (invalid(_compareFileA) || invalid(_compareFileB)) {
-    errEl.textContent = '버전 A, B 모두 파일을 선택하거나 첨부해주세요.';
+    errEl.textContent = '원본 문서와 비교 문서를 모두 선택하거나 첨부해주세요.';
     errEl.style.display = 'block';
     return;
   }
@@ -3642,21 +3649,44 @@ function renderMarkdownSimple_(md) {
   return html;
 }
 
+function splitCompareReport_(fullText) {
+  var marker = '===INSERT===';
+  var idx = (fullText || '').indexOf(marker);
+  if (idx === -1) {
+    // 구분자가 없으면 안전하게 전체를 모달용으로만 사용
+    return { display: fullText || '', insert: fullText || '' };
+  }
+  return {
+    display: fullText.slice(0, idx).trim(),
+    insert: fullText.slice(idx + marker.length).trim()
+  };
+}
+
 function renderCompareResult_(result) {
-  window._compareReportRaw = result.report || '';
-  document.getElementById('compare-modal-body').innerHTML = renderMarkdownSimple_(result.report || '');
+  var parts = splitCompareReport_(result.report || '');
+  window._compareInsertText = parts.insert;
+  document.getElementById('compare-modal-body').innerHTML = renderMarkdownSimple_(parts.display);
   document.getElementById('compare-modal-foot').innerHTML =
     '<button type="button" class="btn btn-ghost" onclick="closeCompareModal()">닫기</button>' +
     '<button type="button" class="btn btn-gold" onclick="insertCompareToOpinion()">✅ 검토의견에 삽입</button>';
 }
 
 function insertCompareToOpinion() {
-  var report = window._compareReportRaw;
-  if (!report) return;
+  var insertText = window._compareInsertText;
+  if (!insertText) return;
   var textarea = document.getElementById('rev-reply-textarea');
   if (!textarea) { closeCompareModal(); return; }
-  var cur = textarea.value;
-  textarea.value = cur + (cur && !cur.endsWith('\n') ? '\n\n' : '') + '[AI 파일 비교 리포트]\n' + report;
+
+  var pos = window._revReplyCursorPos;
+  var start = pos ? pos.start : textarea.value.length;
+  var end = pos ? pos.end : textarea.value.length;
+
+  var before = textarea.value.substring(0, start);
+  var after = textarea.value.substring(end);
+  textarea.value = before + (before && !before.endsWith('\n') ? '\n' : '') + insertText + (after && !after.startsWith('\n') ? '\n' : '') + after;
+
+  var newPos = before.length + (before && !before.endsWith('\n') ? 1 : 0) + insertText.length;
   closeCompareModal();
   textarea.focus();
+  textarea.setSelectionRange(newPos, newPos);
 }
