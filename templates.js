@@ -198,6 +198,7 @@ PAGE_TEMPLATES.reviewmgmt = `
 </div>
 
 <!-- ═══ 검토 의견 작성 + 자주하는 답변 라벨 + 메일 발송 ═══ -->
+<div style="padding:0 28px 20px;">
 <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
   <label style="font-family:var(--font);font-size:0.88rem;font-weight:700;color:var(--ink);">✏️ 검토 의견 작성</label>
   <button type="button" class="btn-ai" onclick="openCompareModal()">✨ AI 파일 비교</button>
@@ -233,6 +234,7 @@ PAGE_TEMPLATES.reviewmgmt = `
 <div style="display:flex;gap:8px;">
 <button class="btn btn-ghost" onclick="clearRevReply()" style="font-size:0.84rem;padding:9px 18px;">초기화</button>
 <button class="btn btn-gold" id="rev-reply-send-btn" onclick="sendRevReply()" style="font-size:0.84rem;padding:9px 22px;">📧 메일 발송 (회신완료) →</button>
+</div>
 </div>
 </div>
 </div>
