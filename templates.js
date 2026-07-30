@@ -237,8 +237,6 @@ PAGE_TEMPLATES.reviewmgmt = `
 </div>
 </div>
 </div>
-</div>
-</div>
 
 <div class="rev-detail-foot" id="rev-detail-foot"><button class="btn btn-ghost" onclick="clearRevSel()">닫기</button><button class="btn btn-gold" id="rev-confirm-btn" onclick="doConfirmReview()" style="display:none;">✅ 검토 확인 완료</button></div></div>
 </div>
