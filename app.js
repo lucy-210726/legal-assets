@@ -495,6 +495,7 @@ function doCancelInquiryProgress() {
       title: '진행 취소',
       icon: '↩',
       okLabel: '취소하기',
+      cancelLabel: '닫기',
       onOk: function() {
         var btn = document.getElementById('inq-cancel-progress-btn');
         if (btn) { btn.disabled = true; btn.textContent = '처리 중...'; }
@@ -1075,6 +1076,7 @@ function doCancelReview() {
       title: '진행 취소',
       icon: '↩',
       okLabel: '취소하기',
+      cancelLabel: '닫기',
       onOk: function() {
         google.script.run
           .withSuccessHandler(function(result) {
