@@ -474,10 +474,8 @@ function renderInqDetailPanel() {
     startBtnWrap.id = 'inq-start-btn-wrap';
     startBtnWrap.style.cssText = 'padding:0 28px 16px;';
     startBtnWrap.innerHTML =
-    '<button id="inq-start-btn" onclick="startInquiry()" ' +
-    'style="font-family:var(--font);font-size:0.82rem;font-weight:700;padding:8px 20px;' +
-    'border-radius:8px;border:1.5px solid var(--gold);background:transparent;color:var(--gold);' +
-    'cursor:pointer;">▶ 진행</button>';
+    '<button id="inq-start-btn" class="btn btn-dark" onclick="startInquiry()" ' +
+    'style="width:auto;padding:8px 20px;font-size:0.82rem;">▶ 진행</button>';
     replySection.insertBefore(startBtnWrap, replySection.firstChild);
   }
 
