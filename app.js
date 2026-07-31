@@ -408,7 +408,14 @@ function renderInqDetailPanel() {
   ].map(function(f) {
     return '<div class="inq-meta-item"><div class="inq-meta-lbl">' + f.lbl + '</div><div class="inq-meta-val">' + esc(f.val) + '</div></div>';
   }).join('');
-  document.getElementById('inq-detail-content').textContent = r.content;
+  document.getElementById('inq-detail-content').textContent = stripAttachLines(r.content);
+  var inqContentAttachEl = document.getElementById('inq-detail-content-attach');
+  if (!inqContentAttachEl) {
+    inqContentAttachEl = document.createElement('div');
+    inqContentAttachEl.id = 'inq-detail-content-attach';
+    document.getElementById('inq-detail-content').insertAdjacentElement('afterend', inqContentAttachEl);
+  }
+  inqContentAttachEl.innerHTML = renderAttachLinks(r.content);
 
   var answerEl = document.getElementById('inq-detail-answer');
   if (isDone && r.answer) {
@@ -579,11 +586,34 @@ function renderAttachLinks(answerText){
 var lines=(answerText||'').split('\n').filter(function(l){return l.startsWith('[첨부파일]');});
 if(!lines.length) return '';
 var today=new Date(); today.setHours(0,0,0,0);
-var items=lines.map(function(line){var parts=line.replace('[첨부파일] ','').split(' | ');var name=parts[0]||'',expDateStr=(parts[1]||'').replace('만료: ','').trim(),url=parts[2]||'';var expDate=new Date(expDateStr); expDate.setHours(0,0,0,0);var isExpired=today>expDate,daysLeft=Math.ceil((expDate-today)/86400000);return {name:name,url:url,isExpired:isExpired,daysLeft:daysLeft,expDateStr:expDateStr};});
-return '<div class="attach-link-list">'+items.map(function(a){
-if(a.isExpired) return '<span class="attach-link-item expired">📄 '+esc(a.name)+'<span class="attach-expire-badge expired-badge">열람 기한 만료</span></span>';
-return '<a class="attach-link-item" href="'+esc(a.url)+'" target="_blank" onclick="return checkAttachExpiry(event,\''+esc(a.expDateStr)+'\')">📄 '+esc(a.name)+'<span class="attach-expire-badge">'+(a.daysLeft<=0?'오늘 만료':a.daysLeft===1?'내일 만료':a.daysLeft+'일 후 만료')+'</span></a>';
-}).join('')+'</div>';
+var items=lines.map(function(line){var parts=line.replace('[첨부파일] ','').split(' | ');var name=parts[0]||'',expDateStr=(parts[1]||'').replace('만료: ','').trim(),url=parts[2]||'';var expDate=new Date(expDateStr); expDate.setHours(0,0,0,0);var isExpired=today>expDate,daysLeft=Math.ceil((expDate-today)/86400000);var fm=url.match(/\/file\/d\/([a-zA-Z0-9_-]+)\//);var fileId=fm?fm[1]:'';return {name:name,url:url,fileId:fileId,isExpired:isExpired,daysLeft:daysLeft,expDateStr:expDateStr};});
+return items.map(function(a){
+var badgeText=a.isExpired?'열람 기한 만료':(a.daysLeft<=0?'오늘 만료':a.daysLeft===1?'내일 만료':a.daysLeft+'일 후 만료');
+var badgeColor=a.isExpired?'#e74c3c':'var(--text-muted)';
+if(a.isExpired){
+return '<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;margin-top:6px;background:var(--surface);border:1px solid var(--border);border-radius:8px;opacity:0.6;"><span>📄</span><span style="flex:1;font-size:0.82rem;">'+esc(a.name)+'</span><span style="font-size:0.7rem;color:'+badgeColor+';white-space:nowrap;">'+esc(badgeText)+'</span></div>';
+}
+var previewUrl=a.fileId?'https://drive.google.com/file/d/'+a.fileId+'/preview':a.url;
+var downloadUrl=a.fileId?'https://drive.google.com/uc?export=download&id='+a.fileId:a.url;
+return '<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;margin-top:6px;background:var(--surface);border:1px solid var(--border);border-radius:8px;flex-wrap:wrap;">'+
+'<span>📄</span>'+
+'<span style="flex:1;font-size:0.82rem;min-width:120px;">'+esc(a.name)+'</span>'+
+'<span style="font-size:0.7rem;color:'+badgeColor+';white-space:nowrap;">'+esc(badgeText)+'</span>'+
+'<button type="button" onclick="event.stopPropagation();openAttachPreview(\''+esc(previewUrl)+'\',\''+esc(a.name)+'\',\''+esc(a.expDateStr)+'\')" style="font-family:var(--font);font-size:0.74rem;font-weight:600;padding:5px 12px;border-radius:6px;border:1.5px solid var(--gold);background:transparent;color:var(--gold);cursor:pointer;white-space:nowrap;">👁 미리보기</button>'+
+'<a href="'+esc(downloadUrl)+'" target="_blank" onclick="return checkAttachExpiry(event,\''+esc(a.expDateStr)+'\')" style="font-family:var(--font);font-size:0.74rem;font-weight:600;padding:5px 12px;border-radius:6px;border:1.5px solid var(--border);background:var(--white);color:var(--text);cursor:pointer;text-decoration:none;white-space:nowrap;">⬇ 다운로드</a>'+
+'</div>';
+}).join('');
+}
+function openAttachPreview(url,name,expDateStr){
+var today=new Date(); today.setHours(0,0,0,0);
+var expDate=new Date(expDateStr); expDate.setHours(0,0,0,0);
+if(today>expDate){ showAlert('열람 기한이 만료된 파일입니다.\n보안상 이유로 더 이상 열람할 수 없습니다.',{title:'열람 기한 만료',icon:'⚠️'}); return; }
+document.getElementById('ref-modal-title').textContent = name + ' 미리보기';
+document.getElementById('ref-modal-tabs').style.display = 'none';
+document.getElementById('ref-modal-iframe').src = url;
+var notice = document.getElementById('preview-page-notice');
+if (notice) notice.style.display = 'none';
+document.getElementById('ref-modal-overlay').style.display = 'flex';
 }
 function checkAttachExpiry(e,expDateStr){var today=new Date(); today.setHours(0,0,0,0);var expDate=new Date(expDateStr); expDate.setHours(0,0,0,0);if(today>expDate){ e.preventDefault(); showAlert('열람 기한이 만료된 파일입니다.\n보안상 이유로 더 이상 열람할 수 없습니다.',{title:'열람 기한 만료',icon:'⚠️'}); return false; }return true;}
 function startInquiry() {
@@ -1520,7 +1550,14 @@ function renderMyInqDetailPanel() {
     return '<div class="rev-meta-item"><div class="rev-meta-lbl">' + f.lbl + '</div><div class="rev-meta-val">' + esc(f.val) + '</div></div>';
   }).join('');
 
-  document.getElementById('myinq-detail-content').textContent = r.content;
+  document.getElementById('myinq-detail-content').textContent = stripAttachLines(r.content);
+  var myinqContentAttachEl = document.getElementById('myinq-detail-content-attach');
+  if (!myinqContentAttachEl) {
+    myinqContentAttachEl = document.createElement('div');
+    myinqContentAttachEl.id = 'myinq-detail-content-attach';
+    document.getElementById('myinq-detail-content').insertAdjacentElement('afterend', myinqContentAttachEl);
+  }
+  myinqContentAttachEl.innerHTML = renderAttachLinks(r.content);
 
   var answerWrap = document.getElementById('myinq-answer-wrap');
   var waitingWrap = document.getElementById('myinq-waiting-wrap');
