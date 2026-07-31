@@ -3,7 +3,7 @@ var PAGE_TEMPLATES = {};
 PAGE_TEMPLATES.home = `
 <section class="snap-section dark-b" id="snap-s0">
 <div class="dash-content">
-<div class="dash-top"><div><div class="section-label">Live Dashboard</div><div class="dash-title">법무실 진행 현황</div><div class="dash-sub">미처리 문의 및 계약서 검토 요청 실시간 현황</div></div><button class="btn-sm" onclick="loadDashboard()">↻ 새로고침</button></div>
+<div class="dash-top"><div><div class="section-label">Live Dashboard</div><div class="dash-title">진행 현황</div><div class="dash-sub">미처리 문의 및 계약서 검토 요청 실시간 현황</div></div><button class="btn-sm" onclick="loadDashboard()">↻ 새로고침</button></div>
 <div class="stat-cards">
 <div class="stat-card s-red"><span class="stat-card-label">문의 · 미답변</span><span class="stat-card-right"><span class="stat-card-num" id="sc-inq-pending">—</span><span class="stat-card-unit">건</span></span></div>
 <div class="stat-card s-blue"><span class="stat-card-label">문의 · 진행중</span><span class="stat-card-right"><span class="stat-card-num" id="sc-inq-progress">—</span><span class="stat-card-unit">건</span></span></div>
