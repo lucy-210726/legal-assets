@@ -469,16 +469,14 @@ function renderInqDetailPanel() {
     replySection.style.display = 'block';
     document.getElementById('inq-reply-textarea').value = '';
     var oldCancelWrap = document.getElementById('inq-cancel-progress-wrap'); if (oldCancelWrap) oldCancelWrap.style.display = 'none';
-    var oldStartBtn = document.getElementById('inq-start-btn'); if (oldStartBtn) oldStartBtn.remove();
-    if (!document.getElementById('inq-start-btn')) {
-      var footer = replySection.querySelector('.inq-reply-footer .btn-row');
-      var startBtn = document.createElement('button');
-      startBtn.id = 'inq-start-btn';
-      startBtn.className = 'btn btn-dark';
-      startBtn.textContent = '진행';
-      startBtn.onclick = startInquiry;
-      footer.insertBefore(startBtn, footer.querySelector('#inq-reply-btn'));
-    }
+    var oldStartWrap = document.getElementById('inq-start-btn-wrap'); if (oldStartWrap) oldStartWrap.remove();
+    var startBtnWrap = document.createElement('div');
+    startBtnWrap.id = 'inq-start-btn-wrap';
+    startBtnWrap.style.cssText = 'padding:0 28px 16px;';
+    startBtnWrap.innerHTML =
+      '<button id="inq-start-btn" class="btn btn-dark" onclick="startInquiry()" ' +
+      'style="width:100%;font-family:var(--font);font-size:0.88rem;font-weight:700;padding:12px;border-radius:10px;cursor:pointer;">▶ 진행</button>';
+    replySection.insertBefore(startBtnWrap, replySection.firstChild);
   }
 
   var panel = document.getElementById('inq-detail-panel');
