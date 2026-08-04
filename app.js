@@ -159,7 +159,7 @@ showAlert((result && result.error) || '알 수 없는 오류가 발생했습니�
 confirmBtn.disabled = false;
 confirmBtn.textContent = '확인';
 showAlert(err.message||String(err), { title:'오류', icon:'❌' });
-}).confirmContract(row.rowNum);
+}).confirmContract(row.rowNum, USER_EMAIL);
 } else {
 google.script.run.withSuccessHandler(function(result) {
 closeConfirmPopup();
@@ -1415,7 +1415,7 @@ function sendRevReply() {
         await new Promise(function(resolve, reject) {
           google.script.run.withSuccessHandler(function(result) {
             if (result && result.ok) resolve(result); else reject(new Error((result && result.error) || '발송 실패'));
-          }).withFailureHandler(function(err) { reject(new Error(err.message || String(err))); }).replyReview(_selectedRev.id, opinion, fileIdsJson);
+          }).withFailureHandler(function(err) { reject(new Error(err.message || String(err))); }).replyReview(_selectedRev.id, opinion, fileIdsJson, USER_EMAIL);
         });
         showAlert('검토 의견이 요청자에게 이메일로 발송되었습니다.', { title: '발송 완료', icon: '✅' });
         textarea.value = ''; _revReplyAttachFiles = []; renderRevReplyAttachList();
