@@ -619,7 +619,7 @@ function startInquiry() {
 if(!_selectedInq) return;
 var btn=document.getElementById('inq-start-btn');
 if(btn){btn.disabled=true;btn.textContent='처리 중...';}
-google.script.run.withSuccessHandler(function(result){if(result&&result.ok){var row=_inqAll.find(function(r){return r.id===_selectedInq.id;});if(row){row.status='진행중';row.assignee=result.assignee||USER_EMAIL;_selectedInq=row;}renderInqTable(_inqFiltered.length?_inqFiltered:_inqAll); renderInqDetailPanel();} else { showAlert((result&&result.error)||'알 수 없는 오류가 발생했습니다.',{title:'진행 처리 실패',icon:'❌'}); if(btn){btn.disabled=false;btn.textContent='진행';} }}).withFailureHandler(function(err){ showAlert(err.message||String(err),{title:'오류',icon:'❌'}); if(btn){btn.disabled=false;btn.textContent='진행';} }).startInquiry(_selectedInq.id);
+google.script.run.withSuccessHandler(function(result){if(result&&result.ok){var row=_inqAll.find(function(r){return r.id===_selectedInq.id;});if(row){row.status='진행중';row.assignee=result.assignee||USER_EMAIL;_selectedInq=row;}renderInqTable(_inqFiltered.length?_inqFiltered:_inqAll); renderInqDetailPanel();} else { showAlert((result&&result.error)||'알 수 없는 오류가 발생했습니다.',{title:'진행 처리 실패',icon:'❌'}); if(btn){btn.disabled=false;btn.textContent='진행';} }}).withFailureHandler(function(err){ showAlert(err.message||String(err),{title:'오류',icon:'❌'}); if(btn){btn.disabled=false;btn.textContent='진행';} }).startInquiry(_selectedInq.id, USER_EMAIL);
 }
 async function sendInqReply(mode) {
 if(!_selectedInq) return;
