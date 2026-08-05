@@ -477,6 +477,14 @@ function renderInqDetailPanel() {
     '<button id="inq-start-btn" class="btn btn-dark" onclick="startInquiry()" ' +
     'style="width:auto;padding:8px 20px;font-size:0.82rem;">▶ 진행</button>';
     replySection.insertBefore(startBtnWrap, replySection.firstChild);
+    // ★ 추가: 진행 버튼을 누르기 전에는 답변 전송 불가
+    var replyBtn = document.getElementById('inq-reply-btn');
+    if (replyBtn) {
+      replyBtn.disabled = true;
+      replyBtn.title = '먼저 "▶ 진행" 버튼을 클릭해주세요.';
+      replyBtn.style.opacity = '0.4';
+      replyBtn.style.cursor = 'not-allowed';
+    }
   }
 
   var panel = document.getElementById('inq-detail-panel');
