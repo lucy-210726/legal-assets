@@ -977,14 +977,18 @@ function renderFileList(files) {
   return html;
 }
 
-// ── 파일 목록 다운로드 (파일별 다운로드 링크 목록 표시) ──
+// ── 현재 활성화된 검토 요청 + 해당 파일목록 DOM을 반환 ──
+function getActiveRevContext_() {
+  if (_selectedRev)   return { rev: _selectedRev,   listEl: document.getElementById('rev-files-list') };
+  if (_mySelectedRev) return { rev: _mySelectedRev, listEl: document.getElementById('myrev-files-list') };
+  return { rev: null, listEl: null };
+}
+
 function downloadReviewFiles() {
-  if (!_selectedRev) return;
+  var ctx = getActiveRevContext_();
+  if (!ctx.rev) return;
+  var listEl = ctx.listEl;
 
-  var listEl = document.getElementById('rev-files-list');
-  var originalHtml = listEl ? listEl.innerHTML : '';
-
-  // 로딩 표시
   if (listEl) {
     var downloadArea = listEl.querySelector('#rev-download-area');
     if (downloadArea) { downloadArea.remove(); }
@@ -1022,17 +1026,16 @@ function downloadReviewFiles() {
     .withFailureHandler(function(err) {
       showAlert('파일 목록을 불러올 수 없습니다: ' + (err.message || String(err)), { title: '오류', icon: '❌' });
     })
-    .getReviewFileDownloadList(_selectedRev.id);
+    .getReviewFileDownloadList(ctx.rev.id);
 }
 
-
-// ── 검토 폴더 열기 ──
 function openReviewFolder() {
-  if (!_selectedRev || !_selectedRev.reviewCaseFolderId) {
+  var ctx = getActiveRevContext_();
+  if (!ctx.rev || !ctx.rev.reviewCaseFolderId) {
     showAlert('검토 폴더가 없습니다.', { title: '폴더 없음', icon: 'ℹ️' });
     return;
   }
-  window.open('https://drive.google.com/drive/folders/' + _selectedRev.reviewCaseFolderId, '_blank');
+  window.open('https://drive.google.com/drive/folders/' + ctx.rev.reviewCaseFolderId, '_blank');
 }
 
 
