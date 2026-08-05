@@ -1382,7 +1382,16 @@ function insertQuickLabel(text) {
 
 function clearRevReply() {
   var textarea = document.getElementById('rev-reply-textarea');
-  if (textarea) textarea.value = '';
+  if (textarea && _selectedRev) {
+    var assigneeName = koreanNameOnly(_selectedRev.confirmedBy || USER_NAME || '');
+    var requesterShort = koreanNameOnly(_selectedRev.requesterName || '담당자');
+    var defaultTemplate = requesterShort + '님, 안녕하세요.\n법무실 ' + assigneeName + '입니다.\n\n\n\n감사합니다.\n' + assigneeName + ' 드림.';
+    textarea.value = defaultTemplate;
+    var cursorPos = defaultTemplate.indexOf('\n\n\n');
+    if (cursorPos >= 0) { textarea.focus(); textarea.setSelectionRange(cursorPos + 1, cursorPos + 1); }
+  } else if (textarea) {
+    textarea.value = '';
+  }
   _revReplyAttachFiles = [];
   renderRevReplyAttachList();
 }
