@@ -1668,6 +1668,7 @@ loadMemberList(function(members) {
   checkInquiryReady();
 });
 openInquiryChatbot();  
+ensureChatbotFab_();  
 }
 if(p==='home'){
 var homeEl = document.getElementById('page-home');
@@ -3783,6 +3784,22 @@ function ensureChatbotModal_() {
       '</div>' +
     '</div>';
   document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function ensureChatbotFab_() {
+  if (document.getElementById('chatbot-fab-btn')) return;
+  var container = document.getElementById('inquiry-main') || document.getElementById('page-inquiry');
+  if (!container) return;
+  var btn = document.createElement('button');
+  btn.id = 'chatbot-fab-btn';
+  btn.type = 'button';
+  btn.innerHTML = '💬';
+  btn.title = 'AI 상담 다시 열기';
+  btn.onclick = function () { openInquiryChatbot(); };
+  btn.style.cssText = 'position:fixed;right:24px;bottom:24px;width:56px;height:56px;border-radius:50%;' +
+    'background:var(--gold);color:white;border:none;font-size:1.4rem;cursor:pointer;' +
+    'box-shadow:0 4px 14px rgba(0,0,0,0.25);z-index:50;display:flex;align-items:center;justify-content:center;';
+  container.appendChild(btn);
 }
 
 function openInquiryChatbot() {
