@@ -1667,6 +1667,7 @@ loadMemberList(function(members) {
   if (me && me.dept) { var deptEl = document.getElementById('inq-dept'); if (deptEl) { deptEl.value = me.dept; deptEl.readOnly = true; deptEl.style.background = '#f5f5f5'; } }
   checkInquiryReady();
 });
+openInquiryChatbot();  
 }
 if(p==='home'){
 var homeEl = document.getElementById('page-home');
@@ -3746,4 +3747,132 @@ function insertCompareToOpinion() {
   closeCompareModal();
   textarea.focus();
   textarea.setSelectionRange(newPos, newPos);
+}
+
+// ════════════════════════════════════════════════════════════
+//  문의하기 챗봇 — app.js 아무 곳에나 (파일 끝 권장) 통째로 붙여넣으세요.
+//  ※ 기존 ai-modal-overlay / btn-gold / btn-ghost 스타일을 재사용합니다.
+//  ※ 연결 방법(딱 1곳 수정): doShowPage_() 함수 안에서
+//      if(p==='inquiry'){ ... } 블록의 맨 끝에
+//      openInquiryChatbot();
+//    한 줄만 추가하면 됩니다. (아래 맨 밑에 위치 예시 있음)
+// ════════════════════════════════════════════════════════════
+
+var _chatbotHistory = [];
+
+function ensureChatbotModal_() {
+  if (document.getElementById('chatbot-modal-overlay')) return;
+  var html =
+    '<div id="chatbot-modal-overlay" class="ai-modal-overlay" style="display:none;">' +
+      '<div class="ai-modal" style="max-width:480px;display:flex;flex-direction:column;height:70vh;">' +
+        '<div class="ai-modal-head">' +
+          '<h4>💬 법무 AI 상담</h4>' +
+          '<button type="button" class="ai-modal-close" onclick="closeChatbotModal()">✕</button>' +
+        '</div>' +
+        '<div id="chatbot-msgs" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;"></div>' +
+        '<div id="chatbot-actions" style="padding:0 16px 8px;display:flex;gap:8px;flex-wrap:wrap;"></div>' +
+        '<div style="display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--border);">' +
+          '<input id="chatbot-input" type="text" placeholder="궁금한 점을 입력해주세요😊" ' +
+            'style="flex:1;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:0.85rem;" ' +
+            'onkeydown="if(event.key===\'Enter\'){event.preventDefault();sendChatbotMessage();}">' +
+          '<button class="btn btn-gold" onclick="sendChatbotMessage()" style="padding:10px 16px;font-size:0.82rem;">전송</button>' +
+        '</div>' +
+        '<div style="padding:8px 16px 14px;text-align:center;">' +
+          '<button class="btn btn-ghost" onclick="goToManualInquiry()" style="font-size:0.78rem;padding:6px 14px;">📝 법무실에 바로 문의하기 →</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function openInquiryChatbot() {
+  ensureChatbotModal_();
+  _chatbotHistory = [];
+  document.getElementById('chatbot-msgs').innerHTML = '';
+  document.getElementById('chatbot-actions').innerHTML = '';
+  document.getElementById('chatbot-input').value = '';
+  addChatbotBubble_('bot', '안녕하세요! 법무 원스톱 센터 AI 상담봇입니다.\n전결규정, 법무 매뉴얼, 계약서 작성 가이드, 이용약관·개인정보처리방침 등을 바탕으로 답변드려요.\n무엇이 궁금하신가요?');
+  document.getElementById('chatbot-modal-overlay').style.display = 'flex';
+  setTimeout(function () { document.getElementById('chatbot-input').focus(); }, 100);
+}
+
+function closeChatbotModal() {
+  var ov = document.getElementById('chatbot-modal-overlay');
+  if (ov) ov.style.display = 'none';
+}
+
+function addChatbotBubble_(role, text) {
+  var wrap = document.getElementById('chatbot-msgs');
+  var isBot = role === 'bot';
+  var bubble = document.createElement('div');
+  bubble.style.cssText = 'max-width:85%;padding:10px 14px;border-radius:14px;font-size:0.85rem;line-height:1.6;white-space:pre-wrap;' +
+    (isBot ? 'align-self:flex-start;background:var(--surface);color:var(--ink);border-bottom-left-radius:4px;'
+           : 'align-self:flex-end;background:var(--ink);color:white;border-bottom-right-radius:4px;');
+  bubble.textContent = text;
+  wrap.appendChild(bubble);
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
+function sendChatbotMessage() {
+  var input = document.getElementById('chatbot-input');
+  var msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  addChatbotBubble_('user', msg);
+  document.getElementById('chatbot-actions').innerHTML = '';
+
+  var loadingBubble = document.createElement('div');
+  loadingBubble.id = 'chatbot-loading';
+  loadingBubble.style.cssText = 'align-self:flex-start;font-size:0.8rem;color:var(--text-muted);padding:4px 14px;';
+  loadingBubble.textContent = '답변 작성 중...';
+  var wrap = document.getElementById('chatbot-msgs');
+  wrap.appendChild(loadingBubble);
+  wrap.scrollTop = wrap.scrollHeight;
+
+  google.script.run
+    .withSuccessHandler(function (result) {
+      var lb = document.getElementById('chatbot-loading'); if (lb) lb.remove();
+      if (result && result.ok) {
+        addChatbotBubble_('bot', result.answer);
+        _chatbotHistory.push({ role: 'user', content: msg });
+        _chatbotHistory.push({ role: 'bot', content: result.answer });
+        renderChatbotActions_(result.resolved);
+      } else {
+        addChatbotBubble_('bot', '죄송해요, 답변을 가져오지 못했습니다. 직접 문의를 이용해주세요.');
+        renderChatbotActions_(false);
+      }
+    })
+    .withFailureHandler(function (err) {
+      var lb = document.getElementById('chatbot-loading'); if (lb) lb.remove();
+      addChatbotBubble_('bot', '오류가 발생했습니다: ' + (err.message || String(err)));
+      renderChatbotActions_(false);
+    })
+    .askInquiryBot(JSON.stringify({ message: msg, history: _chatbotHistory }));
+}
+
+function renderChatbotActions_(resolved) {
+  var actions = document.getElementById('chatbot-actions');
+  if (resolved) {
+    actions.innerHTML =
+      '<button class="btn btn-ghost" style="font-size:0.78rem;padding:6px 14px;" onclick="document.getElementById(\'chatbot-input\').focus();">더 물어보기</button>' +
+      '<button class="btn btn-ghost" style="font-size:0.78rem;padding:6px 14px;border-color:var(--gold);color:var(--gold);" onclick="goToManualInquiry()">그래도 문의하기 →</button>';
+  } else {
+    actions.innerHTML =
+      '<button class="btn btn-gold" style="font-size:0.78rem;padding:6px 14px;" onclick="goToManualInquiry()">📝 법무실에 문의하기 →</button>';
+  }
+}
+
+// 챗봇 대화 요약을 문의 내용란에 자동으로 채워서, 법무팀이 맥락을 알 수 있게 함
+function goToManualInquiry() {
+  var summary = _chatbotHistory.map(function (h) {
+    return (h.role === 'user' ? '[문의자] ' : '[AI 답변] ') + h.content;
+  }).join('\n\n');
+  closeChatbotModal();
+  var contentEl = document.getElementById('inq-content');
+  if (contentEl && summary) {
+    contentEl.value = '(AI 상담 내용)\n' + summary + '\n\n(추가로 남기실 내용이 있다면 아래에 작성해주세요)\n';
+  }
+  checkInquiryReady();
+  var titleEl = document.getElementById('inq-title');
+  if (titleEl) titleEl.focus();
 }
