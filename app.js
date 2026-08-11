@@ -3788,18 +3788,19 @@ function ensureChatbotModal_() {
 
 function ensureChatbotFab_() {
   if (document.getElementById('chatbot-fab-btn')) return;
-  var container = document.getElementById('inquiry-main') || document.getElementById('page-inquiry');
+  var container = document.getElementById('inquiry-main');
   if (!container) return;
+  var wrap = document.createElement('div');
+  wrap.style.cssText = 'margin:0 0 16px;text-align:center;';
   var btn = document.createElement('button');
   btn.id = 'chatbot-fab-btn';
   btn.type = 'button';
-  btn.innerHTML = '💬';
-  btn.title = 'AI 상담 다시 열기';
+  btn.className = 'btn btn-gold';
+  btn.innerHTML = '💬 AI 상담 다시 열기';
+  btn.style.cssText = 'font-size:0.85rem;padding:10px 20px;';
   btn.onclick = function () { openInquiryChatbot(); };
-  btn.style.cssText = 'position:fixed;right:24px;bottom:24px;width:56px;height:56px;border-radius:50%;' +
-    'background:var(--gold);color:white;border:none;font-size:1.4rem;cursor:pointer;' +
-    'box-shadow:0 4px 14px rgba(0,0,0,0.25);z-index:50;display:flex;align-items:center;justify-content:center;';
-  container.appendChild(btn);
+  wrap.appendChild(btn);
+  container.insertBefore(wrap, container.firstChild);
 }
 
 function openInquiryChatbot() {
