@@ -3855,7 +3855,7 @@ function renderChatbotActions_(resolved) {
   var actions = document.getElementById('chatbot-actions');
   if (resolved) {
     actions.innerHTML =
-      '<button class="btn btn-ghost" style="font-size:0.78rem;padding:6px 14px;border-color:var(--gold);color:var(--gold);" onclick="goToManualInquiry()">그래도 문의하기 →</button>';
+      '<button class="btn btn-ghost" style="font-size:0.78rem;padding:6px 14px;border-color:var(--gold);color:var(--gold);" onclick="goToManualInquiry()">AI 답변을 토대로 법무실에 문의하기 →</button>';
   } else {
     actions.innerHTML =
       '<button class="btn btn-gold" style="font-size:0.78rem;padding:6px 14px;" onclick="goToManualInquiry()">📝 법무실에 문의하기 →</button>';
