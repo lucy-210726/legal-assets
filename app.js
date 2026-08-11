@@ -3764,20 +3764,20 @@ function ensureChatbotModal_() {
   if (document.getElementById('chatbot-modal-overlay')) return;
   var html =
     '<div id="chatbot-modal-overlay" class="ai-modal-overlay" style="display:none;">' +
-      '<div class="ai-modal" style="max-width:480px;display:flex;flex-direction:column;height:70vh;">' +
+      '<div class="ai-modal" style="max-width:640px;width:92%;display:flex;flex-direction:column;height:80vh;max-height:720px;">' +
         '<div class="ai-modal-head">' +
           '<h4>💬 법무 AI 상담</h4>' +
           '<button type="button" class="ai-modal-close" onclick="closeChatbotModal()">✕</button>' +
         '</div>' +
-        '<div id="chatbot-msgs" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;"></div>' +
-        '<div id="chatbot-actions" style="padding:0 16px 8px;display:flex;gap:8px;flex-wrap:wrap;"></div>' +
-        '<div style="display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--border);">' +
+        '<div id="chatbot-msgs" style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px;"></div>' +
+        '<div id="chatbot-actions" style="padding:0 20px 8px;display:flex;gap:8px;flex-wrap:wrap;"></div>' +
+        '<div style="display:flex;gap:8px;padding:14px 20px;border-top:1px solid var(--border);">' +
           '<input id="chatbot-input" type="text" placeholder="궁금한 점을 입력해주세요😊" ' +
             'style="flex:1;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:0.85rem;" ' +
             'onkeydown="if(event.key===\'Enter\'){event.preventDefault();sendChatbotMessage();}">' +
           '<button class="btn btn-gold" onclick="sendChatbotMessage()" style="padding:10px 16px;font-size:0.82rem;">전송</button>' +
         '</div>' +
-        '<div style="padding:8px 16px 14px;text-align:center;">' +
+        '<div style="padding:8px 20px 16px;text-align:center;">' +
           '<button class="btn btn-ghost" onclick="goToManualInquiry()" style="font-size:0.78rem;padding:6px 14px;">📝 법무실에 바로 문의하기 →</button>' +
         '</div>' +
       '</div>' +
@@ -3805,7 +3805,8 @@ function addChatbotBubble_(role, text) {
   var wrap = document.getElementById('chatbot-msgs');
   var isBot = role === 'bot';
   var bubble = document.createElement('div');
-  bubble.style.cssText = 'max-width:85%;padding:10px 14px;border-radius:14px;font-size:0.85rem;line-height:1.6;white-space:pre-wrap;' +
+  bubble.style.cssText = 'max-width:88%;padding:10px 14px;border-radius:14px;font-size:0.85rem;line-height:1.6;' +
+    'white-space:pre-wrap;word-break:keep-all;overflow-wrap:break-word;' +
     (isBot ? 'align-self:flex-start;background:var(--surface);color:var(--ink);border-bottom-left-radius:4px;'
            : 'align-self:flex-end;background:var(--ink);color:white;border-bottom-right-radius:4px;');
   bubble.textContent = text;
@@ -3854,7 +3855,6 @@ function renderChatbotActions_(resolved) {
   var actions = document.getElementById('chatbot-actions');
   if (resolved) {
     actions.innerHTML =
-      '<button class="btn btn-ghost" style="font-size:0.78rem;padding:6px 14px;" onclick="document.getElementById(\'chatbot-input\').focus();">더 물어보기</button>' +
       '<button class="btn btn-ghost" style="font-size:0.78rem;padding:6px 14px;border-color:var(--gold);color:var(--gold);" onclick="goToManualInquiry()">그래도 문의하기 →</button>';
   } else {
     actions.innerHTML =
