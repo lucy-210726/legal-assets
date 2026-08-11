@@ -3791,12 +3791,12 @@ function ensureChatbotFab_() {
   var container = document.getElementById('inquiry-main');
   if (!container) return;
   var wrap = document.createElement('div');
-  wrap.style.cssText = 'margin:0 0 16px;text-align:center;';
+  wrap.style.cssText = 'margin:0 0 16px;text-align:Left;';
   var btn = document.createElement('button');
   btn.id = 'chatbot-fab-btn';
   btn.type = 'button';
   btn.className = 'btn btn-gold';
-  btn.innerHTML = '💬 AI 상담 다시 열기';
+  btn.innerHTML = '💬 법무 AI 상담';
   btn.style.cssText = 'font-size:0.85rem;padding:10px 20px;';
   btn.onclick = function () { openInquiryChatbot(); };
   wrap.appendChild(btn);
