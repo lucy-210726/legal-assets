@@ -994,36 +994,52 @@ function getActiveRevContext_() {
 
 function downloadReviewFiles() {
   var ctx = getActiveRevContext_();
-  if (!ctx.rev) return;
+  if (!ctx.rev) {
+    // 조용히 종료하지 않고 사용자에게 상황을 알림
+    showAlert(
+      '선택된 검토 요청 정보를 찾을 수 없습니다.\n목록에서 검토 요청을 다시 선택한 뒤 시도해주세요.\n(문제가 반복되면 새로고침 후 다시 시도해주세요.)',
+      { title: '요청 정보 없음', icon: '⚠️' }
+    );
+    return;
+  }
   var listEl = ctx.listEl;
-
   if (listEl) {
     var downloadArea = listEl.querySelector('#rev-download-area');
     if (downloadArea) { downloadArea.remove(); }
   }
 
+  // 일정 시간 내 응답이 없으면 새로고침 안내 (google.script.run 채널 정체 대비)
+  var responded = false;
+  var timeoutId = setTimeout(function() {
+    if (!responded) {
+      showAlert(
+        '서버 응답이 지연되고 있습니다.\n페이지를 새로고침한 뒤 다시 시도해주세요.',
+        { title: '응답 지연', icon: '⏳' }
+      );
+    }
+  }, 15000);
+
   google.script.run
     .withSuccessHandler(function(result) {
+      responded = true;
+      clearTimeout(timeoutId);
+
       if (result && result.ok && result.files && result.files.length > 0) {
         var downloadHtml = '<div id="rev-download-area" style="margin-top:12px;padding:12px;background:#f8f9fa;border:1px solid var(--border);border-radius:10px;">' +
           '<div style="font-family:var(--font);font-size:0.78rem;font-weight:700;color:var(--ink-3);margin-bottom:8px;">📥 파일 다운로드</div>';
-
         result.files.forEach(function(f) {
           downloadHtml += '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;">' +
             '<a href="' + esc(f.downloadUrl) + '" target="_blank" download style="font-family:var(--font);font-size:0.8rem;color:var(--gold);text-decoration:none;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">⬇ ' + esc(f.name) + '</a>' +
             '<span style="font-size:0.7rem;color:var(--text-muted);white-space:nowrap;">' + esc(f.size) + '</span>' +
             '</div>';
         });
-
         if (result.folderUrl) {
           downloadHtml += '<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">' +
             '<a href="' + esc(result.folderUrl) + '" target="_blank" style="font-family:var(--font);font-size:0.78rem;color:var(--ink-3);text-decoration:none;">📂 Google Drive 폴더에서 전체 다운로드 →</a>' +
             '</div>';
         }
-
         downloadHtml += '<button onclick="this.parentElement.remove()" style="margin-top:8px;font-family:var(--font);font-size:0.72rem;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--white);color:var(--text-muted);cursor:pointer;">닫기</button>';
         downloadHtml += '</div>';
-
         if (listEl) {
           listEl.insertAdjacentHTML('beforeend', downloadHtml);
         }
@@ -1032,6 +1048,8 @@ function downloadReviewFiles() {
       }
     })
     .withFailureHandler(function(err) {
+      responded = true;
+      clearTimeout(timeoutId);
       showAlert('파일 목록을 불러올 수 없습니다: ' + (err.message || String(err)), { title: '오류', icon: '❌' });
     })
     .getReviewFileDownloadList(ctx.rev.id);
