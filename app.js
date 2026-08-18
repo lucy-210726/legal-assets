@@ -987,6 +987,16 @@ function renderFileList(files) {
 
 // ── 현재 활성화된 검토 요청 + 해당 파일목록 DOM을 반환 ──
 function getActiveRevContext_() {
+  var activePage = document.querySelector('.page.active');
+  var pageId = activePage ? activePage.id : '';
+
+  if (pageId === 'page-reviewmgmt' && _selectedRev) {
+    return { rev: _selectedRev, listEl: document.getElementById('rev-files-list') };
+  }
+  if (pageId === 'page-myreview' && _mySelectedRev) {
+    return { rev: _mySelectedRev, listEl: document.getElementById('myrev-files-list') };
+  }
+  // 폴백 (혹시 페이지 판별이 안 될 경우 대비)
   if (_selectedRev)   return { rev: _selectedRev,   listEl: document.getElementById('rev-files-list') };
   if (_mySelectedRev) return { rev: _mySelectedRev, listEl: document.getElementById('myrev-files-list') };
   return { rev: null, listEl: null };
