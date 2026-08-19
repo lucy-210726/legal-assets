@@ -541,7 +541,7 @@ loadLegalMembers(function(members){
 var sel = document.getElementById('inq-assignee-select');
 if (!sel) return;
 var currentName = _selectedInq ? (_selectedInq.assignee || '') : '';
-sel.innerHTML = '<option value="">담당자 선택...</option>' +
+sel.innerHTML = '<option value="">진행자 선택...</option>' +
 members.map(function(m) {
 var isSelected = (currentName && (m.name === currentName || m.email === currentName));
 return '<option value="' + esc(m.email) + '"' + (isSelected ? ' selected' : '') + '>' + esc(m.name) + '</option>';
