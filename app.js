@@ -548,7 +548,7 @@ return '<option value="' + esc(m.email) + '"' + (isSelected ? ' selected' : '') 
 }).join('');
 });
 }
-
+function doChangeAssignee(){if(!_selectedInq) return;var sel=document.getElementById('inq-assignee-select');var email=sel?sel.value:'';if(!email){showAlert('진행자를 선택해주세요.',{title:'선택 필요',icon:'⚠️'});return;}google.script.run.withSuccessHandler(function(result){if(result&&result.ok){var selectedOption=sel?sel.options[sel.selectedIndex]:null;var assigneeName=selectedOption?selectedOption.text:email.split('@')[0];var row=_inqAll.find(function(r){return r.id===_selectedInq.id;});if(row){row.assignee=assigneeName;_selectedInq=row;}document.getElementById('inq-progress-info').innerHTML='🔵 <strong>'+esc(assigneeName)+'</strong>님이 진행 중입니다. 답변을 이어서 작성하거나 전송할 수 있습니다.';renderInqTable(_inqFiltered.length?_inqFiltered:_inqAll);showAlert('담당자가 '+assigneeName+'님으로 변경되었습니다.',{title:'변경 완료',icon:'✅'});}else{showAlert((result&&result.error)||'알 수 없는 오류가 발생했습니다.',{title:'변경 실패',icon:'❌'});}}).withFailureHandler(function(err){showAlert(err.message||String(err),{title:'오류',icon:'❌'});}).changeInquiryAssignee(_selectedInq.id,email);}
 // ════════════════════════════════════════════════════════════
 //  답변 첨부 파일
 // ════════════════════════════════════════════════════════════
