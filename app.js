@@ -2936,7 +2936,7 @@ function renderMyRevDetailPanel() {
   document.getElementById('myrev-detail-meta').innerHTML = [
     { lbl: '요청자', val: r.requesterName || r.requesterEmail || '—' },
     { lbl: '요청일', val: fmtDateTimeKo(r.requestDate) },
-    { lbl: '담당자', val: r.confirmedBy || '미배정' },
+    { lbl: '진행자', val: r.confirmedBy || '미배정' },
     { lbl: '상태', val: r.status || '검토대기' }
   ].map(function(f) { return '<div class="rev-meta-item"><div class="rev-meta-lbl">' + f.lbl + '</div><div class="rev-meta-val">' + esc(f.val) + '</div></div>'; }).join('');
 
