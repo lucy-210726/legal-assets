@@ -305,21 +305,13 @@ btn.disabled = true; btn.textContent = '업로드 중...';
 var prog = document.getElementById('upload-progress');
 prog.style.display = 'block'; setProgress(5, '업로드 준비 중...');
 try {
-var freshToken = await new Promise(function(resolve){ google.script.run.withSuccessHandler(resolve).withFailureHandler(function(){resolve(OAUTH_TOKEN);}).getFreshToken(); });
-var activeToken = freshToken || OAUTH_TOKEN;
-setProgress(10, '드라이브 연결 중...');
-var initRes = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable', {method:'POST',headers:{'Authorization':'Bearer '+activeToken,'Content-Type':'application/json','X-Upload-Content-Type':'application/pdf','X-Upload-Content-Length':selectedFile.size},body:JSON.stringify({name:selectedFile.name,mimeType:'application/pdf'})});
-if (!initRes.ok) throw new Error('Drive 세션 시작 실패: '+initRes.status);
-var uploadUrl = initRes.headers.get('Location');
-if (!uploadUrl) throw new Error('업로드 URL을 받지 못했습니다.');
-setProgress(20, '파일 업로드 중...');
-var fileId;
-if (selectedFile.size > 5*1024*1024) { fileId = await resumableChunkUpload(uploadUrl, selectedFile, activeToken); }
-else {
-var uploadRes = await fetch(uploadUrl, {method:'PUT',headers:{'Content-Type':'application/pdf','Content-Length':selectedFile.size},body:selectedFile});
-if (!uploadRes.ok && uploadRes.status !== 200) throw new Error('파일 업로드 실패: '+uploadRes.status);
-fileId = (await uploadRes.json()).id;
-}
+setProgress(10, '파일 변환 중...');
+var base64Data = await fileToBase64(selectedFile);
+setProgress(40, '서버로 전송 중...');
+var uploadResult = await new Promise(function(resolve, reject) {
+google.script.run.withSuccessHandler(function(result){ if (result && result.ok) resolve(result); else reject(new Error((result && result.error)||'업로드 실패')); }).withFailureHandler(function(err){ reject(new Error(err.message||'서버 연결 실패')); }).uploadFileFromBase64(base64Data, selectedFile.name, 'application/pdf', '');
+});
+var fileId = uploadResult.fileId;
 if (!fileId) throw new Error('파일 ID를 받지 못했습니다.');
 setProgress(85, '시트 업데이트 중...');
 var r = selectedR;
@@ -337,6 +329,14 @@ setProgress(0,''); prog.style.display='none';
 btn.disabled=false; btn.textContent='제출하기 →';
 showAlert(e.message, {title:'오류가 발생했습니다',icon:'❌'});
 }
+}
+function fileToBase64(file) {
+return new Promise(function(resolve, reject) {
+var reader = new FileReader();
+reader.onload = function() { resolve(reader.result.split(',')[1]); };
+reader.onerror = function() { reject(new Error('파일 읽기 실패')); };
+reader.readAsDataURL(file);
+});
 }
 async function resumableChunkUpload(uploadUrl, file, activeToken) {
 var CHUNK = 5*1024*1024; var offset = 0; var fileId = null;
@@ -569,19 +569,13 @@ el.innerHTML=_attachFiles[prefix].map(function(a,i){return '<div class="attach-f
 function getExpireStr(){ var d=new Date(),days=0; while(days<3){d.setDate(d.getDate()+1);var dow=d.getDay();if(dow!==0&&dow!==6)days++;} return d.getFullYear().toString()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0'); }
 async function uploadAttachmentsToDrive(prefix) {
 var files=_attachFiles[prefix]; if(!files.length) return [];
-var freshToken=await new Promise(function(resolve){ google.script.run.withSuccessHandler(resolve).withFailureHandler(function(){resolve(OAUTH_TOKEN);}).getFreshToken(); });
-var activeToken=freshToken||OAUTH_TOKEN;
 var expireStr=getExpireStr(), results=[];
 for(var i=0;i<files.length;i++){
 var a=files[i]; var encodedName='EXPIRE_'+expireStr+'_'+a.name;
 try{
-var initRes=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable',{method:'POST',headers:{'Authorization':'Bearer '+activeToken,'Content-Type':'application/json','X-Upload-Content-Type':a.mimeType,'X-Upload-Content-Length':a.file.size},body:JSON.stringify({name:encodedName})});
-if(!initRes.ok) throw new Error('Drive 세션 시작 실패: '+initRes.status);
-var uploadUrl=initRes.headers.get('Location');
-var uploadRes=await fetch(uploadUrl,{method:'PUT',body:a.file});
-if(!uploadRes.ok&&uploadRes.status!==200) throw new Error('업로드 실패: '+uploadRes.status);
-var fileId=(await uploadRes.json()).id;
-await fetch('https://www.googleapis.com/drive/v3/files/'+fileId+'/permissions',{method:'POST',headers:{'Authorization':'Bearer '+activeToken,'Content-Type':'application/json'},body:JSON.stringify({role:'reader',type:'anyone'})});
+var base64=await fileToBase64(a.file);
+var uploadResult=await new Promise(function(resolve,reject){ google.script.run.withSuccessHandler(function(r){if(r&&r.ok)resolve(r);else reject(new Error((r&&r.error)||'업로드 실패'));}).withFailureHandler(function(err){reject(new Error(err.message||'서버 연결 실패'));}).uploadFileFromBase64(base64,encodedName,a.mimeType,''); });
+var fileId=uploadResult.fileId;
 results.push({name:a.name,fileId:fileId,expireStr:expireStr,url:'https://drive.google.com/file/d/'+fileId+'/view'});
 }catch(e){ showAlert(a.name+' 업로드 실패: '+e.message,{title:'파일 업로드 실패',icon:'❌'}); }
 }
@@ -1263,30 +1257,15 @@ function onCloseFileSelect(kind, inputEl) {
   if (labelEl) labelEl.textContent = file ? file.name : '첨부된 파일 없음';
 }
 
-// ── 클린본/최종본 파일을 Drive에 업로드 (기존 재검토 첨부와 동일한 방식) ──
+// ── 클린본/최종본 파일을 Drive에 업로드 (서버사이드) ──
 async function uploadCloseFileToDrive_(file) {
-  var freshToken = await new Promise(function(resolve) {
-    google.script.run.withSuccessHandler(resolve).withFailureHandler(function() { resolve(OAUTH_TOKEN); }).getFreshToken();
+  var base64 = await fileToBase64(file);
+  var result = await new Promise(function(resolve, reject) {
+    google.script.run.withSuccessHandler(function(r) { if (r && r.ok) resolve(r); else reject(new Error((r && r.error) || '업로드 실패')); })
+      .withFailureHandler(function(err) { reject(new Error(err.message || '서버 연결 실패')); })
+      .uploadFileFromBase64(base64, file.name, file.type || 'application/octet-stream', '');
   });
-  var activeToken = freshToken || OAUTH_TOKEN;
-
-  var initRes = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable', {
-    method: 'POST',
-    headers: {
-      'Authorization': 'Bearer ' + activeToken,
-      'Content-Type': 'application/json',
-      'X-Upload-Content-Type': file.type || 'application/octet-stream',
-      'X-Upload-Content-Length': file.size
-    },
-    body: JSON.stringify({ name: file.name })
-  });
-  if (!initRes.ok) throw new Error('Drive 세션 시작 실패: ' + initRes.status);
-
-  var uploadUrl = initRes.headers.get('Location');
-  var uploadRes = await fetch(uploadUrl, { method: 'PUT', body: file });
-  if (!uploadRes.ok && uploadRes.status !== 200) throw new Error('업로드 실패: ' + uploadRes.status);
-
-  return (await uploadRes.json()).id;
+  return result.fileId;
 }
 function setFinalizeProgress_(pct, text, sub) {
   var bar = document.getElementById('finalize-progress-bar');
@@ -1380,25 +1359,17 @@ function renderRevReplyAttachList() {
 
 async function uploadRevReplyAttachments() {
   if (!_revReplyAttachFiles.length) return [];
-  var freshToken = await new Promise(function(resolve) {
-    google.script.run.withSuccessHandler(resolve).withFailureHandler(function() { resolve(OAUTH_TOKEN); }).getFreshToken();
-  });
-  var activeToken = freshToken || OAUTH_TOKEN;
   var results = [];
   for (var i = 0; i < _revReplyAttachFiles.length; i++) {
     var a = _revReplyAttachFiles[i];
     try {
-      var initRes = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable', {
-        method: 'POST',
-        headers: { 'Authorization': 'Bearer ' + activeToken, 'Content-Type': 'application/json', 'X-Upload-Content-Type': a.mimeType, 'X-Upload-Content-Length': a.file.size },
-        body: JSON.stringify({ name: a.name })
+      var base64 = await fileToBase64(a.file);
+      var uploadResult = await new Promise(function(resolve, reject) {
+        google.script.run.withSuccessHandler(function(r) { if (r && r.ok) resolve(r); else reject(new Error((r && r.error) || '업로드 실패')); })
+          .withFailureHandler(function(err) { reject(new Error(err.message || '서버 연결 실패')); })
+          .uploadFileFromBase64(base64, a.name, a.mimeType, '');
       });
-      if (!initRes.ok) throw new Error('Drive 세션 시작 실패: ' + initRes.status);
-      var uploadUrl = initRes.headers.get('Location');
-      var uploadRes = await fetch(uploadUrl, { method: 'PUT', body: a.file });
-      if (!uploadRes.ok && uploadRes.status !== 200) throw new Error('업로드 실패: ' + uploadRes.status);
-      var fileId = (await uploadRes.json()).id;
-      results.push({ fileId: fileId, name: a.name });
+      results.push({ fileId: uploadResult.fileId, name: a.name });
     } catch (e) {
       showAlert(a.name + ' 업로드 실패: ' + e.message, { title: '파일 업로드 실패', icon: '❌' });
     }
@@ -1875,7 +1846,7 @@ function renderNsRecipientTags(tagsId,listKey){var container=document.getElement
 function selectNsParty(value, btn) {document.getElementById('ns-contract-party').value = value;document.querySelectorAll('.form-body .company-tabs .company-tab').forEach(function(t){ t.classList.remove('active'); });btn.classList.add('active');checkNsReady();}
 function resetNsForm(){_nsAttachFiles.length=0; renderNsAttachList();window._nsToList=[]; window._nsCcList=[];['ns-contract-name','ns-counter-party','ns-opinion','ns-to-input','ns-cc-input'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });var party=document.getElementById('ns-contract-party'); document.querySelectorAll('.form-body .company-tabs .company-tab').forEach(function(t){ t.classList.remove('active'); }); if(party) party.value='';['ns-to-tags','ns-cc-tags'].forEach(function(id){ var el=document.getElementById(id); if(el) el.innerHTML=''; });['ns-to-ac','ns-cc-ac'].forEach(function(id){ var el=document.getElementById(id); if(el) el.style.display='none'; });var btn=document.getElementById('ns-submit-btn'); if(btn) btn.disabled=true;}
 function resetNonStandard(){document.getElementById('nonstandard-form-wrap').style.display='block';resetNsForm();}
-async function submitNonStandard(){var contractName=document.getElementById('ns-contract-name')?document.getElementById('ns-contract-name').value.trim():'';var counterParty=document.getElementById('ns-counter-party')?document.getElementById('ns-counter-party').value.trim():'';var contractParty=document.getElementById('ns-contract-party')?document.getElementById('ns-contract-party').value:'';var opinion=document.getElementById('ns-opinion')?document.getElementById('ns-opinion').value.trim():'';if(!contractName||!counterParty||!contractParty||!_nsAttachFiles.length){showAlert('필수 항목을 모두 입력하고 파일을 첨부해주세요.',{title:'입력 필요',icon:'⚠️'}); return;}var btn=document.getElementById('ns-submit-btn');btn.disabled=true; btn.textContent='파일 업로드 중...';try{var freshToken=await new Promise(function(resolve){ google.script.run.withSuccessHandler(resolve).withFailureHandler(function(){resolve(OAUTH_TOKEN);}).getFreshToken(); });var activeToken=freshToken||OAUTH_TOKEN;var uploadedFiles=[];for(var i=0;i<_nsAttachFiles.length;i++){var a=_nsAttachFiles[i];btn.textContent='파일 업로드 중... ('+(i+1)+'/'+_nsAttachFiles.length+')';var initRes=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable',{method:'POST',headers:{'Authorization':'Bearer '+activeToken,'Content-Type':'application/json','X-Upload-Content-Type':a.mimeType,'X-Upload-Content-Length':a.file.size},body:JSON.stringify({name:a.name})});if(!initRes.ok) throw new Error('Drive 세션 시작 실패: '+initRes.status);var uploadUrl=initRes.headers.get('Location');var uploadRes=await fetch(uploadUrl,{method:'PUT',body:a.file});if(!uploadRes.ok&&uploadRes.status!==200) throw new Error('업로드 실패: '+uploadRes.status);var fileId=(await uploadRes.json()).id;uploadedFiles.push({name:a.name,fileId:fileId,url:'https://drive.google.com/file/d/'+fileId+'/view'});}btn.textContent='검토 요청 중...';await new Promise(function(resolve,reject){google.script.run.withSuccessHandler(function(result){ if(result&&result.ok) resolve(result); else reject(new Error((result&&result.error)||'검토 요청 실패')); }).withFailureHandler(function(err){reject(new Error(err.message||'검토 요청 실패'));}).submitNonStandardReview({contractName:contractName, counterParty:counterParty, contractParty:contractParty, opinion:opinion,files:JSON.stringify(uploadedFiles),toList:JSON.stringify(window._nsToList||[]),ccList:JSON.stringify(window._nsCcList||[]),userEmail:USER_EMAIL||'',userName:USER_NAME||''});});showAlert('법무실에 검토 요청이 전달되었습니다.', {title: '검토 요청이 완료되었습니다!',icon: '\u2705',onClose: function() { resetNonStandard(); }});btn.disabled=false; btn.textContent='검토 요청 →';}catch(e){showAlert(e.message,{title:'오류가 발생했습니다',icon:'❌'});btn.disabled=false; btn.textContent='검토 요청 →';}}
+async function submitNonStandard(){var contractName=document.getElementById('ns-contract-name')?document.getElementById('ns-contract-name').value.trim():'';var counterParty=document.getElementById('ns-counter-party')?document.getElementById('ns-counter-party').value.trim():'';var contractParty=document.getElementById('ns-contract-party')?document.getElementById('ns-contract-party').value:'';var opinion=document.getElementById('ns-opinion')?document.getElementById('ns-opinion').value.trim():'';if(!contractName||!counterParty||!contractParty||!_nsAttachFiles.length){showAlert('필수 항목을 모두 입력하고 파일을 첨부해주세요.',{title:'입력 필요',icon:'⚠️'}); return;}var btn=document.getElementById('ns-submit-btn');btn.disabled=true; btn.textContent='파일 업로드 중...';try{var uploadedFiles=[];for(var i=0;i<_nsAttachFiles.length;i++){var a=_nsAttachFiles[i];btn.textContent='파일 업로드 중... ('+(i+1)+'/'+_nsAttachFiles.length+')';var base64=await fileToBase64(a.file);var uploadResult=await new Promise(function(resolve,reject){google.script.run.withSuccessHandler(function(r){if(r&&r.ok)resolve(r);else reject(new Error((r&&r.error)||'업로드 실패'));}).withFailureHandler(function(err){reject(new Error(err.message||'서버 연결 실패'));}).uploadFileFromBase64(base64,a.name,a.mimeType,'');});uploadedFiles.push({name:a.name,fileId:uploadResult.fileId,url:'https://drive.google.com/file/d/'+uploadResult.fileId+'/view'});}btn.textContent='검토 요청 중...';await new Promise(function(resolve,reject){google.script.run.withSuccessHandler(function(result){ if(result&&result.ok) resolve(result); else reject(new Error((result&&result.error)||'검토 요청 실패')); }).withFailureHandler(function(err){reject(new Error(err.message||'검토 요청 실패'));}).submitNonStandardReview({contractName:contractName, counterParty:counterParty, contractParty:contractParty, opinion:opinion,files:JSON.stringify(uploadedFiles),toList:JSON.stringify(window._nsToList||[]),ccList:JSON.stringify(window._nsCcList||[]),userEmail:USER_EMAIL||'',userName:USER_NAME||''});});showAlert('법무실에 검토 요청이 전달되었습니다.', {title: '검토 요청이 완료되었습니다!',icon: '\u2705',onClose: function() { resetNonStandard(); }});btn.disabled=false; btn.textContent='검토 요청 →';}catch(e){showAlert(e.message,{title:'오류가 발생했습니다',icon:'❌'});btn.disabled=false; btn.textContent='검토 요청 →';}}
 function selectContractType(id) {
   currentContract = CONTRACTS.find(function(c) { return c.id === id; });
   if (!currentContract) return;
