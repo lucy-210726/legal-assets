@@ -159,7 +159,7 @@ showAlert((result && result.error) || '알 수 없는 오류가 발생했습니�
 confirmBtn.disabled = false;
 confirmBtn.textContent = '확인';
 showAlert(err.message||String(err), { title:'오류', icon:'❌' });
-}).confirmContract(row.rowNum, USER_EMAIL);
+}).confirmContract(row.rowNum, window.SESSION_TOKEN);
 } else {
 google.script.run.withSuccessHandler(function(result) {
 closeConfirmPopup();
@@ -309,7 +309,7 @@ setProgress(10, '파일 변환 중...');
 var base64Data = await fileToBase64(selectedFile);
 setProgress(40, '서버로 전송 중...');
 var uploadResult = await new Promise(function(resolve, reject) {
-google.script.run.withSuccessHandler(function(result){ if (result && result.ok) resolve(result); else reject(new Error((result && result.error)||'업로드 실패')); }).withFailureHandler(function(err){ reject(new Error(err.message||'서버 연결 실패')); }).uploadFileFromBase64(base64Data, selectedFile.name, 'application/pdf', '');
+google.script.run.withSuccessHandler(function(result){ if (result && result.ok) resolve(result); else reject(new Error((result && result.error)||'업로드 실패')); }).withFailureHandler(function(err){ reject(new Error(err.message||'서버 연결 실패')); }).uploadFileFromBase64(base64Data, selectedFile.name, 'application/pdf', '', window.SESSION_TOKEN);
 });
 var fileId = uploadResult.fileId;
 if (!fileId) throw new Error('파일 ID를 받지 못했습니다.');
@@ -574,7 +574,7 @@ for(var i=0;i<files.length;i++){
 var a=files[i]; var encodedName='EXPIRE_'+expireStr+'_'+a.name;
 try{
 var base64=await fileToBase64(a.file);
-var uploadResult=await new Promise(function(resolve,reject){ google.script.run.withSuccessHandler(function(r){if(r&&r.ok)resolve(r);else reject(new Error((r&&r.error)||'업로드 실패'));}).withFailureHandler(function(err){reject(new Error(err.message||'서버 연결 실패'));}).uploadFileFromBase64(base64,encodedName,a.mimeType,''); });
+var uploadResult=await new Promise(function(resolve,reject){ google.script.run.withSuccessHandler(function(r){if(r&&r.ok)resolve(r);else reject(new Error((r&&r.error)||'업로드 실패'));}).withFailureHandler(function(err){reject(new Error(err.message||'서버 연결 실패'));}).uploadFileFromBase64(base64,encodedName,a.mimeType,'', window.SESSION_TOKEN); });
 var fileId=uploadResult.fileId;
 results.push({name:a.name,fileId:fileId,expireStr:expireStr,url:'https://drive.google.com/file/d/'+fileId+'/view'});
 }catch(e){ showAlert(a.name+' 업로드 실패: '+e.message,{title:'파일 업로드 실패',icon:'❌'}); }
@@ -621,7 +621,7 @@ function startInquiry() {
 if(!_selectedInq) return;
 var btn=document.getElementById('inq-start-btn');
 if(btn){btn.disabled=true;btn.textContent='처리 중...';}
-google.script.run.withSuccessHandler(function(result){if(result&&result.ok){var row=_inqAll.find(function(r){return r.id===_selectedInq.id;});if(row){row.status='진행중';row.assignee=result.assignee||USER_EMAIL;_selectedInq=row;}renderInqTable(_inqFiltered.length?_inqFiltered:_inqAll); renderInqDetailPanel();} else { showAlert((result&&result.error)||'알 수 없는 오류가 발생했습니다.',{title:'진행 처리 실패',icon:'❌'}); if(btn){btn.disabled=false;btn.textContent='진행';} }}).withFailureHandler(function(err){ showAlert(err.message||String(err),{title:'오류',icon:'❌'}); if(btn){btn.disabled=false;btn.textContent='진행';} }).startInquiry(_selectedInq.id, USER_EMAIL);
+google.script.run.withSuccessHandler(function(result){if(result&&result.ok){var row=_inqAll.find(function(r){return r.id===_selectedInq.id;});if(row){row.status='진행중';row.assignee=result.assignee||USER_EMAIL;_selectedInq=row;}renderInqTable(_inqFiltered.length?_inqFiltered:_inqAll); renderInqDetailPanel();} else { showAlert((result&&result.error)||'알 수 없는 오류가 발생했습니다.',{title:'진행 처리 실패',icon:'❌'}); if(btn){btn.disabled=false;btn.textContent='진행';} }}).withFailureHandler(function(err){ showAlert(err.message||String(err),{title:'오류',icon:'❌'}); if(btn){btn.disabled=false;btn.textContent='진행';} }).startInquiry(_selectedInq.id, window.SESSION_TOKEN);
 }
 async function sendInqReply(mode) {
 if(!_selectedInq) return;
@@ -1158,7 +1158,7 @@ function doRequestReReview() {
           .withFailureHandler(function(err) {
             showAlert(err.message || String(err), { title: '오류', icon: '❌' });
           })
-          .requestReReview(_selectedRev.id, {});
+          .requestReReview(_selectedRev.id, {}, window.SESSION_TOKEN);
       }
     }
   );
@@ -1263,7 +1263,7 @@ async function uploadCloseFileToDrive_(file) {
   var result = await new Promise(function(resolve, reject) {
     google.script.run.withSuccessHandler(function(r) { if (r && r.ok) resolve(r); else reject(new Error((r && r.error) || '업로드 실패')); })
       .withFailureHandler(function(err) { reject(new Error(err.message || '서버 연결 실패')); })
-      .uploadFileFromBase64(base64, file.name, file.type || 'application/octet-stream', '');
+      .uploadFileFromBase64(base64, file.name, file.type || 'application/octet-stream', '', window.SESSION_TOKEN);
   });
   return result.fileId;
 }
@@ -1367,7 +1367,7 @@ async function uploadRevReplyAttachments() {
       var uploadResult = await new Promise(function(resolve, reject) {
         google.script.run.withSuccessHandler(function(r) { if (r && r.ok) resolve(r); else reject(new Error((r && r.error) || '업로드 실패')); })
           .withFailureHandler(function(err) { reject(new Error(err.message || '서버 연결 실패')); })
-          .uploadFileFromBase64(base64, a.name, a.mimeType, '');
+          .uploadFileFromBase64(base64, a.name, a.mimeType, '', window.SESSION_TOKEN);
       });
       results.push({ fileId: uploadResult.fileId, name: a.name });
     } catch (e) {
@@ -1434,7 +1434,7 @@ function sendRevReply() {
         await new Promise(function(resolve, reject) {
           google.script.run.withSuccessHandler(function(result) {
             if (result && result.ok) resolve(result); else reject(new Error((result && result.error) || '발송 실패'));
-          }).withFailureHandler(function(err) { reject(new Error(err.message || String(err))); }).replyReview(_selectedRev.id, opinion, fileIdsJson, USER_EMAIL);
+          }).withFailureHandler(function(err) { reject(new Error(err.message || String(err))); }).replyReview(_selectedRev.id, opinion, fileIdsJson, window.SESSION_TOKEN);
         });
         showAlert('검토 의견이 요청자에게 이메일로 발송되었습니다.', { title: '발송 완료', icon: '✅' });
         textarea.value = ''; _revReplyAttachFiles = []; renderRevReplyAttachList();
@@ -1451,9 +1451,9 @@ function sendRevReply() {
 
 
 function doChangeRevAssignee(){if(!_selectedRev) return;var sel=document.getElementById('rev-assignee-select');var email=sel?sel.value:'';if(!email){showAlert('진행자를 선택해주세요.',{title:'선택 필요',icon:'⚠️'});return;}google.script.run.withSuccessHandler(function(result){if(result&&result.ok){var selectedOption=sel?sel.options[sel.selectedIndex]:null;var assigneeName=selectedOption?selectedOption.text:email.split('@')[0];var row=_revAll.find(function(r){return r.id===_selectedRev.id;});if(row){row.confirmedBy=assigneeName;_selectedRev=row;}renderRevTable(_revFiltered.length?_revFiltered:_revAll);renderRevDetailPanel();showAlert('진행자가 '+assigneeName+'님으로 변경되었습니다.',{title:'변경 완료',icon:'✅'});}else{showAlert((result&&result.error)||'알 수 없는 오류가 발생했습니다.',{title:'변경 실패',icon:'❌'});}}).withFailureHandler(function(err){showAlert(err.message||String(err),{title:'오류',icon:'❌'});}).changeReviewAssignee(_selectedRev.id,email);}
-function doStartReview(){if(!_selectedRev) return;var btn=document.getElementById('rev-start-btn');if(btn){btn.disabled=true;btn.textContent='처리 중...';}google.script.run.withSuccessHandler(function(result){if(result&&result.ok){var row=_revAll.find(function(r){return r.id===_selectedRev.id;});if(row){row.status='검토중';row.confirmedBy=result.assignee||'';_selectedRev=row;}renderRevTable(_revFiltered.length?_revFiltered:_revAll);renderRevDetailPanel();}else{showAlert((result&&result.error)||'알 수 없는 오류가 발생했습니다.',{title:'처리 실패',icon:'❌'});if(btn){btn.disabled=false;btn.textContent='▶ 검토 시작';}}}).withFailureHandler(function(err){showAlert(err.message||String(err),{title:'오류',icon:'❌'});if(btn){btn.disabled=false;btn.textContent='▶ 검토 시작';}}).startReview(_selectedRev.id, USER_EMAIL);}
+function doStartReview(){if(!_selectedRev) return;var btn=document.getElementById('rev-start-btn');if(btn){btn.disabled=true;btn.textContent='처리 중...';}google.script.run.withSuccessHandler(function(result){if(result&&result.ok){var row=_revAll.find(function(r){return r.id===_selectedRev.id;});if(row){row.status='검토중';row.confirmedBy=result.assignee||'';_selectedRev=row;}renderRevTable(_revFiltered.length?_revFiltered:_revAll);renderRevDetailPanel();}else{showAlert((result&&result.error)||'알 수 없는 오류가 발생했습니다.',{title:'처리 실패',icon:'❌'});if(btn){btn.disabled=false;btn.textContent='▶ 검토 시작';}}}).withFailureHandler(function(err){showAlert(err.message||String(err),{title:'오류',icon:'❌'});if(btn){btn.disabled=false;btn.textContent='▶ 검토 시작';}}).startReview(_selectedRev.id, window.SESSION_TOKEN);}
 
-function doAgreeReview(){if(!_selectedRev) return;showConfirm('합의 완료 처리하시겠습니까?\n법무실에 합의 완료 사실이 전달됩니다.',{title:_selectedRev.contractName, icon:'✅', okLabel:'합의 완료',onOk:function(){var btn=document.getElementById('rev-agree-btn');if(btn){btn.disabled=true;btn.textContent='처리 중...';}google.script.run.withSuccessHandler(function(result){if(result&&result.ok){var row=_revAll.find(function(r){return r.id===_selectedRev.id;});if(row){row.status='합의완료';_selectedRev=row;}renderRevTable(_revFiltered.length?_revFiltered:_revAll);renderRevDetailPanel();}else{showAlert((result&&result.error)||'알 수 없는 오류가 발생했습니다.',{title:'처리 실패',icon:'❌'});if(btn){btn.disabled=false;btn.textContent='✅ 합의 완료';}}}).withFailureHandler(function(err){showAlert(err.message||String(err),{title:'오류',icon:'❌'});if(btn){btn.disabled=false;btn.textContent='✅ 합의 완료';}}).agreeReview(_selectedRev.id);}});}
+function doAgreeReview(){if(!_selectedRev) return;showConfirm('합의 완료 처리하시겠습니까?\n법무실에 합의 완료 사실이 전달됩니다.',{title:_selectedRev.contractName, icon:'✅', okLabel:'합의 완료',onOk:function(){var btn=document.getElementById('rev-agree-btn');if(btn){btn.disabled=true;btn.textContent='처리 중...';}google.script.run.withSuccessHandler(function(result){if(result&&result.ok){var row=_revAll.find(function(r){return r.id===_selectedRev.id;});if(row){row.status='합의완료';_selectedRev=row;}renderRevTable(_revFiltered.length?_revFiltered:_revAll);renderRevDetailPanel();}else{showAlert((result&&result.error)||'알 수 없는 오류가 발생했습니다.',{title:'처리 실패',icon:'❌'});if(btn){btn.disabled=false;btn.textContent='✅ 합의 완료';}}}).withFailureHandler(function(err){if(handleServerError(err)){if(btn){btn.disabled=false;btn.textContent='✅ 합의 완료';}return;}showAlert(err.message||String(err),{title:'오류',icon:'❌'});if(btn){btn.disabled=false;btn.textContent='✅ 합의 완료';}}).agreeReview(_selectedRev.id, window.SESSION_TOKEN);}});}
 
 function doConfirmReview(){if(!_selectedRev) return;if(_selectedRev.status!=='합의완료'){showAlert('합의완료 상태에서만 검토 확인이 가능합니다.',{title:'처리 불가',icon:'⚠️'});return;}showConfirm('이 검토 요청을 검토완료 처리하시겠습니까?',{title:_selectedRev.contractName, icon:'✅', okLabel:'검토완료 처리',onOk:function(){var btn=document.getElementById('rev-confirm-btn');btn.disabled=true; btn.textContent='처리 중...';google.script.run.withSuccessHandler(function(result){if(result&&result.ok){var row=_revAll.find(function(r){return r.id===_selectedRev.id;});if(row){row.status='검토완료';row.confirmedAt=fmtDateTimeKo(new Date());row.confirmedBy=row.confirmedBy||USER_EMAIL;_selectedRev=row;}renderRevTable(_revFiltered.length?_revFiltered:_revAll); renderRevDetailPanel();} else { showAlert((result&&result.error)||'알 수 없는 오류가 발생했습니다.',{title:'처리 실패',icon:'❌'}); btn.disabled=false; btn.textContent='✅ 검토 확인 완료'; }}).withFailureHandler(function(err){ showAlert(err.message||String(err),{title:'오류',icon:'❌'}); btn.disabled=false; btn.textContent='✅ 검토 확인 완료'; }).confirmReview(_selectedRev.id);}});}
 
@@ -1488,10 +1488,11 @@ function loadMyInquiries() {
       renderMyInqTable(_myInqAll);
     })
     .withFailureHandler(function(err) {
+      if (handleServerError(err)) return;
       document.getElementById('myinq-tbody').innerHTML = '<tr><td colspan="5"><div class="list-empty"><div class="empty-icon">⚠️</div><p>로드 실패: ' + esc(err.message || String(err)) + '</p></div></td></tr>';
       document.getElementById('myinq-list-count').textContent = '—';
     })
-    .getMyInquiries(USER_EMAIL, USER_NAME);
+    .getMyInquiries(window.SESSION_TOKEN);
 }
 
 function filterMyInqTable() {
@@ -1846,7 +1847,7 @@ function renderNsRecipientTags(tagsId,listKey){var container=document.getElement
 function selectNsParty(value, btn) {document.getElementById('ns-contract-party').value = value;document.querySelectorAll('.form-body .company-tabs .company-tab').forEach(function(t){ t.classList.remove('active'); });btn.classList.add('active');checkNsReady();}
 function resetNsForm(){_nsAttachFiles.length=0; renderNsAttachList();window._nsToList=[]; window._nsCcList=[];['ns-contract-name','ns-counter-party','ns-opinion','ns-to-input','ns-cc-input'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });var party=document.getElementById('ns-contract-party'); document.querySelectorAll('.form-body .company-tabs .company-tab').forEach(function(t){ t.classList.remove('active'); }); if(party) party.value='';['ns-to-tags','ns-cc-tags'].forEach(function(id){ var el=document.getElementById(id); if(el) el.innerHTML=''; });['ns-to-ac','ns-cc-ac'].forEach(function(id){ var el=document.getElementById(id); if(el) el.style.display='none'; });var btn=document.getElementById('ns-submit-btn'); if(btn) btn.disabled=true;}
 function resetNonStandard(){document.getElementById('nonstandard-form-wrap').style.display='block';resetNsForm();}
-async function submitNonStandard(){var contractName=document.getElementById('ns-contract-name')?document.getElementById('ns-contract-name').value.trim():'';var counterParty=document.getElementById('ns-counter-party')?document.getElementById('ns-counter-party').value.trim():'';var contractParty=document.getElementById('ns-contract-party')?document.getElementById('ns-contract-party').value:'';var opinion=document.getElementById('ns-opinion')?document.getElementById('ns-opinion').value.trim():'';if(!contractName||!counterParty||!contractParty||!_nsAttachFiles.length){showAlert('필수 항목을 모두 입력하고 파일을 첨부해주세요.',{title:'입력 필요',icon:'⚠️'}); return;}var btn=document.getElementById('ns-submit-btn');btn.disabled=true; btn.textContent='파일 업로드 중...';try{var uploadedFiles=[];for(var i=0;i<_nsAttachFiles.length;i++){var a=_nsAttachFiles[i];btn.textContent='파일 업로드 중... ('+(i+1)+'/'+_nsAttachFiles.length+')';var base64=await fileToBase64(a.file);var uploadResult=await new Promise(function(resolve,reject){google.script.run.withSuccessHandler(function(r){if(r&&r.ok)resolve(r);else reject(new Error((r&&r.error)||'업로드 실패'));}).withFailureHandler(function(err){reject(new Error(err.message||'서버 연결 실패'));}).uploadFileFromBase64(base64,a.name,a.mimeType,'');});uploadedFiles.push({name:a.name,fileId:uploadResult.fileId,url:'https://drive.google.com/file/d/'+uploadResult.fileId+'/view'});}btn.textContent='검토 요청 중...';await new Promise(function(resolve,reject){google.script.run.withSuccessHandler(function(result){ if(result&&result.ok) resolve(result); else reject(new Error((result&&result.error)||'검토 요청 실패')); }).withFailureHandler(function(err){reject(new Error(err.message||'검토 요청 실패'));}).submitNonStandardReview({contractName:contractName, counterParty:counterParty, contractParty:contractParty, opinion:opinion,files:JSON.stringify(uploadedFiles),toList:JSON.stringify(window._nsToList||[]),ccList:JSON.stringify(window._nsCcList||[]),userEmail:USER_EMAIL||'',userName:USER_NAME||''});});showAlert('법무실에 검토 요청이 전달되었습니다.', {title: '검토 요청이 완료되었습니다!',icon: '\u2705',onClose: function() { resetNonStandard(); }});btn.disabled=false; btn.textContent='검토 요청 →';}catch(e){showAlert(e.message,{title:'오류가 발생했습니다',icon:'❌'});btn.disabled=false; btn.textContent='검토 요청 →';}}
+async function submitNonStandard(){var contractName=document.getElementById('ns-contract-name')?document.getElementById('ns-contract-name').value.trim():'';var counterParty=document.getElementById('ns-counter-party')?document.getElementById('ns-counter-party').value.trim():'';var contractParty=document.getElementById('ns-contract-party')?document.getElementById('ns-contract-party').value:'';var opinion=document.getElementById('ns-opinion')?document.getElementById('ns-opinion').value.trim():'';if(!contractName||!counterParty||!contractParty||!_nsAttachFiles.length){showAlert('필수 항목을 모두 입력하고 파일을 첨부해주세요.',{title:'입력 필요',icon:'⚠️'}); return;}var btn=document.getElementById('ns-submit-btn');btn.disabled=true; btn.textContent='파일 업로드 중...';try{var uploadedFiles=[];for(var i=0;i<_nsAttachFiles.length;i++){var a=_nsAttachFiles[i];btn.textContent='파일 업로드 중... ('+(i+1)+'/'+_nsAttachFiles.length+')';var base64=await fileToBase64(a.file);var uploadResult=await new Promise(function(resolve,reject){google.script.run.withSuccessHandler(function(r){if(r&&r.ok)resolve(r);else reject(new Error((r&&r.error)||'업로드 실패'));}).withFailureHandler(function(err){reject(new Error(err.message||'서버 연결 실패'));}).uploadFileFromBase64(base64,a.name,a.mimeType,'', window.SESSION_TOKEN);});uploadedFiles.push({name:a.name,fileId:uploadResult.fileId,url:'https://drive.google.com/file/d/'+uploadResult.fileId+'/view'});}btn.textContent='검토 요청 중...';await new Promise(function(resolve,reject){google.script.run.withSuccessHandler(function(result){ if(result&&result.ok) resolve(result); else reject(new Error((result&&result.error)||'검토 요청 실패')); }).withFailureHandler(function(err){reject(new Error(err.message||'검토 요청 실패'));}).submitNonStandardReview({contractName:contractName, counterParty:counterParty, contractParty:contractParty, opinion:opinion,files:JSON.stringify(uploadedFiles),toList:JSON.stringify(window._nsToList||[]),ccList:JSON.stringify(window._nsCcList||[]),userEmail:USER_EMAIL||'',userName:USER_NAME||''});});showAlert('법무실에 검토 요청이 전달되었습니다.', {title: '검토 요청이 완료되었습니다!',icon: '\u2705',onClose: function() { resetNonStandard(); }});btn.disabled=false; btn.textContent='검토 요청 →';}catch(e){showAlert(e.message,{title:'오류가 발생했습니다',icon:'❌'});btn.disabled=false; btn.textContent='검토 요청 →';}}
 function selectContractType(id) {
   currentContract = CONTRACTS.find(function(c) { return c.id === id; });
   if (!currentContract) return;
@@ -2208,13 +2209,13 @@ function downloadGeneratedContract() {
     })
     .getContractFileBase64(fileId);  // ← 추가
 }  // ← 추가
-async function sendGeneratedContract(method){var fileId=window._generatedFileId, fileName=window._generatedFileName||'계약서.docx';if(!fileId){ showAlert('파일 정보가 없습니다. 다시 시도해주세요.',{title:'파일 없음',icon:'⚠️'}); return; }var btn=event.target; btn.disabled=true; btn.textContent='전송 중...';var userId=SLACK_USER_ID?SLACK_USER_ID:'';google.script.run.withSuccessHandler(function(result){if(result&&result.ok){ btn.disabled=true; btn.textContent=method==='slack'?'\u2705 Slack 전송 완료':'\u2705 이메일 전송 완료'; }else{ btn.disabled=false; btn.textContent=method==='slack'?'💬 Slack DM으로 전송':'📧 이메일로 전송'; showAlert((result&&result.error)||'알 수 없는 오류가 발생했습니다.',{title:'전송 실패',icon:'❌'}); }}).withFailureHandler(function(err){ btn.disabled=false; btn.textContent=method==='slack'?'💬 Slack DM으로 전송':'📧 이메일로 전송'; showAlert(err.message||String(err),{title:'전송 오류',icon:'❌'}); }).sendContractFile(fileId,fileName,method,userId,USER_EMAIL);}
+async function sendGeneratedContract(method){var fileId=window._generatedFileId, fileName=window._generatedFileName||'계약서.docx';if(!fileId){ showAlert('파일 정보가 없습니다. 다시 시도해주세요.',{title:'파일 없음',icon:'⚠️'}); return; }var btn=event.target; btn.disabled=true; btn.textContent='전송 중...';var userId=SLACK_USER_ID?SLACK_USER_ID:'';google.script.run.withSuccessHandler(function(result){if(result&&result.ok){ btn.disabled=true; btn.textContent=method==='slack'?'\u2705 Slack 전송 완료':'\u2705 이메일 전송 완료'; }else{ btn.disabled=false; btn.textContent=method==='slack'?'💬 Slack DM으로 전송':'📧 이메일로 전송'; showAlert((result&&result.error)||'알 수 없는 오류가 발생했습니다.',{title:'전송 실패',icon:'❌'}); }}).withFailureHandler(function(err){ btn.disabled=false; btn.textContent=method==='slack'?'💬 Slack DM으로 전송':'📧 이메일로 전송'; showAlert(err.message||String(err),{title:'전송 오류',icon:'❌'}); }).sendContractFile(fileId,fileName,method,userId,window.SESSION_TOKEN);}
 
 // ════════════════════════════════════════════════════════════
 //  멤버/법무팀 목록
 // ════════════════════════════════════════════════════════════
 var _memberList=null;
-function loadMemberList(cb){ if(_memberList!==null){if(cb) cb(_memberList);return;} google.script.run.withSuccessHandler(function(rows){_memberList=rows||[];if(cb) cb(_memberList);}).withFailureHandler(function(){_memberList=[];if(cb) cb([]);}).getMemberList(); }
+function loadMemberList(cb){ if(_memberList!==null){if(cb) cb(_memberList);return;} google.script.run.withSuccessHandler(function(rows){_memberList=rows||[];if(cb) cb(_memberList);}).withFailureHandler(function(){_memberList=[];if(cb) cb([]);}).getMemberList(window.SESSION_TOKEN); }
 var _legalMembers=null;
 function loadLegalMembers(cb){if(_legalMembers!==null){if(cb) cb(_legalMembers);return;}google.script.run.withSuccessHandler(function(rows){ _legalMembers=rows||[]; if(cb) cb(_legalMembers); }).withFailureHandler(function(){ _legalMembers=[]; if(cb) cb([]); }).getLegalMembers();}
 function doChangeRevAssignee(){if(!_selectedRev) return;var sel=document.getElementById('rev-assignee-select');var email=sel?sel.value:'';if(!email){showAlert('진행자를 선택해주세요.',{title:'선택 필요',icon:'⚠️'});return;}google.script.run.withSuccessHandler(function(result){if(result&&result.ok){var selectedOption=sel?sel.options[sel.selectedIndex]:null;var assigneeName=selectedOption?selectedOption.text:email.split('@')[0];var row=_revAll.find(function(r){return r.id===_selectedRev.id;});if(row){row.confirmedBy=assigneeName;_selectedRev=row;}renderRevTable(_revFiltered.length?_revFiltered:_revAll);renderRevDetailPanel();showAlert('진행자가 '+assigneeName+'님으로 변경되었습니다.',{title:'변경 완료',icon:'✅'});}else{showAlert((result&&result.error)||'알 수 없는 오류가 발생했습니다.',{title:'변경 실패',icon:'❌'});}}).withFailureHandler(function(err){showAlert(err.message||String(err),{title:'오류',icon:'❌'});}).changeReviewAssignee(_selectedRev.id,email);}
@@ -2268,28 +2269,12 @@ function handleDeepLink() {
 //  사용자 인증 게이트
 // ════════════════════════════════════════════════════════════
 function initAuth() {
-  // 1. 서버에서 이메일 잡힌 경우 → 바로 통과
+  // 1. 서버에서 이메일 잡힌 경우(사내 @igaworks.com) → 바로 통과
   if (USER_EMAIL) return;
 
-  // 2. localStorage에서 복원
-  var savedEmail = localStorage.getItem('loc_userEmail') || '';
-  var savedName  = localStorage.getItem('loc_userName') || '';
-  var savedId    = localStorage.getItem('loc_userId') || '';
-
-  if (savedEmail && savedName) {
-    USER_EMAIL = savedEmail;
-    USER_NAME  = savedName;
-    SLACK_USER_ID = savedId;
-    var legalEmails = ['lucy.kim@igaworks.com', 'ben.yang@igaworks.com'];
-    if (legalEmails.indexOf(USER_EMAIL.toLowerCase()) >= 0) {
-      IS_LEGAL_TEAM = 'true';
-      document.getElementById('nav-inqmgmt').style.display = 'block';
-      document.getElementById('nav-reviewmgmt').style.display = 'block';
-    }
-    return;
-  }
-
-  // 3. 이메일 입력 모달 표시
+  // 2. 그 외(타도메인/개인계정 포함)에는 Google 로그인 게이트를 표시
+  //    ⚠️ 보안: localStorage 자동 복원은 신원 위조 우회로이므로 제거했다.
+  //       신원은 매번 Google ID 토큰 검증(loginWithIdToken)으로만 확정한다.
   showLoginGate();
 }
 
@@ -2297,53 +2282,78 @@ function showLoginGate() {
   document.getElementById('login-gate-overlay').style.display = 'flex';
 }
 
-function submitLoginEmail() {
-  var input = document.getElementById('login-email-input');
-  var email = input.value.trim();
+// ────────────────────────────────────────────────────────────
+//  Google 로그인 콜백: GIS 버튼 클릭 → 구글이 credential(JWT) 발급 →
+//  서버 loginWithIdToken 으로 토큰을 검증하고 신원을 확정한다.
+//  (index.html 의 data-callback="handleCredentialResponse" 와 연결)
+// ────────────────────────────────────────────────────────────
+function handleCredentialResponse(response) {
+  var idToken = response && response.credential;
+  if (!idToken) { showLoginError('로그인 토큰을 받지 못했습니다. 다시 시도해주세요.'); return; }
 
-  if (!email || !email.includes('@')) {
-    input.style.borderColor = '#e74c3c';
-    setTimeout(function() { input.style.borderColor = '#ddd'; }, 1500);
-    return;
-  }
-
-  input.disabled = true;
+  // 이후 서버 호출 신원 확인에 사용하기 위해 토큰 보관
+  window.ID_TOKEN = idToken;
 
   google.script.run
-    .withSuccessHandler(function(info) {
-      input.disabled = false;
+    .withSuccessHandler(function(result) {
+      if (!result || !result.ok) {
+        if (result && result.reason === 'unregistered') {
+          showUnregisteredModal(result.email || '');
+        } else {
+          showLoginError((result && result.reason) || '로그인 확인에 실패했습니다.');
+        }
+        return;
+      }
 
-      if (info) {
-        // ✅ 등록된 사용자
-        USER_EMAIL    = email;
-        USER_NAME     = info.name || '';
-        SLACK_USER_ID = info.slackId || '';
+      // ✅ 서버가 검증한 신원 (위조 불가)
+      USER_EMAIL    = result.email;
+      USER_NAME     = result.name || '';
+      SLACK_USER_ID = result.slackId || '';
+      IS_LEGAL_TEAM = result.isLegal ? 'true' : 'false';
+      // 세션 토큰 보관: 이후 액션 호출의 신원 확인에 사용(구글 재검증 없이 캐시 조회)
+      window.SESSION_TOKEN = result.sessionToken || '';
 
-        localStorage.setItem('loc_userEmail', USER_EMAIL);
-        localStorage.setItem('loc_userName', USER_NAME);
-        localStorage.setItem('loc_userId', SLACK_USER_ID);
+      document.getElementById('login-gate-overlay').style.display = 'none';
 
-        document.getElementById('login-gate-overlay').style.display = 'none';
-        
-        var legalEmails = ['lucy.kim@igaworks.com', 'ben.yang@igaworks.com'];
-        if (legalEmails.indexOf(USER_EMAIL.toLowerCase()) >= 0) {
-        IS_LEGAL_TEAM = 'true';
+      if (result.isLegal) {
         document.getElementById('nav-inqmgmt').style.display = 'block';
         document.getElementById('nav-reviewmgmt').style.display = 'block';
       }
-        // 문의하기 이름/부서 자동채우기 갱신
-        var nameEl = document.getElementById('inq-name');
-        if (nameEl && USER_NAME) { nameEl.value = USER_NAME; nameEl.readOnly = true; }
-      } else {
-        // ❌ 미등록
-        showUnregisteredModal(email);
-      }
+
+      // 문의하기 이름/부서 자동채우기 갱신
+      var nameEl = document.getElementById('inq-name');
+      if (nameEl && USER_NAME) { nameEl.value = USER_NAME; nameEl.readOnly = true; }
     })
-    .withFailureHandler(function() {
-      input.disabled = false;
-      showAlert('서버 연결에 실패했습니다. 다시 시도해주세요.', { title: '오류', icon: '❌' });
+    .withFailureHandler(function(err) {
+      showLoginError('서버 연결에 실패했습니다. 다시 시도해주세요.');
     })
-    .getUserInfoByEmail(email);
+    .loginWithIdToken(idToken);
+}
+
+function showLoginError(msg) {
+  var el = document.getElementById('login-error-msg');
+  if (el) { el.textContent = msg; el.style.display = 'block'; }
+}
+
+// ────────────────────────────────────────────────────────────
+//  세션 만료 처리: 서버가 'SESSION_EXPIRED' 를 던지면 재로그인 유도.
+//  각 액션의 withFailureHandler 에서 handleServerError(err) 로 위임하면,
+//  세션 만료인 경우 로그인 게이트를 다시 띄우고 true 를 반환한다.
+// ────────────────────────────────────────────────────────────
+function isSessionExpired(err) {
+  var msg = (err && err.message) ? err.message : String(err || '');
+  return msg.indexOf('SESSION_EXPIRED') >= 0;
+}
+
+function handleServerError(err) {
+  if (isSessionExpired(err)) {
+    window.SESSION_TOKEN = '';
+    USER_EMAIL = '';
+    showLoginError('세션이 만료되었습니다. 다시 로그인해주세요.');
+    showLoginGate();
+    return true; // 호출부에서 추가 처리 불필요
+  }
+  return false;
 }
 
 function showUnregisteredModal(email) {
@@ -2355,7 +2365,6 @@ function showUnregisteredModal(email) {
 
 function retryLoginEmail() {
   document.getElementById('unregistered-overlay').style.display = 'none';
-  document.getElementById('login-email-input').value = '';
   document.getElementById('login-gate-overlay').style.display = 'flex';
 }
 
@@ -2771,7 +2780,7 @@ var a = _modAttachFiles[i];
 btn.textContent = '\uD30C\uC77C \uC5C5\uB85C\uB4DC \uC911... (' + (i + 1) + '/' + _modAttachFiles.length + ')';
 // C-2: \uC11C\uBC84\uC0AC\uC774\uB4DC \uC5C5\uB85C\uB4DC (\uD074\uB77C\uC774\uC5B8\uD2B8 OAuth \uD1A0\uD070 \uBBF8\uC0AC\uC6A9)
 var base64 = await fileToBase64(a.file);
-var upRes = await new Promise(function(resolve, reject) { google.script.run.withSuccessHandler(function(r){ if(r&&r.ok)resolve(r); else reject(new Error((r&&r.error)||'\uC5C5\uB85C\uB4DC \uC2E4\uD328')); }).withFailureHandler(function(err){ reject(new Error(err.message||'\uC11C\uBC84 \uC5F0\uACB0 \uC2E4\uD328')); }).uploadFileFromBase64(base64, a.name, a.mimeType, ''); });
+var upRes = await new Promise(function(resolve, reject) { google.script.run.withSuccessHandler(function(r){ if(r&&r.ok)resolve(r); else reject(new Error((r&&r.error)||'\uC5C5\uB85C\uB4DC \uC2E4\uD328')); }).withFailureHandler(function(err){ reject(new Error(err.message||'\uC11C\uBC84 \uC5F0\uACB0 \uC2E4\uD328')); }).uploadFileFromBase64(base64, a.name, a.mimeType, '', window.SESSION_TOKEN); });
 var fileId = upRes.fileId;
 uploadedFiles.push({ name: a.name, fileId: fileId, url: 'https://drive.google.com/file/d/' + fileId + '/view' });
 }
@@ -3059,7 +3068,7 @@ function doMyAgreeReview() {
           .withFailureHandler(function(err) {
             showAlert(err.message || String(err), { title: '오류', icon: '❌' });
           })
-          .agreeReview(_mySelectedRev.id);
+          .agreeReview(_mySelectedRev.id, window.SESSION_TOKEN);
       }
     }
   );
@@ -3131,7 +3140,7 @@ async function doMyRequestReReview() {
         var a = _myRevReReviewFiles[i];
         // C-2: 서버사이드 업로드 (클라이언트 OAuth 토큰 미사용)
         var base64 = await fileToBase64(a.file);
-        var upRes = await new Promise(function(resolve, reject) { google.script.run.withSuccessHandler(function(r){ if(r&&r.ok)resolve(r); else reject(new Error((r&&r.error)||'업로드 실패')); }).withFailureHandler(function(err){ reject(new Error(err.message||'서버 연결 실패')); }).uploadFileFromBase64(base64, a.name, a.mimeType, ''); });
+        var upRes = await new Promise(function(resolve, reject) { google.script.run.withSuccessHandler(function(r){ if(r&&r.ok)resolve(r); else reject(new Error((r&&r.error)||'업로드 실패')); }).withFailureHandler(function(err){ reject(new Error(err.message||'서버 연결 실패')); }).uploadFileFromBase64(base64, a.name, a.mimeType, '', window.SESSION_TOKEN); });
         uploadedFiles.push({ name: a.name, fileId: upRes.fileId });
       }
     }
@@ -3143,10 +3152,10 @@ async function doMyRequestReReview() {
           if (result && result.ok) resolve(result);
           else reject(new Error((result && result.error) || '재검토 요청 실패'));
         })
-        .withFailureHandler(function(err) { reject(new Error(err.message || '재검토 요청 실패')); })
+        .withFailureHandler(function(err) { if (handleServerError(err)) { reject(new Error('세션이 만료되었습니다. 다시 로그인해주세요.')); return; } reject(new Error(err.message || '재검토 요청 실패')); })
         .requestReReview(_mySelectedRev.id, {
           uploadedFileIds: JSON.stringify(uploadedFiles.map(function(f) { return f.fileId; })),
-          opinion: (document.getElementById('myrev-rereview-opinion') ? document.getElementById('myrev-rereview-opinion').value : '')});
+          opinion: (document.getElementById('myrev-rereview-opinion') ? document.getElementById('myrev-rereview-opinion').value : '')}, window.SESSION_TOKEN);
     });
 
     // 성공
@@ -3594,7 +3603,7 @@ function onCompareFileAttach(target, input) {
 async function uploadCompareFile_(fileObj) {
   // C-2: 서버사이드 업로드 (클라이언트 OAuth 토큰 미사용)
   var base64 = await fileToBase64(fileObj);
-  var upRes = await new Promise(function(resolve, reject) { google.script.run.withSuccessHandler(function(r){ if(r&&r.ok)resolve(r); else reject(new Error((r&&r.error)||'업로드 실패')); }).withFailureHandler(function(err){ reject(new Error(err.message||'서버 연결 실패')); }).uploadFileFromBase64(base64, fileObj.name, fileObj.type || 'application/octet-stream', ''); });
+  var upRes = await new Promise(function(resolve, reject) { google.script.run.withSuccessHandler(function(r){ if(r&&r.ok)resolve(r); else reject(new Error((r&&r.error)||'업로드 실패')); }).withFailureHandler(function(err){ reject(new Error(err.message||'서버 연결 실패')); }).uploadFileFromBase64(base64, fileObj.name, fileObj.type || 'application/octet-stream', '', window.SESSION_TOKEN); });
   return upRes.fileId;
 }
 
