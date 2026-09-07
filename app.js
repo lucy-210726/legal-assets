@@ -2283,9 +2283,40 @@ function showLoginGate() {
 }
 
 // ────────────────────────────────────────────────────────────
-//  Google 로그인 콜백: GIS 버튼 클릭 → 구글이 credential(JWT) 발급 →
-//  서버 loginWithIdToken 으로 토큰을 검증하고 신원을 확정한다.
-//  (index.html 의 data-callback="handleCredentialResponse" 와 연결)
+//  [방법 B] 로그인 팝업 열기
+//  GAS 웹앱은 샌드박스 iframe 이라 구글 로그인 UI 를 직접 못 띄운다.
+//  그래서 고정 도메인(GitHub Pages)의 login.html 을 팝업으로 열어
+//  거기서 구글 로그인 → 토큰을 postMessage 로 이 창에 전달받는다.
+// ────────────────────────────────────────────────────────────
+var LOGIN_POPUP_URL = 'https://lucy-210726.github.io/legal-assets/login.html';
+
+function openLoginPopup() {
+  var w = 480, h = 600;
+  var left = (window.screen.width  - w) / 2;
+  var top  = (window.screen.height - h) / 2;
+  var popup = window.open(
+    LOGIN_POPUP_URL,
+    'igaw_login',
+    'width=' + w + ',height=' + h + ',left=' + left + ',top=' + top
+  );
+  if (!popup) {
+    showLoginError('팝업이 차단되었습니다. 브라우저 주소창의 팝업 차단을 해제한 뒤 다시 시도해주세요.');
+  }
+}
+
+// 팝업(login.html)에서 보내는 토큰을 수신
+window.addEventListener('message', function(event) {
+  // 보안: 토큰은 신뢰된 로그인 페이지 origin 에서만 수신
+  if (event.origin !== 'https://lucy-210726.github.io') return;
+  var data = event.data || {};
+  if (data.type === 'IGAW_LOGIN' && data.idToken) {
+    handleCredentialResponse({ credential: data.idToken });
+  }
+});
+
+// ────────────────────────────────────────────────────────────
+//  Google 로그인 처리: 팝업에서 받은 credential(JWT)을
+//  서버 loginWithIdToken 으로 검증하고 신원을 확정한다.
 // ────────────────────────────────────────────────────────────
 function handleCredentialResponse(response) {
   var idToken = response && response.credential;
