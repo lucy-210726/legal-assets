@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Legal One Stop Center 로그인</title>
+<title>로그인</title>
 <!-- Google Identity Services -->
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
@@ -26,9 +26,13 @@
   </div>
 
 <script>
-  // ⚠️ 웹앱(GAS)의 배포 URL. 토큰을 이 창(부모)으로 안전하게 전달할 때 대상 확인용.
-  //    실제로는 postMessage 대상이 부모 창이므로 origin 체크는 부모 쪽에서 한다.
+  // 이 페이지는 팝업으로 열려 구글 로그인을 처리하고,
+  // 성공 시 JWT(idToken)를 부모 창(웹앱, PARENT_ORIGIN)으로만 전달한다.
   var CLIENT_ID = '943167991171-3jlm221s4uk81a8huj63t5f9su8osmvm.apps.googleusercontent.com';
+
+  // 토큰을 전달할 대상(부모 창)의 origin. GAS 웹앱은 script.google.com 에서 열린다.
+  // 보안: postMessage 대상 origin 을 명시해 토큰이 의도한 창에만 전달되게 한다.
+  var PARENT_ORIGIN = 'https://script.google.com';
 
   // GIS 로드 완료를 기다렸다가 버튼을 렌더한다.
   function initLogin() {
@@ -53,8 +57,8 @@
     if (!idToken) { document.getElementById('msg').textContent = '로그인 토큰을 받지 못했습니다.'; return; }
 
     if (window.opener && !window.opener.closed) {
-      // 부모 창(웹앱)으로 토큰 전달. 대상 origin은 부모의 실제 origin으로 한정.
-      window.opener.postMessage({ type: 'IGAW_LOGIN', idToken: idToken }, '*');
+      // 부모 창(웹앱)으로 토큰 전달. 대상 origin을 명시해 지정된 웹앱에만 전달.
+      window.opener.postMessage({ type: 'IGAW_LOGIN', idToken: idToken }, PARENT_ORIGIN);
       document.getElementById('msg').style.color = '#1c8a4a';
       document.getElementById('msg').textContent = '로그인 완료! 창이 곧 닫힙니다.';
       setTimeout(function(){ window.close(); }, 800);
