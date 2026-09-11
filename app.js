@@ -2272,9 +2272,32 @@ function initAuth() {
   // 1. 서버에서 이메일 잡힌 경우(사내 @igaworks.com) → 바로 통과
   if (USER_EMAIL) return;
 
-  // 2. 그 외(타도메인/개인계정 포함)에는 Google 로그인 게이트를 표시
-  //    ⚠️ 보안: localStorage 자동 복원은 신원 위조 우회로이므로 제거했다.
-  //       신원은 매번 Google ID 토큰 검증(loginWithIdToken)으로만 확정한다.
+  // 2. 새로고침(F5) 대비: sessionStorage 에 세션 토큰이 있으면 서버에 복원 시도.
+  //    ⚠️ 보안: 신뢰 근거는 여전히 '서버가 발급한 세션 토큰'이며, 서버 restoreSession
+  //       이 그 토큰으로 서버 캐시를 조회해 검증한다(위조 불가). 만료면 게이트 표시.
+  var savedToken = '';
+  try { savedToken = sessionStorage.getItem('igaw_session_token') || ''; } catch (e) {}
+  if (savedToken) {
+    google.script.run
+      .withSuccessHandler(function(result) {
+        if (result && result.ok) {
+          applyLoginResult(result);   // 재로그인 없이 복원
+        } else {
+          try { sessionStorage.removeItem('igaw_session_token'); } catch (e) {}
+          showLoginGate();
+        }
+      })
+      .withFailureHandler(function() {
+        try { sessionStorage.removeItem('igaw_session_token'); } catch (e) {}
+        showLoginGate();
+      })
+      .restoreSession(savedToken);
+    return;
+  }
+
+  // 3. 저장된 세션이 없으면 Google 로그인 게이트를 표시
+  //    ⚠️ 보안: localStorage 영구 자동 복원은 쓰지 않는다(위조 우회로 방지).
+  //       신원은 Google ID 토큰 검증 또는 서버 세션 복원으로만 확정한다.
   showLoginGate();
 }
 
@@ -2338,30 +2361,45 @@ function handleCredentialResponse(response) {
         }
         return;
       }
-
-      // ✅ 서버가 검증한 신원 (위조 불가)
-      USER_EMAIL    = result.email;
-      USER_NAME     = result.name || '';
-      SLACK_USER_ID = result.slackId || '';
-      IS_LEGAL_TEAM = result.isLegal ? 'true' : 'false';
-      // 세션 토큰 보관: 이후 액션 호출의 신원 확인에 사용(구글 재검증 없이 캐시 조회)
-      window.SESSION_TOKEN = result.sessionToken || '';
-
-      document.getElementById('login-gate-overlay').style.display = 'none';
-
-      if (result.isLegal) {
-        document.getElementById('nav-inqmgmt').style.display = 'block';
-        document.getElementById('nav-reviewmgmt').style.display = 'block';
-      }
-
-      // 문의하기 이름/부서 자동채우기 갱신
-      var nameEl = document.getElementById('inq-name');
-      if (nameEl && USER_NAME) { nameEl.value = USER_NAME; nameEl.readOnly = true; }
+      applyLoginResult(result);
     })
     .withFailureHandler(function(err) {
       showLoginError('서버 연결에 실패했습니다. 다시 시도해주세요.');
     })
     .loginWithIdToken(idToken);
+}
+
+// ────────────────────────────────────────────────────────────
+//  로그인 성공(또는 세션 복원) 결과를 화면/상태에 반영하는 공통 함수.
+//  - 세션 토큰을 sessionStorage 에 저장 → F5 새로고침 시 복원에 사용.
+//    (sessionStorage: 탭/창을 닫으면 사라짐 + 서버 세션 TTL 45분과 함께 동작)
+// ────────────────────────────────────────────────────────────
+function applyLoginResult(result) {
+  // ✅ 서버가 검증한 신원 (위조 불가)
+  USER_EMAIL    = result.email;
+  USER_NAME     = result.name || '';
+  SLACK_USER_ID = result.slackId || '';
+  IS_LEGAL_TEAM = result.isLegal ? 'true' : 'false';
+  window.SESSION_TOKEN = result.sessionToken || '';
+
+  // 새로고침 대비: 세션 토큰을 sessionStorage 에 보관
+  try {
+    if (window.SESSION_TOKEN) sessionStorage.setItem('igaw_session_token', window.SESSION_TOKEN);
+  } catch (e) {}
+
+  var gate = document.getElementById('login-gate-overlay');
+  if (gate) gate.style.display = 'none';
+
+  if (result.isLegal) {
+    var navInq = document.getElementById('nav-inqmgmt');
+    var navRev = document.getElementById('nav-reviewmgmt');
+    if (navInq) navInq.style.display = 'block';
+    if (navRev) navRev.style.display = 'block';
+  }
+
+  // 문의하기 이름/부서 자동채우기 갱신
+  var nameEl = document.getElementById('inq-name');
+  if (nameEl && USER_NAME) { nameEl.value = USER_NAME; nameEl.readOnly = true; }
 }
 
 function showLoginError(msg) {
@@ -2383,6 +2421,7 @@ function handleServerError(err) {
   if (isSessionExpired(err)) {
     window.SESSION_TOKEN = '';
     USER_EMAIL = '';
+    try { sessionStorage.removeItem('igaw_session_token'); } catch (e) {}
     showLoginError('세션이 만료되었습니다. 다시 로그인해주세요.');
     showLoginGate();
     return true; // 호출부에서 추가 처리 불필요
