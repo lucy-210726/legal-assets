@@ -594,27 +594,14 @@ var badgeColor=a.isExpired?'#e74c3c':'var(--text-muted)';
 if(a.isExpired){
 return '<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;margin-top:6px;background:var(--surface);border:1px solid var(--border);border-radius:8px;opacity:0.6;"><span>📄</span><span style="flex:1;font-size:0.82rem;">'+esc(a.name)+'</span><span style="font-size:0.7rem;color:'+badgeColor+';white-space:nowrap;">'+esc(badgeText)+'</span></div>';
 }
-var previewUrl=a.fileId?'https://drive.google.com/file/d/'+a.fileId+'/preview':a.url;
 var downloadUrl=a.fileId?'https://drive.google.com/uc?export=download&id='+a.fileId:a.url;
 return '<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;margin-top:6px;background:var(--surface);border:1px solid var(--border);border-radius:8px;flex-wrap:wrap;">'+
 '<span>📄</span>'+
 '<span style="flex:1;font-size:0.82rem;min-width:120px;">'+esc(a.name)+'</span>'+
 '<span style="font-size:0.7rem;color:'+badgeColor+';white-space:nowrap;">'+esc(badgeText)+'</span>'+
-'<button type="button" onclick="event.stopPropagation();openAttachPreview(\''+esc(previewUrl)+'\',\''+esc(a.name)+'\',\''+esc(a.expDateStr)+'\')" style="font-family:var(--font);font-size:0.74rem;font-weight:600;padding:5px 12px;border-radius:6px;border:1.5px solid var(--gold);background:transparent;color:var(--gold);cursor:pointer;white-space:nowrap;">👁 미리보기</button>'+
 '<a href="'+esc(downloadUrl)+'" target="_blank" onclick="return checkAttachExpiry(event,\''+esc(a.expDateStr)+'\')" style="font-family:var(--font);font-size:0.74rem;font-weight:600;padding:5px 12px;border-radius:6px;border:1.5px solid var(--border);background:var(--white);color:var(--text);cursor:pointer;text-decoration:none;white-space:nowrap;">⬇ 다운로드</a>'+
 '</div>';
 }).join('');
-}
-function openAttachPreview(url,name,expDateStr){
-var today=new Date(); today.setHours(0,0,0,0);
-var expDate=new Date(expDateStr); expDate.setHours(0,0,0,0);
-if(today>expDate){ showAlert('열람 기한이 만료된 파일입니다.\n보안상 이유로 더 이상 열람할 수 없습니다.',{title:'열람 기한 만료',icon:'⚠️'}); return; }
-document.getElementById('ref-modal-title').textContent = name + ' 미리보기';
-document.getElementById('ref-modal-tabs').style.display = 'none';
-document.getElementById('ref-modal-iframe').src = url;
-var notice = document.getElementById('preview-page-notice');
-if (notice) notice.style.display = 'none';
-document.getElementById('ref-modal-overlay').style.display = 'flex';
 }
 function checkAttachExpiry(e,expDateStr){var today=new Date(); today.setHours(0,0,0,0);var expDate=new Date(expDateStr); expDate.setHours(0,0,0,0);if(today>expDate){ e.preventDefault(); showAlert('열람 기한이 만료된 파일입니다.\n보안상 이유로 더 이상 열람할 수 없습니다.',{title:'열람 기한 만료',icon:'⚠️'}); return false; }return true;}
 function startInquiry() {
