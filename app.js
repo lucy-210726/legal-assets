@@ -594,14 +594,47 @@ var badgeColor=a.isExpired?'#e74c3c':'var(--text-muted)';
 if(a.isExpired){
 return '<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;margin-top:6px;background:var(--surface);border:1px solid var(--border);border-radius:8px;opacity:0.6;"><span>📄</span><span style="flex:1;font-size:0.82rem;">'+esc(a.name)+'</span><span style="font-size:0.7rem;color:'+badgeColor+';white-space:nowrap;">'+esc(badgeText)+'</span></div>';
 }
-var downloadUrl=a.fileId?'https://drive.google.com/uc?export=download&id='+a.fileId:a.url;
+var downloadBtn = a.fileId
+  ? '<button type="button" onclick="downloadInquiryFile(\''+esc(a.fileId)+'\',\''+esc(a.name)+'\',\''+esc(a.expDateStr)+'\',this)" style="font-family:var(--font);font-size:0.74rem;font-weight:600;padding:5px 12px;border-radius:6px;border:1.5px solid var(--border);background:var(--white);color:var(--text);cursor:pointer;white-space:nowrap;">⬇ 다운로드</button>'
+  : '<a href="'+esc(a.url)+'" target="_blank" onclick="return checkAttachExpiry(event,\''+esc(a.expDateStr)+'\')" style="font-family:var(--font);font-size:0.74rem;font-weight:600;padding:5px 12px;border-radius:6px;border:1.5px solid var(--border);background:var(--white);color:var(--text);cursor:pointer;text-decoration:none;white-space:nowrap;">⬇ 다운로드</a>';
 return '<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;margin-top:6px;background:var(--surface);border:1px solid var(--border);border-radius:8px;flex-wrap:wrap;">'+
 '<span>📄</span>'+
 '<span style="flex:1;font-size:0.82rem;min-width:120px;">'+esc(a.name)+'</span>'+
 '<span style="font-size:0.7rem;color:'+badgeColor+';white-space:nowrap;">'+esc(badgeText)+'</span>'+
-'<a href="'+esc(downloadUrl)+'" target="_blank" onclick="return checkAttachExpiry(event,\''+esc(a.expDateStr)+'\')" style="font-family:var(--font);font-size:0.74rem;font-weight:600;padding:5px 12px;border-radius:6px;border:1.5px solid var(--border);background:var(--white);color:var(--text);cursor:pointer;text-decoration:none;white-space:nowrap;">⬇ 다운로드</a>'+
+downloadBtn+
 '</div>';
 }).join('');
+}
+// 서버 프록시 다운로드: 이용자 계정으로 Drive에 직접 접근하지 않고
+// 서버(GAS)가 파일을 읽어 base64로 내려준 뒤 클라이언트가 Blob으로 저장.
+// (uc?export=download 직접 링크의 403/간헐 500 문제 회피)
+function downloadInquiryFile(fileId, name, expDateStr, btnEl){
+var today=new Date(); today.setHours(0,0,0,0);
+var expDate=new Date(expDateStr); expDate.setHours(0,0,0,0);
+if(today>expDate){ showAlert('열람 기한이 만료된 파일입니다.\n보안상 이유로 더 이상 열람할 수 없습니다.',{title:'열람 기한 만료',icon:'⚠️'}); return; }
+var origText = btnEl ? btnEl.textContent : '';
+if(btnEl){ btnEl.disabled=true; btnEl.textContent='다운로드 중...'; }
+google.script.run
+.withSuccessHandler(function(r){
+  if(btnEl){ btnEl.disabled=false; btnEl.textContent=origText; }
+  if(!r||!r.ok){ showAlert((r&&r.error)||'파일을 불러올 수 없습니다.',{title:'다운로드 실패',icon:'❌'}); return; }
+  try{
+    var byteChars=atob(r.base64), byteNums=new Array(byteChars.length);
+    for(var i=0;i<byteChars.length;i++){ byteNums[i]=byteChars.charCodeAt(i); }
+    var blob=new Blob([new Uint8Array(byteNums)],{type:r.mimeType||'application/octet-stream'});
+    var link=document.createElement('a');
+    link.href=URL.createObjectURL(blob);
+    link.download=name||r.fileName||'download';
+    document.body.appendChild(link); link.click();
+    document.body.removeChild(link);
+    setTimeout(function(){ URL.revokeObjectURL(link.href); },1000);
+  }catch(e){ showAlert('파일 저장 중 오류가 발생했습니다.\n'+(e.message||e),{title:'다운로드 실패',icon:'❌'}); }
+})
+.withFailureHandler(function(err){
+  if(btnEl){ btnEl.disabled=false; btnEl.textContent=origText; }
+  showAlert(err.message||String(err),{title:'다운로드 실패',icon:'❌'});
+})
+.downloadInquiryAttachment(fileId, window.SESSION_TOKEN);
 }
 function checkAttachExpiry(e,expDateStr){var today=new Date(); today.setHours(0,0,0,0);var expDate=new Date(expDateStr); expDate.setHours(0,0,0,0);if(today>expDate){ e.preventDefault(); showAlert('열람 기한이 만료된 파일입니다.\n보안상 이유로 더 이상 열람할 수 없습니다.',{title:'열람 기한 만료',icon:'⚠️'}); return false; }return true;}
 function startInquiry() {
