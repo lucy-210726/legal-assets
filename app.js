@@ -730,6 +730,20 @@ function koreanNameOnly(name) {
   return cleaned || name.trim();
 }
 
+// ── 현재 로그인 사용자가 해당 검토건의 진행자(담당자)인지 판별 ──
+//   이메일(assigneeEmail vs USER_EMAIL) 우선 비교.
+//   이메일이 없는 구버전 행은 이름(confirmedBy vs USER_NAME)으로 폴백.
+//   진행자가 아예 지정되지 않은 건은 true(기존처럼 작성 허용 — 서버에서도 미지정 시 통과).
+function isCurrentAssignee_(r) {
+  if (!r) return false;
+  var assigneeEmail = (r.assigneeEmail || '').trim().toLowerCase();
+  var myEmail = (USER_EMAIL || '').trim().toLowerCase();
+  if (assigneeEmail) return assigneeEmail === myEmail;
+  var assigneeName = koreanNameOnly(r.confirmedBy || '');
+  if (assigneeName) return assigneeName === koreanNameOnly(USER_NAME || '');
+  return true; // 진행자 미지정
+}
+
 // ── renderRevDetailPanel 확장 교체본 ──
 // 변경점: 파일 목록 로드, 상태별 액션 버튼, Proxy_Link 표시
 function renderRevDetailPanel() {
@@ -839,15 +853,40 @@ fileLink.onclick = function(e) {
   if (replySection) {
     if (isLegal && (isProgress || isReReviewing || isReplied || isAgreed)) {
       replySection.style.display = 'block';
-      var assigneeName = koreanNameOnly(r.confirmedBy || USER_NAME || '');
-      var requesterShort = koreanNameOnly(r.requesterName || '담당자');
-      var defaultTemplate = requesterShort + '님, 안녕하세요.\n법무실 ' + assigneeName + '입니다.\n\n\n\n감사합니다.\n' + assigneeName + ' 드림.';
-      document.getElementById('rev-reply-textarea').value = defaultTemplate;
+      // ── 진행자 본인만 회신 가능 ── (다른 담당자 명의 회신 방지)
+      //   이메일 우선 비교, 이메일이 없는 구버전 행은 이름(진행자)으로 폴백.
+      var isAssignee = isCurrentAssignee_(r);
       var ta = document.getElementById('rev-reply-textarea');
-      var cursorPos = defaultTemplate.indexOf('\n\n\n');
-      if (cursorPos >= 0) { ta.focus(); ta.setSelectionRange(cursorPos + 1, cursorPos + 1); }
-      _revReplyAttachFiles = [];
-      renderRevReplyAttachList();
+      var sendBtn = document.getElementById('rev-reply-send-btn');
+      var guardMsg = document.getElementById('rev-reply-guard-msg');
+      if (isAssignee) {
+        if (guardMsg) guardMsg.style.display = 'none';
+        if (ta) ta.disabled = false;
+        if (sendBtn) { sendBtn.disabled = false; sendBtn.title = ''; }
+        var assigneeName = koreanNameOnly(r.confirmedBy || USER_NAME || '');
+        var requesterShort = koreanNameOnly(r.requesterName || '담당자');
+        var defaultTemplate = requesterShort + '님, 안녕하세요.\n법무실 ' + assigneeName + '입니다.\n\n\n\n감사합니다.\n' + assigneeName + ' 드림.';
+        ta.value = defaultTemplate;
+        var cursorPos = defaultTemplate.indexOf('\n\n\n');
+        if (cursorPos >= 0) { ta.focus(); ta.setSelectionRange(cursorPos + 1, cursorPos + 1); }
+        _revReplyAttachFiles = [];
+        renderRevReplyAttachList();
+      } else {
+        // 진행자가 아니면 입력/발송 차단 + 안내 노출
+        var progressName = koreanNameOnly(r.confirmedBy || '') || (r.assigneeEmail || '');
+        if (!guardMsg) {
+          guardMsg = document.createElement('div');
+          guardMsg.id = 'rev-reply-guard-msg';
+          guardMsg.style.cssText = 'margin-bottom:12px;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;background:#fff8e1;color:#8a6d00;font-size:0.82rem;line-height:1.6;';
+          replySection.insertBefore(guardMsg, replySection.firstChild);
+        }
+        guardMsg.style.display = 'block';
+        guardMsg.innerHTML = '⚠️ 현재 진행자(<b>' + esc(progressName || '미지정') + '</b>)만 검토 의견을 회신할 수 있습니다.<br>본인이 진행하려면 위에서 <b>진행자를 본인으로 변경</b>한 후 작성해주세요.';
+        if (ta) { ta.value = ''; ta.disabled = true; }
+        if (sendBtn) { sendBtn.disabled = true; sendBtn.title = '현재 진행자만 회신할 수 있습니다.'; }
+        _revReplyAttachFiles = [];
+        renderRevReplyAttachList();
+      }
     } else { replySection.style.display = 'none'; }
   }
 
@@ -1428,6 +1467,12 @@ function clearRevReply() {
 
 function sendRevReply() {
   if (!_selectedRev) return;
+  // 진행자 본인만 회신 가능 (방어적 체크 — 서버에서도 재검증)
+  if (!isCurrentAssignee_(_selectedRev)) {
+    var pName = koreanNameOnly(_selectedRev.confirmedBy || '') || (_selectedRev.assigneeEmail || '미지정');
+    showAlert('현재 진행자(' + pName + ')만 검토 의견을 회신할 수 있습니다.\n진행자를 본인으로 변경한 후 다시 시도해주세요.', { title: '권한 없음', icon: '⚠️' });
+    return;
+  }
   var textarea = document.getElementById('rev-reply-textarea');
   var opinion = textarea ? textarea.value.trim() : '';
   if (!opinion) { showAlert('검토 의견을 입력해주세요.', { title: '입력 필요', icon: '⚠️' }); return; }
