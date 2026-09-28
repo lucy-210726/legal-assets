@@ -920,21 +920,12 @@ if (!revNextActionWrap) {
   if (revDetailBody) revDetailBody.appendChild(revNextActionWrap);
 }
 if (r.status === '검토완료' && r.nextAction) {
-  var actionUrl = '';
-  if (r.nextAction === '일반품의서' || r.nextAction === '전자계약품의') {
-    // 티그리스 결재화면. 로그인 상태면 결재화면이 바로 뜨고, 미로그인 시 연결되지 않음.
-    actionUrl = 'https://wf.tigrison.com/enovator/gswf/webpage/approvalmain/mainform.aspx';
-  } else if (r.nextAction === 'ERP 등록 및 계약등록/변경품의') {
-    var party = (r.contractParty || '').toUpperCase();
-    actionUrl = party === 'ADP'
-      ? 'https://igaworks.operations.dynamics.com/?cmp=adp&mi=defaultdashboard'
-      : 'https://igaworks.operations.dynamics.com/?cmp=IGA&mi=DefaultDashboard';
-  }
+  // 검토 관리(법무) 화면: 후속조치는 "표시 전용" — 버튼 모양으로 보여주되 클릭/이동 없음.
   revNextActionWrap.style.display = 'block';
   revNextActionWrap.innerHTML =
     '<div style="margin-top:16px;padding:16px;border:1.5px solid var(--gold);border-radius:12px;background:var(--gold-dim);">' +
     '<div style="font-family:var(--font);font-size:0.78rem;font-weight:700;color:var(--gold);margin-bottom:8px;">📋 후속 조치</div>' +
-    '<div style="font-size:0.85rem;color:var(--ink);">' + esc(r.nextAction) + '</div>' +
+    '<span class="btn btn-gold" style="display:inline-block;font-size:0.85rem;padding:10px 20px;cursor:default;pointer-events:none;">' + esc(r.nextAction) + '</span>' +
     '</div>';
 } else {
   revNextActionWrap.style.display = 'none';
@@ -3654,6 +3645,28 @@ window.addEventListener('beforeunload', function(e) {
 var _compareFileA = { source: null, fileId: null, name: '', file: null };
 var _compareFileB = { source: null, fileId: null, name: '', file: null };
 
+// AI 비교 지원 형식 판별 (PDF / Word만 지원, 엑셀·기타 제외)
+function isCompareSupportedFile_(name, mimeType) {
+  var n = String(name || '').toLowerCase();
+  var m = String(mimeType || '');
+  // 엑셀/스프레드시트는 명시적으로 제외
+  if (/\.xlsx?$/.test(n) ||
+      m === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+      m === 'application/vnd.ms-excel' ||
+      m === 'application/vnd.google-apps.spreadsheet') {
+    return false;
+  }
+  // PDF / Word / 구글 문서만 허용
+  if (/\.(pdf|docx?)$/.test(n)) return true;
+  if (m === 'application/pdf') return true;
+  if (m === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') return true;
+  if (m === 'application/msword' || m === 'application/haansoftdocx') return true;
+  if (m === 'application/vnd.google-apps.document') return true;
+  // mimeType이 없고 확장자로도 판별 불가하면 일단 허용(서버가 최종 검증)
+  if (!m && !/\.[a-z0-9]+$/.test(n)) return true;
+  return false;
+}
+
 function ensureCompareModal_() {
   if (document.getElementById('compare-modal-overlay')) return;
   var html =
@@ -3686,7 +3699,11 @@ function openCompareModal() {
   document.getElementById('compare-modal-foot').innerHTML = '';
   google.script.run
     .withSuccessHandler(function(result) {
-      window._revCompareFileOptions = (result && result.ok && result.files) ? result.files.map(function(f){ return { fileId: f.fileId, name: f.name }; }) : [];
+      var all = (result && result.ok && result.files) ? result.files : [];
+      // AI 비교 지원 형식(PDF/Word)만 목록에 노출. 엑셀/기타는 제외.
+      window._revCompareFileOptions = all
+        .filter(function(f){ return isCompareSupportedFile_(f.name, f.mimeType); })
+        .map(function(f){ return { fileId: f.fileId, name: f.name, mimeType: f.mimeType || '' }; });
       renderCompareSelectStep_();
     })
     .withFailureHandler(function() {
@@ -3738,7 +3755,7 @@ function setCompareMode(target, mode) {
   } else {
     area.innerHTML =
       '<label class="btn btn-ghost" for="cmp-' + target.toLowerCase() + '-input" style="display:inline-flex;align-items:center;gap:6px;font-size:0.78rem;padding:7px 16px;cursor:pointer;margin:0;">📎 파일 선택</label>' +
-      '<input type="file" id="cmp-' + target.toLowerCase() + '-input" accept=".docx,.pdf" style="display:none;" onchange="onCompareFileAttach(\'' + target + '\',this)">' +
+      '<input type="file" id="cmp-' + target.toLowerCase() + '-input" accept=".pdf,.doc,.docx" style="display:none;" onchange="onCompareFileAttach(\'' + target + '\',this)">' +
       '<div id="cmp-' + target.toLowerCase() + '-filename" style="font-size:0.75rem;color:var(--text-muted);margin-top:6px;">선택된 파일 없음</div>';
     (target === 'A' ? (_compareFileA = { source:'upload', fileId:null, name:'', file:null }) : (_compareFileB = { source:'upload', fileId:null, name:'', file:null }));
   }
@@ -3753,6 +3770,15 @@ function onCompareExistingSelect(target, sel) {
 function onCompareFileAttach(target, input) {
   var file = (input.files && input.files[0]) || null;
   var labelEl = document.getElementById('cmp-' + target.toLowerCase() + '-filename');
+  // 지원하지 않는 형식(엑셀 등)은 첨부 단계에서 차단
+  if (file && !isCompareSupportedFile_(file.name, file.type)) {
+    input.value = '';
+    if (labelEl) labelEl.textContent = '선택된 파일 없음';
+    var data0 = { source:'upload', fileId:null, name:'', file:null };
+    if (target === 'A') _compareFileA = data0; else _compareFileB = data0;
+    showAlert('AI 비교는 PDF 또는 Word 파일만 지원합니다. (엑셀 등은 선택할 수 없습니다)', { title: '지원하지 않는 형식', icon: '⚠️' });
+    return;
+  }
   if (labelEl) labelEl.textContent = file ? file.name : '선택된 파일 없음';
   var data = { source:'upload', fileId:null, name: file ? file.name : '', file: file };
   if (target === 'A') _compareFileA = data; else _compareFileB = data;
