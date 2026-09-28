@@ -2338,7 +2338,7 @@ function handleDeepLink() {
 // ════════════════════════════════════════════════════════════
 function initAuth() {
   // 1. 서버에서 이메일 잡힌 경우(사내 @igaworks.com) → 바로 통과
-  if (USER_EMAIL) return;
+  if (USER_EMAIL) { startAppAfterAuth_(); return; }
 
   // 2. 새로고침(F5) 대비: sessionStorage 에 세션 토큰이 있으면 서버에 복원 시도.
   //    ⚠️ 보안: 신뢰 근거는 여전히 '서버가 발급한 세션 토큰'이며, 서버 restoreSession
@@ -2468,6 +2468,9 @@ function applyLoginResult(result) {
   // 문의하기 이름/부서 자동채우기 갱신
   var nameEl = document.getElementById('inq-name');
   if (nameEl && USER_NAME) { nameEl.value = USER_NAME; nameEl.readOnly = true; }
+
+  // 로그인 확정(복원/로그인 성공) 후 앱 데이터 로드 + 딥링크 렌더
+  startAppAfterAuth_();
 }
 
 function showLoginError(msg) {
@@ -2758,10 +2761,20 @@ if (footerEl) footerEl.style.display = 'none';
 document.body.style.overflow   = 'hidden';
 document.body.style.background = '#0d1117';
 initSnapNav();
-loadDashboard();
-_dashInterval = setInterval(loadDashboard, 3 * 60 * 1000);
-handleDeepLink();
+// ⚠️ 보안: 로그인 확정 전에는 데이터를 불러오거나 화면에 그리지 않는다.
+//    (로그인 게이트 뒤로 목록/대시보드가 노출되던 문제 방지)
+//    실제 데이터 로드/딥링크 렌더는 startAppAfterAuth_() 에서 로그인 확정 후 1회만 실행.
 initAuth();
+
+// 로그인 확정(사내 자동통과 / 세션 복원 / 로그인 성공) 후 앱 데이터를 로드한다.
+var _appStarted = false;
+function startAppAfterAuth_() {
+  if (_appStarted) return;   // 중복 실행 방지
+  _appStarted = true;
+  loadDashboard();
+  _dashInterval = setInterval(loadDashboard, 3 * 60 * 1000);
+  handleDeepLink();
+}
 // ── 미리보기 ──
 async function previewCurrentContract() {
 if (!currentContract || !validateCurrentForm()) {
