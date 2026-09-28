@@ -922,7 +922,10 @@ if (!revNextActionWrap) {
 if (r.status === '검토완료' && r.nextAction) {
   var actionUrl = '';
   if (r.nextAction === '일반품의서' || r.nextAction === '전자계약품의') {
-    actionUrl = 'https://wf.tigrison.com/enovator/gswf/webpage/approvalmain/mainform.aspx';
+    // 티그리스는 외부 시스템이라 웹앱에서 로그인 여부를 알 수 없음.
+    // 로그인 홈으로 보내면, 미로그인 시 로그인 화면이 뜨고 로그인 상태면 홈이 열림
+    // (미로그인 상태로 내부 결재페이지 직접 접근 시 Logout.aspx 흰 화면 나던 문제 회피).
+    actionUrl = 'https://tigrison.com/home/';
   } else if (r.nextAction === 'ERP 등록 및 계약등록/변경품의') {
     var party = (r.contractParty || '').toUpperCase();
     actionUrl = party === 'ADP'
@@ -3161,7 +3164,10 @@ if (isReplied && canReReview) {
   if (r.status === '검토완료' && r.nextAction) {
     var actionUrl = '';
     if (r.nextAction === '일반품의서' || r.nextAction === '전자계약품의') {
-      actionUrl = 'https://wf.tigrison.com/enovator/gswf/webpage/approvalmain/mainform.aspx';
+      // 티그리스는 외부 시스템이라 웹앱에서 로그인 여부를 알 수 없음.
+    // 로그인 홈으로 보내면, 미로그인 시 로그인 화면이 뜨고 로그인 상태면 홈이 열림
+    // (미로그인 상태로 내부 결재페이지 직접 접근 시 Logout.aspx 흰 화면 나던 문제 회피).
+    actionUrl = 'https://tigrison.com/home/';
     } else if (r.nextAction === 'ERP 등록 및 계약등록/변경품의') {
       var party = (r.contractParty || '').toUpperCase();
       actionUrl = party === 'ADP'
