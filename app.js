@@ -922,10 +922,8 @@ if (!revNextActionWrap) {
 if (r.status === '검토완료' && r.nextAction) {
   var actionUrl = '';
   if (r.nextAction === '일반품의서' || r.nextAction === '전자계약품의') {
-    // 티그리스는 외부 시스템이라 웹앱에서 로그인 여부를 알 수 없음.
-    // 로그인 홈으로 보내면, 미로그인 시 로그인 화면이 뜨고 로그인 상태면 홈이 열림
-    // (미로그인 상태로 내부 결재페이지 직접 접근 시 Logout.aspx 흰 화면 나던 문제 회피).
-    actionUrl = 'https://tigrison.com/home/';
+    // 티그리스 결재화면. 로그인 상태면 결재화면이 바로 뜨고, 미로그인 시 연결되지 않음.
+    actionUrl = 'https://wf.tigrison.com/enovator/gswf/webpage/approvalmain/mainform.aspx';
   } else if (r.nextAction === 'ERP 등록 및 계약등록/변경품의') {
     var party = (r.contractParty || '').toUpperCase();
     actionUrl = party === 'ADP'
@@ -3176,11 +3174,12 @@ if (isReplied && canReReview) {
   }
   if (r.status === '검토완료' && r.nextAction) {
     var actionUrl = '';
+    var isTigris = false; // 티그리스 결재화면 연결 여부 (안내 문구 표시용)
     if (r.nextAction === '일반품의서' || r.nextAction === '전자계약품의') {
-      // 티그리스는 외부 시스템이라 웹앱에서 로그인 여부를 알 수 없음.
-    // 로그인 홈으로 보내면, 미로그인 시 로그인 화면이 뜨고 로그인 상태면 홈이 열림
-    // (미로그인 상태로 내부 결재페이지 직접 접근 시 Logout.aspx 흰 화면 나던 문제 회피).
-    actionUrl = 'https://tigrison.com/home/';
+      // 티그리스 결재화면으로 연결. 로그인돼 있으면 결재화면이 바로 뜨고,
+      // 로그인 안 돼 있으면 티그리스가 연결하지 않으므로 하단 안내 문구를 함께 표시.
+      actionUrl = 'https://wf.tigrison.com/enovator/gswf/webpage/approvalmain/mainform.aspx';
+      isTigris = true;
     } else if (r.nextAction === 'ERP 등록 및 계약등록/변경품의') {
       var party = (r.contractParty || '').toUpperCase();
       actionUrl = party === 'ADP'
@@ -3192,6 +3191,7 @@ if (isReplied && canReReview) {
       '<div style="margin-top:16px;padding:16px;border:1.5px solid var(--gold);border-radius:12px;background:var(--gold-dim);">' +
       '<div style="font-family:var(--font);font-size:0.78rem;font-weight:700;color:var(--gold);margin-bottom:8px;">📋 후속 조치</div>' +
       '<a href="' + actionUrl + '" target="_blank" class="btn btn-gold" style="display:inline-block;font-size:0.85rem;padding:10px 20px;text-decoration:none;">' + r.nextAction + ' 진행하기 →</a>' +
+      (isTigris ? '<div style="margin-top:10px;font-size:0.76rem;color:var(--text-muted);">※ 티그리스 로그인이 안 되어 있으면 연결되지 않습니다.</div>' : '') +
       '</div>';
   } else {
     nextActionWrap.style.display = 'none';
